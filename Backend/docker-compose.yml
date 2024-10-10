@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: IISBackend.API/Dockerfile
+    container_name: iis-backend-api
+    restart: "always"
+    ports:
+      - "127.0.0.1:8001:8080"
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+      ConnectionStrings__DefaultConnection: Server=db;Database=dev;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+
+
+  db:
+    restart: unless-stopped
+    container_name: iis-backend-dev-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+    volumes:
+      - my-volume:/var/opt/mssql
+
+
+volumes:
+  my-volume:
