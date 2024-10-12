@@ -134,3 +134,5 @@ _NCrunch*
 
 /Backend/.vs/*
 /Backend/.config/secret.env
+
+Backend/packages-microsoft-prod.deb

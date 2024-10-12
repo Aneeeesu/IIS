@@ -34,8 +34,8 @@ const AnimalPage = () => {
     try {
       const response = await axios.post(`${apiBaseUrl}`, {
         ...animal,
-        age: parseInt(animal.age),
-        sex: parseInt(animal.sex),
+        age: animal.age,
+        sex: animal.sex,
       });
       console.log('Animal saved with ID:', response.data);
       fetchAnimals();
@@ -83,8 +83,8 @@ const AnimalPage = () => {
             onChange={(e) => setNewAnimal({ ...newAnimal, sex: e.target.value })}
         >
             <option value="">Select sex</option>
-            <option value="0">Male</option>
-            <option value="1">Female</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
         </select>
         <button className="button" onClick={() => handleUpsertAnimal(newAnimal)}>
             {editingAnimal ? 'Update animal' : 'Add animal'}
