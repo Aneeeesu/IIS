@@ -6,8 +6,6 @@ using IISBackend.BL.Installers;
 using IISBackend.BL.Facades.Extensions;
 using IISBackend.DAL.Options;
 using IISBackend.DAL.Migrators;
-using System.Diagnostics;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +82,10 @@ void UseSecurityFeatures(IApplicationBuilder application)
 void ConfigureControllers(IServiceCollection serviceCollection)
 {
     serviceCollection.AddControllers()
-        .AddDataAnnotationsLocalization();
+        .AddDataAnnotationsLocalization()
+        .AddJsonOptions(configure =>
+            configure.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter())
+            );
 
     serviceCollection.AddCors(options =>
     {
