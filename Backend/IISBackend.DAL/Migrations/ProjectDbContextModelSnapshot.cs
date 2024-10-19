@@ -40,7 +40,7 @@ namespace IISBackend.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AnimalEntities");
+                    b.ToTable("AnimalEntities", (string)null);
                 });
 #pragma warning restore 612, 618
         }
