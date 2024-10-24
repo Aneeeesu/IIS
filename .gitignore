@@ -136,3 +136,4 @@ _NCrunch*
 /Backend/.config/secret.env
 
 Backend/packages-microsoft-prod.deb
+/.vs/IIS/v17
