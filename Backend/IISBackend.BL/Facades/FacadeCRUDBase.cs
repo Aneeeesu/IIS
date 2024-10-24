@@ -3,16 +3,17 @@ using AutoMapper;
 using IISBackend.DAL.Repositories;
 using IISBackend.DAL.UnitOfWork;
 using IISBackend.DAL.Entities;
-using IISBackend.BL.Models;
 using IISBackend.BL.Facades.Interfaces;
+using System.Security.Claims;
+using IISBackend.BL.Models.Interfaces;
 
 namespace IISBackend.BL.Facades;
 
-public abstract class FacadeBase<TEntity,TCreateModel, TListModel, TDetailModel>(
+public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailModel>(
         IUnitOfWorkFactory unitOfWorkFactory,
         IMapper modelMapper)
 
-    : IFacade<TEntity,TCreateModel, TListModel, TDetailModel>
+    : IFacadeCRUD<TEntity,TCreateModel, TListModel, TDetailModel>
     where TEntity : class, IEntity
     where TCreateModel : class, IModel
     where TListModel : class, IModel
@@ -67,7 +68,7 @@ public abstract class FacadeBase<TEntity,TCreateModel, TListModel, TDetailModel>
         return modelMapper.Map<List<TListModel>>(entities);
     }
 
-    public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model)
+    public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model, ClaimsPrincipal? userPrincipal = null)
     {
         TDetailModel result;
 

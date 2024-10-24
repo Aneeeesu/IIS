@@ -1,5 +1,5 @@
 using IISBackend.BL.Facades.Interfaces;
-using IISBackend.BL.Models;
+using IISBackend.BL.Models.Animal;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IISBackend.API.Controllers;
@@ -9,7 +9,6 @@ namespace IISBackend.API.Controllers;
 public class AnimalController : ControllerBase
 {
     private readonly IAnimalFacade _animalFacade;
-
     public AnimalController(IAnimalFacade animalFacade)
     {
         _animalFacade = animalFacade;

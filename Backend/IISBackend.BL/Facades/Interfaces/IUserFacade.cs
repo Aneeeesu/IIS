@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IISBackend.BL.Models.Animal;
+using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
 
 namespace IISBackend.BL.Facades.Interfaces
 {
-    public interface IAnimalFacade
-        : IFacadeCRUD<AnimalEntity,AnimalCreateModel, AnimalListModel, AnimalDetailModel>
+    public interface IUserFacade
+        : IFacadeCRUD<UserEntity, UserCreateModel, UserListModel, UserDetailModel>
     {
     }
 }

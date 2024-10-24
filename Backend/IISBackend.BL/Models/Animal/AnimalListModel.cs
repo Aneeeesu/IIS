@@ -1,4 +1,4 @@
-﻿namespace IISBackend.BL.Models;
+﻿namespace IISBackend.BL.Models.Animal;
 
 public record AnimalListModel : ModelBase
 {

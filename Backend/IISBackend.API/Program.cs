@@ -6,6 +6,11 @@ using IISBackend.BL.Installers;
 using IISBackend.BL.Facades.Extensions;
 using IISBackend.DAL.Options;
 using IISBackend.DAL.Migrators;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using IISBackend.DAL.Entities;
+using IISBackend.DAL;
+using Microsoft.AspNetCore.Identity.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +20,25 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Add services to the container.
 ConfigureControllers(builder.Services);
-ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Test"));
+ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Development"));
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = IdentityConstants.ApplicationScheme;
+    o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies(o => { });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -30,6 +47,7 @@ if (true/*app.Environment.IsDevelopment()*/)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.MapSwagger().RequireAuthorization();
 }
 
 UseSecurityFeatures(app);
@@ -37,8 +55,11 @@ UseSecurityFeatures(app);
 
 app.MapControllers();
 
-using var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+if (!app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+}
 app.Run();
 
 void ConfigureAutoMapper(IServiceCollection serviceCollection)
@@ -66,7 +87,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment
-    });
+    },o=>o.AddDefaultTokenProviders());
     //serviceCollection.AddInstaller<ApiDALEFInstaller>(connectionString ?? String.Empty, testEnvironment);
 
     serviceCollection.AddInstaller<ApiBLInstaller>();
@@ -75,6 +96,8 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
 void UseSecurityFeatures(IApplicationBuilder application)
 {
     application.UseCors();
+    application.UseAuthentication();
+    application.UseAuthorization();
 }
 
 
