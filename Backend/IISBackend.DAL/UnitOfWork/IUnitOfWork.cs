@@ -7,9 +7,9 @@ namespace IISBackend.DAL.UnitOfWork;
 
 public interface IUnitOfWork : IAsyncDisposable
 {
-    IRepository<TEntity> GetRepository<TEntity>(IMapper mapper)
+    IRepository<TEntity> GetRepository<TEntity>()
         where TEntity : class, IEntity;
 
-    UserManager<TUser> GetUserManager<TUser>() where TUser : IdentityUser<Guid>;
+    UserManager<UserEntity> GetUserManager();
     Task CommitAsync();
 }

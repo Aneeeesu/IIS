@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IISBackend.DAL.Authorization;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.Migrators;
 using IISBackend.DAL.Options;
@@ -28,29 +29,20 @@ public class ApiDALInstaller
         }
         else
         {
-            serviceCollection.AddDbContext<ProjectDbContext>(x => x.UseInMemoryDatabase("testdb")
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+            serviceCollection.AddDbContext<ProjectDbContext>(x => x.UseInMemoryDatabase("testdb"));
         }
         serviceCollection.AddSingleton<DALOptions>();
         serviceCollection.AddScoped<IDbMigrator, DbMigrator>();
-        if (identityBuilder == null)
-        {
-            serviceCollection.AddIdentityCore<UserEntity>(o =>
+
+        var builder = serviceCollection.AddIdentityCore<UserEntity>(o =>
             {
                 o.Stores.MaxLengthForKeys = 128;
-                o.SignIn.RequireConfirmedAccount = true;
+                o.SignIn.RequireConfirmedAccount = false;
             })
-            .AddEntityFrameworkStores<ProjectDbContext>();
-        }
-        else {
-            identityBuilder(
-                serviceCollection.AddIdentityCore<UserEntity>(o =>
-                {
-                    o.Stores.MaxLengthForKeys = 128;
-                    o.SignIn.RequireConfirmedAccount = true;
-                })
-                .AddEntityFrameworkStores<ProjectDbContext>()
-                );
+            .AddEntityFrameworkStores<ProjectDbContext>().AddUserStore<CustomUserStore>();
+        if (identityBuilder != null)
+        {
+            identityBuilder(builder);
         }
     }
 }

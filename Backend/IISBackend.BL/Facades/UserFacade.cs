@@ -12,45 +12,86 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace IISBackend.BL.Facades;
 
-public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationService _authService, IMapper _modelMapper) : FacadeCRUDBase<UserEntity, UserCreateModel, UserListModel, UserDetailModel>(_unitOfWorkFactory, _modelMapper), IUserFacade
+public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationService _authService, IMapper _modelMapper) : IUserFacade
 {
     //protected override ICollection<string> IncludesNavigationPathDetail =>
     //    new[] { $"{nameof(ActivityEntity.Subject)}", $"{nameof(ActivityEntity.Scores)}" };
 
-    public override async Task<UserDetailModel?> SaveAsync(UserCreateModel model, ClaimsPrincipal? userPrincipal = null)
+    // Always use paging in production
+    public async Task<List<UserDetailModel>> GetAsync()
     {
-        UserEntity entity = modelMapper.Map<UserEntity>(model);
-        UserDetailModel result;
+        await using IUnitOfWork uow = _unitOfWorkFactory.Create();
+        List<UserEntity> entities = await uow
+            .GetUserManager().Users
+            .ToListAsync().ConfigureAwait(false);
 
-        IUnitOfWork uow = UOWFactory.Create();
-        UserManager<UserEntity> UserManager = uow.GetUserManager<UserEntity>();
+        return _modelMapper.Map<List<UserDetailModel>>(entities);
+    }
 
-        var existingUser = await UserManager.Users.FirstOrDefaultAsync(e=>e.Id == entity.Id).ConfigureAwait(false);
+    public async Task<UserDetailModel?> CreateAsync(UserCreateModel model)
+    {
+        UserEntity entity = _modelMapper.Map<UserEntity>(model);
+        UserDetailModel? result = null;
+
+        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        UserManager<UserEntity> userManager = uow.GetUserManager();
+
+        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
+
+        if (existingUser != null)
+        {
+            throw new ArgumentException("UserId is already taken");
+
+        }
+        else
+        {
+            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+            var creationResult = await userManager.CreateAsync(entity, model.Password).ConfigureAwait(false);
+            if (!creationResult.Succeeded)
+            {
+                throw new ArgumentException(string.Join(Environment.NewLine, creationResult.Errors.Select(o => o.Description)));
+            }
+            result = _modelMapper.Map<UserDetailModel>(entity);
+        }
+        try
+        {
+            await uow.CommitAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("An error occurred while committing the transaction.", ex);
+        }
+        return result;
+    }
+
+    public async Task<UserDetailModel?> UpdateAsync(UserCreateModel model, ClaimsPrincipal? userPrincipal = null)
+    {
+        UserEntity entity = _modelMapper.Map<UserEntity>(model);
+        UserDetailModel? result = null;
+
+        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        UserManager<UserEntity> userManager = uow.GetUserManager();
+
+        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id).ConfigureAwait(false);
 
         // Check if the current user is trying to update their own profile
-        if (userPrincipal!=null && (await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAuthorPolicy")).Succeeded)
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
 
         if (existingUser != null)
         {
-            if ((await UserManager.UpdateAsync(entity).ConfigureAwait(false)).Succeeded)
+            _modelMapper.Map(entity, existingUser);
+            if ((await userManager.UpdateAsync(existingUser).ConfigureAwait(false)).Succeeded)
             {
-
-                UserEntity? updatedEntity = await UserManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
-                result = modelMapper.Map<UserDetailModel>(updatedEntity);
+                UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
+                result = _modelMapper.Map<UserDetailModel>(updatedEntity);
             }
         }
         else
         {
-            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
-            if ((await UserManager.CreateAsync(entity)).Succeeded)
-            {
-                UserEntity? insertedEntity = await UserManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
-                UserManager.AddPasswordAsync(insertedEntity, model.PasswordHash);
-                result = modelMapper.Map<UserDetailModel>(insertedEntity);
-            }
+            throw new ArgumentException("User not found");
         }
         try
         {

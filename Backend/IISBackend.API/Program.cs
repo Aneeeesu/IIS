@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,35 @@ builder.Services.AddAuthentication(o =>
 builder.Services.AddEndpointsApiExplorer();
 
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+    // Define security scheme for cookie-based authentication
+    c.AddSecurityDefinition("cookieAuth", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.ApiKey,
+        Name = "Cookie",
+        In = ParameterLocation.Header,
+        Description = "Cookie-based authentication using the Cookie header"
+    });
+
+    // Set up security requirements to apply globally
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "cookieAuth"
+                    }
+                },
+                new string[] { }
+            }
+        });
+});
 
 
 var app = builder.Build();
@@ -55,9 +84,10 @@ UseSecurityFeatures(app);
 
 app.MapControllers();
 
+using var scope = app.Services.CreateScope();
+var store = scope.ServiceProvider.GetRequiredService<IUserStore<UserEntity>>();
 if (!app.Environment.IsDevelopment())
 {
-    using var scope = app.Services.CreateScope();
     scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
 }
 app.Run();
@@ -86,9 +116,8 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     serviceCollection.AddInstaller<ApiDALInstaller>(new DALOptions
     {
         ConnectionString = connectionString ?? String.Empty,
-        TestEnvironment = testEnvironment
-    },o=>o.AddDefaultTokenProviders());
-    //serviceCollection.AddInstaller<ApiDALEFInstaller>(connectionString ?? String.Empty, testEnvironment);
+        TestEnvironment = testEnvironment,
+    }, o => o.AddDefaultTokenProviders().AddSignInManager<SignInManager<UserEntity>>());
 
     serviceCollection.AddInstaller<ApiBLInstaller>();
 }

@@ -29,7 +29,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         await using IUnitOfWork uow = UOWFactory.Create();
         try
         {
-            await uow.GetRepository<TEntity>(modelMapper).DeleteAsync(id).ConfigureAwait(false);
+            await uow.GetRepository<TEntity>().DeleteAsync(id).ConfigureAwait(false);
             await uow.CommitAsync().ConfigureAwait(false);
         }
         catch (DbUpdateException e)
@@ -42,7 +42,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     {
         await using IUnitOfWork uow = UOWFactory.Create();
 
-        IQueryable<TEntity> query = uow.GetRepository<TEntity>(modelMapper).Get();
+        IQueryable<TEntity> query = uow.GetRepository<TEntity>().Get();
 
         foreach (string includePath in IncludesNavigationPathDetail)
         {
@@ -61,7 +61,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     {
         await using IUnitOfWork uow = UOWFactory.Create();
         List<TEntity> entities = await uow
-            .GetRepository<TEntity>(modelMapper)
+            .GetRepository<TEntity>()
             .Get()
             .ToListAsync().ConfigureAwait(false);
 
@@ -75,7 +75,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         TEntity entity = modelMapper.Map<TEntity>(model);
 
         IUnitOfWork uow = UOWFactory.Create();
-        IRepository<TEntity> repository = uow.GetRepository<TEntity>(modelMapper);
+        IRepository<TEntity> repository = uow.GetRepository<TEntity>();
 
         if (await repository.ExistsAsync(entity).ConfigureAwait(false))
         {
