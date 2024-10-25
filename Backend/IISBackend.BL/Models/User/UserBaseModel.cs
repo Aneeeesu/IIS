@@ -5,5 +5,4 @@ namespace IISBackend.BL.Models.User;
 public record UserBaseModel : IModel
 {
     public Guid Id { get; init; }
-    public required string UserName { get; set; }
 }

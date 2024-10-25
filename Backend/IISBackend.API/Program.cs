@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(o =>
     o.DefaultScheme = IdentityConstants.ApplicationScheme;
     o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
-.AddIdentityCookies(o => { });
+.AddIdentityCookies(o => {});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

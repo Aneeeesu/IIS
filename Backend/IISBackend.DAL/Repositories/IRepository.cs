@@ -1,4 +1,4 @@
-﻿using IISBackend.DAL.Entities;
+﻿using IISBackend.DAL.Entities.Interfaces;
 
 namespace IISBackend.DAL.Repositories;
 

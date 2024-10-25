@@ -39,7 +39,9 @@ public class ApiDALInstaller
                 o.Stores.MaxLengthForKeys = 128;
                 o.SignIn.RequireConfirmedAccount = false;
             })
-            .AddEntityFrameworkStores<ProjectDbContext>().AddUserStore<CustomUserStore>();
+            .AddEntityFrameworkStores<ProjectDbContext>()
+            .AddUserStore<ProjectUserStore>()
+            .AddRoleStore<ProjectRoleStore>();
         if (identityBuilder != null)
         {
             identityBuilder(builder);

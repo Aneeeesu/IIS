@@ -12,6 +12,6 @@ namespace IISBackend.BL.Facades.Interfaces
     {
         Task<List<UserDetailModel>> GetAsync();
         Task<UserDetailModel?> CreateAsync(UserCreateModel model);
-        Task<UserDetailModel?> UpdateAsync(UserCreateModel model, ClaimsPrincipal? userPrincipal = null);
+        Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal? userPrincipal = null);
     }
 }

@@ -8,15 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Claims;
 
-namespace IISBackend.DAL.Authorization
-{
-    public class CustomUserStore : UserStore<UserEntity, IdentityRole<Guid>, ProjectDbContext, Guid>
-    {
-        public CustomUserStore(ProjectDbContext context)
-            : base(context)
-        {
-            AutoSaveChanges = false; // avoids autosave
-        }
-    }
+namespace IISBackend.DAL.Authorization;
 
+public class ProjectUserStore : UserStore<UserEntity, IdentityRole<Guid>, ProjectDbContext, Guid>
+{
+    public ProjectUserStore(ProjectDbContext context)
+        : base(context)
+    {
+        AutoSaveChanges = false; // avoids autosave
+    }
 }

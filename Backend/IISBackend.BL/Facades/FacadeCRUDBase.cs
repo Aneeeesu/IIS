@@ -2,10 +2,10 @@
 using AutoMapper;
 using IISBackend.DAL.Repositories;
 using IISBackend.DAL.UnitOfWork;
-using IISBackend.DAL.Entities;
 using IISBackend.BL.Facades.Interfaces;
 using System.Security.Claims;
 using IISBackend.BL.Models.Interfaces;
+using IISBackend.DAL.Entities.Interfaces;
 
 namespace IISBackend.BL.Facades;
 

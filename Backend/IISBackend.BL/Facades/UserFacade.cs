@@ -17,7 +17,6 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     //protected override ICollection<string> IncludesNavigationPathDetail =>
     //    new[] { $"{nameof(ActivityEntity.Subject)}", $"{nameof(ActivityEntity.Scores)}" };
 
-    // Always use paging in production
     public async Task<List<UserDetailModel>> GetAsync()
     {
         await using IUnitOfWork uow = _unitOfWorkFactory.Create();
@@ -64,7 +63,9 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         return result;
     }
 
-    public async Task<UserDetailModel?> UpdateAsync(UserCreateModel model, ClaimsPrincipal? userPrincipal = null)
+
+
+    public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal? userPrincipal = null)
     {
         UserEntity entity = _modelMapper.Map<UserEntity>(model);
         UserDetailModel? result = null;
@@ -73,7 +74,6 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
         var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id).ConfigureAwait(false);
-
         // Check if the current user is trying to update their own profile
         if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsOwnerPolicy")).Succeeded)
         {

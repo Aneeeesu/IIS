@@ -1,6 +1,7 @@
 ﻿using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace IISBackend.API.Controllers;
 
 [ApiController]
 [Route("Account")]
-public class AccountController(IUserFacade userFacade, SignInManager<UserEntity> signInManager) : ControllerBase
+public class AccountController(IUserFacade userFacade,UserManager<UserEntity> userMan, SignInManager<UserEntity> signInManager) : ControllerBase
 {
     private readonly IUserFacade _userFacade = userFacade;
     private readonly SignInManager<UserEntity> _signInManager = signInManager;
@@ -22,9 +23,11 @@ public class AccountController(IUserFacade userFacade, SignInManager<UserEntity>
     }
 
     [Authorize]
+    [AutoValidateAntiforgeryToken]
     [HttpPost("Logout")]
     public async Task Logout()
     {
+        await _signInManager.SignOutAsync();
     }
 
     [HttpPost("CreateUser")]
@@ -41,17 +44,21 @@ public class AccountController(IUserFacade userFacade, SignInManager<UserEntity>
     }
 
     [Authorize]
-    [AllowAnonymous]
+    [AutoValidateAntiforgeryToken]
     [HttpPut("UpdateUser")]
-    public async Task<ActionResult<UserDetailModel?>> UpdateUser(UserCreateModel model)
+    public async Task<ActionResult<UserDetailModel?>> UpdateUser(UserUpdateModel model)
     {
         try
         {
-            return Created($"/Account/GetUsers", await _userFacade.UpdateAsync(model,User));
+            return Ok(await _userFacade.UpdateAsync(model,User));
         }
         catch (ArgumentException e)
         {
             return BadRequest(e.Message);
+        }
+        catch(UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
         }
     }
 

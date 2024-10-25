@@ -12,5 +12,6 @@ public class UserMapperProfile : Profile
         CreateMap<UserEntity, UserDetailModel>();
 
         CreateMap<UserCreateModel, UserEntity>();
+        CreateMap<UserUpdateModel, UserEntity>();
     }
 }

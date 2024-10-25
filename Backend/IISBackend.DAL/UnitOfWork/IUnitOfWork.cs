@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using IISBackend.DAL.Entities;
+using IISBackend.DAL.Entities.Interfaces;
 using IISBackend.DAL.Repositories;
 using Microsoft.AspNetCore.Identity;
 
@@ -11,5 +12,6 @@ public interface IUnitOfWork : IAsyncDisposable
         where TEntity : class, IEntity;
 
     UserManager<UserEntity> GetUserManager();
+    RoleManager<IdentityRole<Guid>> GetRoleManager();
     Task CommitAsync();
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using AutoMapper;
 using IISBackend.Common.Enums;
+using IISBackend.DAL.Entities.Interfaces;
 
 namespace IISBackend.DAL.Entities;
 
