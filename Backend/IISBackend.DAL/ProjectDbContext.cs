@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 
 namespace IISBackend.DAL;
-public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbContext<UserEntity,IdentityRole<Guid>, Guid>(contextOptions)
+public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbContext<UserEntity,RoleEntity, Guid>(contextOptions)
 {
     public DbSet<AnimalEntity> AnimalEntities => Set<AnimalEntity>();
     public DbSet<ReservationRequestEntity> ReservationRequestEntities => Set<ReservationRequestEntity>();

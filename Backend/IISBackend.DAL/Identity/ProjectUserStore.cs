@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace IISBackend.DAL.Authorization;
 
-public class ProjectUserStore : UserStore<UserEntity, IdentityRole<Guid>, ProjectDbContext, Guid>
+public class ProjectUserStore : UserStore<UserEntity, RoleEntity, ProjectDbContext, Guid>
 {
     public ProjectUserStore(ProjectDbContext context)
         : base(context)
