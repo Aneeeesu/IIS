@@ -9,7 +9,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
     public DbSet<AnimalEntity> AnimalEntities => Set<AnimalEntity>();
     public DbSet<ReservationRequestEntity> ReservationRequestEntities => Set<ReservationRequestEntity>();
     public DbSet<VerificationRequest> VerificationRequests => Set<VerificationRequest>();
-    public DbSet<HealthRecordsEntity> HealthRecordsEntities => Set<HealthRecordsEntity>();
+    public DbSet<HealthRecordEntity> HealthRecordsEntities => Set<HealthRecordEntity>();
     public DbSet<ScheduleEntryEntity> ScheduleEntities => Set<ScheduleEntryEntity>();
 
 

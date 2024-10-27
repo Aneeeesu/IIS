@@ -41,9 +41,10 @@ public class ApiDALInstaller
             })
             .AddEntityFrameworkStores<ProjectDbContext>()
             .AddUserStore<ProjectUserStore>()
-            .AddRoles<IdentityRole<Guid>>()
+            .AddRoles<RoleEntity>()
             .AddRoleStore<ProjectRoleStore>()
-            .AddDefaultTokenProviders().AddSignInManager<SignInManager<UserEntity>>();
+            .AddDefaultTokenProviders()
+            .AddSignInManager<SignInManager<UserEntity>>();
 
         if (identityBuilder != null)
         {

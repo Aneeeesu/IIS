@@ -14,12 +14,12 @@ public record AnimalEntity : IEntity
     public Sex sex { get; set; }
     public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
     public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
-    public ICollection<HealthRecordsEntity>? HealthRecords { get; set; }
+    public ICollection<HealthRecordEntity>? HealthRecords { get; set; }
 }
 
-public class TestEntityMapperProfile : Profile
+public class AnimalEntityMapperProfile : Profile
 {
-    public TestEntityMapperProfile()
+    public AnimalEntityMapperProfile()
     {
         CreateMap<AnimalEntity, AnimalEntity>();
     }
