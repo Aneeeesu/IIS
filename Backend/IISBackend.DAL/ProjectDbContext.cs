@@ -16,8 +16,36 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<ReservationRequestEntity>().HasOne()
-        
+
+        modelBuilder.Entity<UserEntity>()
+            .HasMany(x => x.ReservationRequests)
+            .WithOne(x => x.Voluteer)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AnimalEntity>()
+            .HasMany(x => x.ReservationRequests )
+            .WithOne(x => x.Animal)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserEntity>()
+            .HasMany(x => x.ScheduleEntries)
+            .WithOne(x => x.Volunteer)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AnimalEntity>()
+            .HasMany(x => x.ScheduleEntries)
+            .WithOne(x => x.Animal)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AnimalEntity>()
+            .HasMany(x => x.HealthRecords)
+            .WithOne(x => x.Animal)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserEntity>()
+            .HasOne(x => x.VerificationRequest)
+            .WithOne(x => x.Requestee)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

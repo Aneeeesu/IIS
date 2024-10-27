@@ -23,7 +23,7 @@ public class AccountController(IUserFacade userFacade,UserManager<UserEntity> us
     }
 
     [Authorize]
-    [AutoValidateAntiforgeryToken]
+    //[AutoValidateAntiforgeryToken]
     [HttpPost("Logout")]
     public async Task Logout()
     {
@@ -44,7 +44,7 @@ public class AccountController(IUserFacade userFacade,UserManager<UserEntity> us
     }
 
     [Authorize]
-    [AutoValidateAntiforgeryToken]
+    //[AutoValidateAntiforgeryToken]
     [HttpPut("UpdateUser")]
     public async Task<ActionResult<UserDetailModel?>> UpdateUser(UserUpdateModel model)
     {

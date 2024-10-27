@@ -1,8 +1,10 @@
 using IISBackend.API.Authorization;
 using IISBackend.BL.Facades;
 using IISBackend.BL.Facades.Interfaces;
+using IISBackend.DAL.Entities;
 using IISBackend.DAL.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 

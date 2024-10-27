@@ -21,52 +21,24 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Add services to the container.
 ConfigureControllers(builder.Services);
-ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Development"));
+ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Test"));
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication();
 builder.Services.AddAuthentication(o =>
 {
     o.DefaultScheme = IdentityConstants.ApplicationScheme;
     o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
 .AddIdentityCookies(o => {});
+builder.Services.AddAuthorization();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-
-    // Define security scheme for cookie-based authentication
-    c.AddSecurityDefinition("cookieAuth", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.ApiKey,
-        Name = "Cookie",
-        In = ParameterLocation.Header,
-        Description = "Cookie-based authentication using the Cookie header"
-    });
-
-    // Set up security requirements to apply globally
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "cookieAuth"
-                    }
-                },
-                new string[] { }
-            }
-        });
-});
+builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
@@ -117,7 +89,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment,
-    }, o => o.AddDefaultTokenProviders().AddSignInManager<SignInManager<UserEntity>>());
+    });
 
     serviceCollection.AddInstaller<ApiBLInstaller>();
 }

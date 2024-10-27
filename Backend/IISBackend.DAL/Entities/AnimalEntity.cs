@@ -12,8 +12,9 @@ public record AnimalEntity : IEntity
     public required string Name { get; set; }
     public int age { get; set; }
     public Sex sex { get; set; }
-
-    //public 
+    public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
+    public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
+    public ICollection<HealthRecordsEntity>? HealthRecords { get; set; }
 }
 
 public class TestEntityMapperProfile : Profile
