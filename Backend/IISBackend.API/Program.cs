@@ -7,11 +7,8 @@ using IISBackend.BL.Facades.Extensions;
 using IISBackend.DAL.Options;
 using IISBackend.DAL.Migrators;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using IISBackend.DAL.Entities;
-using IISBackend.DAL;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.OpenApi.Models;
+using IISBackend.DAL.Seeds;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +22,30 @@ ConfigureDependencies(builder.Services, builder.Configuration, builder.Environme
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
-builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(o =>
 {
     o.DefaultScheme = IdentityConstants.ApplicationScheme;
     o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
-.AddIdentityCookies(o => {});
+.AddIdentityCookies(o => {
+    o.ApplicationCookie?.Configure(options =>
+        {
+            options.Events.OnRedirectToLogin = context =>
+            {
+                // Instead of redirecting to login, return 403
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                // Instead of redirecting to access denied page, return 403
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+        });
+    });
+
 builder.Services.AddAuthorization();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -58,9 +72,10 @@ app.MapControllers();
 
 using var scope = app.Services.CreateScope();
 var store = scope.ServiceProvider.GetRequiredService<IUserStore<UserEntity>>();
-if (!app.Environment.IsDevelopment())
+if (true)
 {
     scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+    scope.ServiceProvider.GetRequiredService<DBSeeder>().Seed(app.Configuration.GetValue<string>("DefaultAdminPassword")??throw new NullReferenceException("Missing admin password in configuration"));
 }
 app.Run();
 
@@ -89,7 +104,9 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment,
+        RecreateDatabase = true,
     });
+    serviceCollection.AddScoped<DBSeeder>();
 
     serviceCollection.AddInstaller<ApiBLInstaller>();
 }

@@ -9,30 +9,43 @@ using IISBackend.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using IISBackend.BL.Models.User;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+
 
 namespace IISBackend.BL.Facades;
 
 public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationService _authService, IMapper _modelMapper) : IUserFacade
 {
-    //protected override ICollection<string> IncludesNavigationPathDetail =>
-    //    new[] { $"{nameof(ActivityEntity.Subject)}", $"{nameof(ActivityEntity.Scores)}" };
 
-    public async Task<List<UserDetailModel>> GetAsync()
+    public async Task<UserDetailModel?> GetUserByIdAsync(Guid id)
+    {
+        await using IUnitOfWork uow = _unitOfWorkFactory.Create();
+        UserEntity? entity = await uow.GetUserManager().FindByIdAsync(id.ToString()).ConfigureAwait(false);
+        if (entity == null)
+        {
+            return null;
+        }
+        UserDetailModel model = _modelMapper.Map<UserDetailModel>(entity);
+        model.Roles = await uow.GetUserManager().GetRolesAsync(entity);
+        return model;
+    }
+
+    public async Task<List<UserListModel>> GetAsync()
     {
         await using IUnitOfWork uow = _unitOfWorkFactory.Create();
         List<UserEntity> entities = await uow
             .GetUserManager().Users
             .ToListAsync().ConfigureAwait(false);
 
-        return _modelMapper.Map<List<UserDetailModel>>(entities);
+        return _modelMapper.Map<List<UserListModel>>(entities);
     }
 
-    public async Task<UserDetailModel?> CreateAsync(UserCreateModel model)
+    public async Task<UserDetailModel?> CreateAsync(UserCreateModel model,string? roleName = null)
     {
         UserEntity entity = _modelMapper.Map<UserEntity>(model);
         UserDetailModel? result = null;
 
-        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        ITransactionalUnitOfWork uow = _unitOfWorkFactory.CreateTransactional();
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
         var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
@@ -44,10 +57,19 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         }
         else
         {
-            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
             var creationResult = await userManager.CreateAsync(entity, model.Password).ConfigureAwait(false);
+            await uow.SaveChangesAsync();
+
+            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+            if (roleName!=null)
+            {
+                await userManager.AddToRoleAsync(entity, roleName);
+                await uow.SaveChangesAsync();
+            }
+
             if (!creationResult.Succeeded)
             {
+                await uow.RevertChangesAsync();
                 throw new ArgumentException(string.Join(Environment.NewLine, creationResult.Errors.Select(o => o.Description)));
             }
             result = _modelMapper.Map<UserDetailModel>(entity);
@@ -58,6 +80,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         }
         catch (Exception ex)
         {
+            await uow.RevertChangesAsync();
             throw new InvalidOperationException("An error occurred while committing the transaction.", ex);
         }
         return result;
@@ -92,6 +115,33 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         else
         {
             throw new ArgumentException("User not found");
+        }
+        try
+        {
+            await uow.CommitAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            return null;
+        }
+        return result;
+    }
+
+
+    public async Task<UserDetailModel?> DeleteAsync(Guid id)
+    {
+        UserDetailModel? result = null;
+
+        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        UserManager<UserEntity> userManager = uow.GetUserManager();
+
+        UserEntity? entity = await userManager.FindByIdAsync(id.ToString()).ConfigureAwait(false);
+        if (entity != null)
+        {
+            if ((await userManager.DeleteAsync(entity).ConfigureAwait(false)).Succeeded)
+            {
+                result = _modelMapper.Map<UserDetailModel>(entity);
+            }
         }
         try
         {

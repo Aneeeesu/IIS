@@ -1,17 +1,18 @@
 ﻿using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Crud;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace IISBackend.API.Controllers;
 
 [ApiController]
 [Route("Account")]
-public class AccountController(IUserFacade userFacade,UserManager<UserEntity> userMan, SignInManager<UserEntity> signInManager) : ControllerBase
+public class AuthController(IUserFacade userFacade,UserManager<UserEntity> userMan, SignInManager<UserEntity> signInManager) : ControllerBase
 {
     private readonly IUserFacade _userFacade = userFacade;
     private readonly SignInManager<UserEntity> _signInManager = signInManager;
@@ -30,7 +31,7 @@ public class AccountController(IUserFacade userFacade,UserManager<UserEntity> us
         await _signInManager.SignOutAsync();
     }
 
-    [HttpPost("CreateUser")]
+    [HttpPost("Register")]
     public async Task<ActionResult<UserDetailModel?>> CreateUser(UserCreateModel model)
     {
         try
@@ -38,38 +39,6 @@ public class AccountController(IUserFacade userFacade,UserManager<UserEntity> us
             return Created($"/Account/GetUsers", await _userFacade.CreateAsync(model));
         }
         catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-
-    [Authorize]
-    //[AutoValidateAntiforgeryToken]
-    [HttpPut("UpdateUser")]
-    public async Task<ActionResult<UserDetailModel?>> UpdateUser(UserUpdateModel model)
-    {
-        try
-        {
-            return Ok(await _userFacade.UpdateAsync(model,User));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch(UnauthorizedAccessException e)
-        {
-            return Unauthorized(e.Message);
-        }
-    }
-
-    [HttpGet("GetUsers")]
-    public async Task<ActionResult<List<UserDetailModel>>> GetUsers()
-    {
-        try
-        {
-            return Ok(await _userFacade.GetAsync());
-        }
-        catch(ArgumentException e)
         {
             return BadRequest(e.Message);
         }

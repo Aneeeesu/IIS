@@ -39,6 +39,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\IISBackend.BL\IISBackend.BL.csproj" />
+      <ProjectReference Include="..\IISBackend.DAL.Seeds\IISBackend.DAL.Seeds.csproj" />
       <ProjectReference Include="..\IISBackend.DAL\IISBackend.DAL.csproj" />
     </ItemGroup>
 

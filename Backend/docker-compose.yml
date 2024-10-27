@@ -25,8 +25,8 @@ services:
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
     volumes:
-      - my-volume:/var/opt/mssql
+      - iis-backend-volume:/var/opt/mssql
 
 
 volumes:
-  my-volume:
+  iis-backend-volume:

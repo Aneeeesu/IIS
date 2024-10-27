@@ -13,6 +13,9 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
     public DbSet<ScheduleEntryEntity> ScheduleEntities => Set<ScheduleEntryEntity>();
 
 
+    public bool IsSeeded() => !(Users.Count() == 0) && !(Roles.Count() == 0);
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -46,6 +49,5 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
             .HasOne(x => x.VerificationRequest)
             .WithOne(x => x.Requestee)
             .OnDelete(DeleteBehavior.Cascade);
-
     }
 }

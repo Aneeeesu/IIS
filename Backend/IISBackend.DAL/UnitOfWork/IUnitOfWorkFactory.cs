@@ -3,4 +3,5 @@
 public interface IUnitOfWorkFactory
 {
     IUnitOfWork Create();
+    ITransactionalUnitOfWork CreateTransactional();
 }

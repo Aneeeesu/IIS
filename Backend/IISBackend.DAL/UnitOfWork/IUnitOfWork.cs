@@ -12,6 +12,5 @@ public interface IUnitOfWork : IAsyncDisposable
         where TEntity : class, IEntity;
 
     UserManager<UserEntity> GetUserManager();
-    RoleManager<RoleEntity> GetRoleManager();
     Task CommitAsync();
 }

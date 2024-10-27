@@ -31,7 +31,7 @@ public class ApiDALInstaller
         {
             serviceCollection.AddDbContext<ProjectDbContext>(x => x.UseInMemoryDatabase("testdb"));
         }
-        serviceCollection.AddSingleton<DALOptions>();
+        serviceCollection.AddSingleton<DALOptions>(dalOptions);
         serviceCollection.AddScoped<IDbMigrator, DbMigrator>();
 
         var builder = serviceCollection.AddIdentityCore<UserEntity>(o =>
