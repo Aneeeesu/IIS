@@ -3,6 +3,6 @@
 public enum Status
 {
     Pending,
-    Accepted,
+    Approved,
     Rejected
 }

@@ -86,7 +86,7 @@ namespace IISBackend.DAL.Migrations
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("VoluteerId")
+                    b.Property<Guid>("VolunteerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("status")
@@ -96,7 +96,7 @@ namespace IISBackend.DAL.Migrations
 
                     b.HasIndex("AnimalId");
 
-                    b.HasIndex("VoluteerId");
+                    b.HasIndex("VolunteerId");
 
                     b.ToTable("ReservationRequestEntities");
                 });
@@ -371,15 +371,15 @@ namespace IISBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "Voluteer")
+                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "Volunteer")
                         .WithMany("ReservationRequests")
-                        .HasForeignKey("VoluteerId")
+                        .HasForeignKey("VolunteerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Animal");
 
-                    b.Navigation("Voluteer");
+                    b.Navigation("Volunteer");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.ScheduleEntryEntity", b =>

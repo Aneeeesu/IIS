@@ -43,7 +43,7 @@ namespace IISBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    VoluteerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VolunteerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AnimalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime2", nullable: false),
                     status = table.Column<int>(type: "int", nullable: false)
@@ -58,8 +58,8 @@ namespace IISBackend.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ReservationRequestEntities_AspNetUsers_VoluteerId",
-                        column: x => x.VoluteerId,
+                        name: "FK_ReservationRequestEntities_AspNetUsers_VolunteerId",
+                        column: x => x.VolunteerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -125,9 +125,9 @@ namespace IISBackend.DAL.Migrations
                 column: "AnimalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReservationRequestEntities_VoluteerId",
+                name: "IX_ReservationRequestEntities_VolunteerId",
                 table: "ReservationRequestEntities",
-                column: "VoluteerId");
+                column: "VolunteerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScheduleEntities_AnimalId",

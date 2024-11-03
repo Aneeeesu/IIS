@@ -19,7 +19,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<UserEntity>()
             .HasMany(x => x.ReservationRequests)
-            .WithOne(x => x.Voluteer)
+            .WithOne(x => x.Volunteer)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AnimalEntity>()
