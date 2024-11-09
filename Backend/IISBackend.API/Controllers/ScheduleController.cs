@@ -18,7 +18,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ScheduleDetailModel>>> GetAll()
+    public async Task<ActionResult<List<ScheduleListModel>>> GetAll()
     {
         return Ok(await _scheduleFacade.GetAsync());
     }
@@ -34,6 +34,27 @@ public class ScheduleController : ControllerBase
         }
 
         return NotFound();
+    }
+
+    [HttpPost("")]
+    [Authorize(Roles= "Admin,Vet")]
+    public async Task<ActionResult<ScheduleDetailModel?>> Create(ScheduleCreateModel schedule)
+    {
+        try
+        {
+            var model = await _scheduleFacade.CreateAsync(schedule);
+            if (model is not null)
+            {
+                return Ok(model);
+            }
+            else {
+                return BadRequest("Schedule not created");
+            }
+        }
+        catch(ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
 

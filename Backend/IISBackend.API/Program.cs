@@ -104,7 +104,6 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment,
-        RecreateDatabase = true,
     });
     serviceCollection.AddScoped<DBSeeder>();
 
