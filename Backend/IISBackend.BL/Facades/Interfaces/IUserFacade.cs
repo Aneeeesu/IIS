@@ -15,6 +15,6 @@ namespace IISBackend.BL.Facades.Interfaces
         Task<UserDetailModel?> GetUserByIdAsync(Guid id);
         Task<UserDetailModel?> CreateAsync(UserCreateModel model,string? roleName = null);
         Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal? userPrincipal = null);
-        Task<UserDetailModel?> DeleteAsync(Guid id);
+        Task<UserDetailModel?> DeleteAsync(Guid id, ClaimsPrincipal? userPrincipal = null);
     }
 }

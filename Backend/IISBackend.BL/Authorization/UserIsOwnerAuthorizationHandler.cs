@@ -1,22 +1,28 @@
-﻿using IISBackend.BL.Models.User;
-using IISBackend.DAL.Entities;
+﻿using ITUBackend.API.Entities;
+using ITUBackend.API.Entities.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using System.Security.Claims;
 
-namespace IISBackend.API.Authorization;
+namespace ITUBackend.API.Authorization;
 
-public class UserIsOwnerAuthorizationHandler : AuthorizationHandler<UserIsOwnerRequirement, UserEntity>
+public class UserIsOwnerAuthorizationHandler : AuthorizationHandler<UserIsOwnerRequirement, IUserAuthorized>
 {
     protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         UserIsOwnerRequirement requirement,
-        UserEntity resource)
+        IUserAuthorized resource)
     {
-        if (context.User.Identity?.Name == resource.UserName)
+        var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim != null && Guid.TryParse(userIdClaim, out var userId))
         {
-            context.Succeed(requirement);
+            // Compare the claim user ID with the resource's OwnerId
+            if (userId == resource.GetOwnerID())  // Assuming OwnerId is a Guid on IUserOwnable
+            {
+                context.Succeed(requirement);
+            }
         }
+
         return Task.CompletedTask;
     }
 }

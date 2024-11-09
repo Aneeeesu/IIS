@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace IISBackend.API.Authorization;
+namespace ITUBackend.API.Authorization;
 
 public class UserIsOwnerRequirement : IAuthorizationRequirement { }

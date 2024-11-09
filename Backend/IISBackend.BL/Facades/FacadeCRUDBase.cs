@@ -6,6 +6,9 @@ using IISBackend.BL.Facades.Interfaces;
 using System.Security.Claims;
 using IISBackend.BL.Models.Interfaces;
 using IISBackend.DAL.Entities.Interfaces;
+using ITUBackend.API.Entities.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using ITUBackend.API.Authorization;
 
 namespace IISBackend.BL.Facades;
 
@@ -20,13 +23,13 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     where TDetailModel : class, IModel
 {
     protected readonly IMapper modelMapper = modelMapper;
-    protected readonly IUnitOfWorkFactory UOWFactory = unitOfWorkFactory;
+    protected readonly IUnitOfWorkFactory _UOWFactory = unitOfWorkFactory;
 
     protected virtual ICollection<string> IncludesNavigationPathDetail => new List<string>();
 
     public async Task DeleteAsync(Guid id)
     {
-        await using IUnitOfWork uow = UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
         try
         {
             await uow.GetRepository<TEntity>().DeleteAsync(id).ConfigureAwait(false);
@@ -40,7 +43,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
 
     public virtual async Task<TDetailModel?> GetAsync(Guid id)
     {
-        await using IUnitOfWork uow = UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
 
         IQueryable<TEntity> query = uow.GetRepository<TEntity>().Get();
 
@@ -59,7 +62,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     // Always use paging in production
     public virtual async Task<IEnumerable<TListModel>> GetAsync()
     {
-        await using IUnitOfWork uow = UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
         List<TEntity> entities = await uow
             .GetRepository<TEntity>()
             .Get()
@@ -68,13 +71,54 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         return modelMapper.Map<List<TListModel>>(entities);
     }
 
-    public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model, ClaimsPrincipal? userPrincipal = null)
+
+    public virtual async Task<TDetailModel?> CreateAsync(TCreateModel model)
+    {
+        TEntity entity = modelMapper.Map<TEntity>(model);
+
+        IUnitOfWork uow = _UOWFactory.Create();
+        entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+        TEntity insertedEntity = uow.GetRepository<TEntity>().Insert(entity);
+
+        try
+        {
+            await uow.CommitAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            return null;
+        }
+
+        return modelMapper.Map<TDetailModel>(insertedEntity);
+    }
+
+    public virtual async Task<TDetailModel?> UpdateAsync(TCreateModel model)
+    {
+        TEntity entity = modelMapper.Map<TEntity>(model);
+
+        IUnitOfWork uow = _UOWFactory.Create();
+
+        TEntity updatedEntity = await uow.GetRepository<TEntity>().UpdateAsync(entity).ConfigureAwait(false);
+
+        try
+        {
+            await uow.CommitAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            return null;
+        }
+
+        return modelMapper.Map<TDetailModel>(updatedEntity);
+    }
+
+    public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model)
     {
         TDetailModel result;
 
         TEntity entity = modelMapper.Map<TEntity>(model);
 
-        IUnitOfWork uow = UOWFactory.Create();
+        IUnitOfWork uow = _UOWFactory.Create();
         IRepository<TEntity> repository = uow.GetRepository<TEntity>();
 
         if (await repository.ExistsAsync(entity).ConfigureAwait(false))

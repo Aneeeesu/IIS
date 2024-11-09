@@ -40,7 +40,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         return _modelMapper.Map<List<UserListModel>>(entities);
     }
 
-    public async Task<UserDetailModel?> CreateAsync(UserCreateModel model,string? roleName = null)
+    public async Task<UserDetailModel?> CreateAsync(UserCreateModel model, string? roleName = null)
     {
         UserEntity entity = _modelMapper.Map<UserEntity>(model);
         UserDetailModel? result = null;
@@ -61,7 +61,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             await uow.SaveChangesAsync();
 
             entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
-            if (roleName!=null)
+            if (roleName != null)
             {
                 await userManager.AddToRoleAsync(entity, roleName);
                 await uow.SaveChangesAsync();
@@ -97,25 +97,26 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
         var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id).ConfigureAwait(false);
+        if (existingUser == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+
         // Check if the current user is trying to update their own profile
-        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsOwnerPolicy")).Succeeded)
+        if (userPrincipal == null ||
+            (!(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded) && !await userManager.IsInRoleAsync(existingUser, "Admin"))
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
 
-        if (existingUser != null)
+
+        _modelMapper.Map(entity, existingUser);
+        if ((await userManager.UpdateAsync(existingUser).ConfigureAwait(false)).Succeeded)
         {
-            _modelMapper.Map(entity, existingUser);
-            if ((await userManager.UpdateAsync(existingUser).ConfigureAwait(false)).Succeeded)
-            {
-                UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
-                result = _modelMapper.Map<UserDetailModel>(updatedEntity);
-            }
+            UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
+            result = _modelMapper.Map<UserDetailModel>(updatedEntity);
         }
-        else
-        {
-            throw new ArgumentException("User not found");
-        }
+
         try
         {
             await uow.CommitAsync().ConfigureAwait(false);
@@ -128,21 +129,32 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     }
 
 
-    public async Task<UserDetailModel?> DeleteAsync(Guid id)
+    public async Task<UserDetailModel?> DeleteAsync(Guid id, ClaimsPrincipal? userPrincipal = null)
     {
         UserDetailModel? result = null;
 
         IUnitOfWork uow = _unitOfWorkFactory.Create();
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
-        UserEntity? entity = await userManager.FindByIdAsync(id.ToString()).ConfigureAwait(false);
-        if (entity != null)
+        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
+        if (existingUser == null)
         {
-            if ((await userManager.DeleteAsync(entity).ConfigureAwait(false)).Succeeded)
-            {
-                result = _modelMapper.Map<UserDetailModel>(entity);
-            }
+            throw new ArgumentException("User not found");
         }
+
+        // Check if the current user is trying to update their own profile
+        if (userPrincipal == null ||
+            !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded || await userManager.IsInRoleAsync(existingUser,"Admin"))
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
+
+
+        if ((await userManager.DeleteAsync(existingUser).ConfigureAwait(false)).Succeeded)
+        {
+            result = _modelMapper.Map<UserDetailModel>(existingUser);
+        }
+
         try
         {
             await uow.CommitAsync().ConfigureAwait(false);
