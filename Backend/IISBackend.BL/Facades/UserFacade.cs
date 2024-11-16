@@ -16,6 +16,42 @@ namespace IISBackend.BL.Facades;
 
 public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationService _authService, IMapper _modelMapper) : IUserFacade
 {
+    public async Task<SignInResult> Login(string name, string password)
+    {
+        await using IUnitOfWork uow = _unitOfWorkFactory.Create();
+        var signInManager = uow.GetSignInManager();
+        var user = await uow.GetUserManager().FindByNameAsync(name);
+        if (user == null)
+        {
+            return SignInResult.Failed;
+        }
+
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, password, false);
+
+        if (!signInResult.Succeeded)
+        {
+            return signInResult;
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // User ID
+        };
+
+        await signInManager.SignInWithClaimsAsync(user, false, claims);
+        return signInResult;
+    }
+
+    public async Task Logout()
+    {
+        await using IUnitOfWork uow = _unitOfWorkFactory.Create();
+        var signInManager = uow.GetSignInManager();
+        await signInManager.SignOutAsync();
+    }
+
+    public Guid? GetCurrentUserGuid(ClaimsPrincipal user) {
+        return user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => Guid.Parse(c.Value)).FirstOrDefault();
+    }
 
     public async Task<UserDetailModel?> GetUserByIdAsync(Guid id)
     {
@@ -88,7 +124,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
 
 
 
-    public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal? userPrincipal = null)
+    public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal userPrincipal)
     {
         UserEntity entity = _modelMapper.Map<UserEntity>(model);
         UserDetailModel? result = null;
@@ -103,8 +139,11 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         }
 
         // Check if the current user is trying to update their own profile
-        if (userPrincipal == null ||
-            (!(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded) && !await userManager.IsInRoleAsync(existingUser, "Admin"))
+        userPrincipal = userPrincipal ?? throw new UnauthorizedAccessException("User is not authorized");
+        UserEntity? requestingUser = await userManager.GetUserAsync(userPrincipal) ?? throw new UnauthorizedAccessException("User is not authorized");
+
+
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
@@ -129,7 +168,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     }
 
 
-    public async Task<UserDetailModel?> DeleteAsync(Guid id, ClaimsPrincipal? userPrincipal = null)
+    public async Task<UserDetailModel?> DeleteAsync(Guid id, ClaimsPrincipal userPrincipal)
     {
         UserDetailModel? result = null;
 
@@ -143,8 +182,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         }
 
         // Check if the current user is trying to update their own profile
-        if (userPrincipal == null ||
-            !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded || await userManager.IsInRoleAsync(existingUser,"Admin"))
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }

@@ -63,12 +63,16 @@ public class UserController(IUserFacade userFacade) : ControllerBase
     {
         try
         {
-            await _userFacade.DeleteAsync(userId);
+            await _userFacade.DeleteAsync(userId,User);
             return Ok();
         }
-        catch
+        catch (UnauthorizedAccessException e)
         {
-            return NotFound("ID not found in database");
+            return Unauthorized(e.Message);
+        }
+        catch (Exception e)
+        {
+            return NotFound(e.Message);
         }
     }
 }

@@ -12,15 +12,13 @@ namespace IISBackend.API.Controllers;
 
 [ApiController]
 [Route("Account")]
-public class AuthController(IUserFacade userFacade,UserManager<UserEntity> userMan, SignInManager<UserEntity> signInManager) : ControllerBase
+public class AuthController(IUserFacade userFacade) : ControllerBase
 {
-    private readonly IUserFacade _userFacade = userFacade;
-    private readonly SignInManager<UserEntity> _signInManager = signInManager;
 
     [HttpPost("Login")]
     public async Task<SignInResult> Login(string name,string password)
     {
-        return await _signInManager.PasswordSignInAsync(name, password, false, false);
+        return await userFacade.Login(name, password);
     }
 
     [Authorize]
@@ -28,7 +26,14 @@ public class AuthController(IUserFacade userFacade,UserManager<UserEntity> userM
     [HttpPost("Logout")]
     public async Task Logout()
     {
-        await _signInManager.SignOutAsync();
+        await userFacade.Logout();
+    }
+
+    [Authorize]
+    [HttpGet("GetUserID")]
+    public Guid? GetUserID()
+    {
+        return userFacade.GetCurrentUserGuid(User);
     }
 
     [HttpPost("Register")]
@@ -36,7 +41,7 @@ public class AuthController(IUserFacade userFacade,UserManager<UserEntity> userM
     {
         try
         {
-            return Created($"/Account/GetUsers", await _userFacade.CreateAsync(model));
+            return Created($"/Account/GetUsers", await userFacade.CreateAsync(model));
         }
         catch (ArgumentException e)
         {

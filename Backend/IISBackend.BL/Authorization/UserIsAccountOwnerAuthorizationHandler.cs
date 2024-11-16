@@ -17,6 +17,14 @@ public class UserIsAccountOwnerAuthorizationHandler : AuthorizationHandler<UserI
         {
             context.Succeed(requirement);
         }
+        else if (context.User.IsInRole("Admin")) // Admins can do anything
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
         return Task.CompletedTask;
     }
 }

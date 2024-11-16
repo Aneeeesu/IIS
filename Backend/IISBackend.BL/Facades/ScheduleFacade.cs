@@ -28,6 +28,10 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         await using IUnitOfWork uow = _UOWFactory.Create();
 
         var user = await uow.GetUserManager().GetUserAsync(userPrincipal);
+        if(user == null)
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
 
 
         UserManager<UserEntity> userManager = uow.GetUserManager();
@@ -39,8 +43,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         }
 
         // Check if the current user is trying to update their own profile
-        if (userPrincipal == null ||
-            (!(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsOwnerPolicy")).Succeeded && !(await userManager.GetRolesAsync(existingUser)).Any(s=>s=="Admin"|| s=="Vet")))
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }

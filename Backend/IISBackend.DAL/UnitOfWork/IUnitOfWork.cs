@@ -13,4 +13,5 @@ public interface IUnitOfWork : IAsyncDisposable
 
     UserManager<UserEntity> GetUserManager();
     Task CommitAsync();
+    SignInManager<UserEntity> GetSignInManager();
 }

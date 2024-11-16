@@ -25,7 +25,7 @@ public class ApiDALInstaller
 
         if (!dalOptions.TestEnvironment)
         {
-            serviceCollection.AddDbContext<ProjectDbContext>(options => options.UseSqlServer(dalOptions.ConnectionString));
+            serviceCollection.AddDbContext<ProjectDbContext>(x=>x.UseMySQL(dalOptions.ConnectionString));
         }
         else
         {
