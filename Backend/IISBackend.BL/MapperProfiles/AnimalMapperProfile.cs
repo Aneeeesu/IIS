@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using IISBackend.BL.Models;
+using IISBackend.BL.Models.Animal;
 using IISBackend.DAL.Entities;
 
 namespace IISBackend.BL.MapperProfiles;
 
-public class TestMapperProfile : Profile
+public class AnimalMapperProfile : Profile
 {
-    public TestMapperProfile()
+    public AnimalMapperProfile()
     {
         CreateMap<AnimalEntity, AnimalListModel>();
         CreateMap<AnimalEntity, AnimalDetailModel>();

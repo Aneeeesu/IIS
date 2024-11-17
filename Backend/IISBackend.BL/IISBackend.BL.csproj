@@ -8,12 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.10" />
     <PackageReference Include="Scrutor" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IISBackend.Common\IISBackend.Common.csproj" />
     <ProjectReference Include="..\IISBackend.DAL\IISBackend.DAL.csproj" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
   </ItemGroup>
 
 </Project>

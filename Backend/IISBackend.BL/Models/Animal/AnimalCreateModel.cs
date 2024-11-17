@@ -1,6 +1,6 @@
 ﻿using IISBackend.Common.Enums;
 
-namespace IISBackend.BL.Models;
+namespace IISBackend.BL.Models.Animal;
 
 public record AnimalCreateModel : ModelBase
 {

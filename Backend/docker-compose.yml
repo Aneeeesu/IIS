@@ -11,22 +11,25 @@ services:
     depends_on:
       - db
     environment:
+      DefaultAdminPassword: ${ADMIN_PASSWORD}
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
-      ConnectionStrings__DefaultConnection: Server=db;Database=dev;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      ConnectionStrings__DefaultConnection: Server=db;Port=1433;Database=db;Uid=${MYSQL_USER};Pwd=${MYSQL_PASSWORD}
 
 
   db:
-    restart: unless-stopped
+    image: "mysql"
     container_name: iis-backend-dev-db
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    ports:
-      - "1433:1433"
-    environment:
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
-      ACCEPT_EULA: "Y"
     volumes:
-      - my-volume:/var/opt/mssql
+      - iis-backend-volume:/var/opt/mssql
+    ports:
+      - "127.0.0.1:1433:3306"
+    environment:
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: db
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
 
 volumes:
-  my-volume:
+  iis-backend-volume:

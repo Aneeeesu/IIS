@@ -6,6 +6,9 @@ using IISBackend.BL.Installers;
 using IISBackend.BL.Facades.Extensions;
 using IISBackend.DAL.Options;
 using IISBackend.DAL.Migrators;
+using Microsoft.AspNetCore.Identity;
+using IISBackend.DAL.Entities;
+using IISBackend.DAL.Seeds;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +22,38 @@ ConfigureDependencies(builder.Services, builder.Configuration, builder.Environme
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultScheme = IdentityConstants.ApplicationScheme;
+    o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies(o => {
+    o.ApplicationCookie?.Configure(options =>
+        {
+            options.Events.OnRedirectToLogin = context =>
+            {
+                // Instead of redirecting to login, return 403
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                // Instead of redirecting to access denied page, return 403
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+        });
+    });
+
+builder.Services.AddAuthorization();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -30,6 +62,7 @@ if (true/*app.Environment.IsDevelopment()*/)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.MapSwagger().RequireAuthorization();
 }
 
 UseSecurityFeatures(app);
@@ -38,7 +71,12 @@ UseSecurityFeatures(app);
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+var store = scope.ServiceProvider.GetRequiredService<IUserStore<UserEntity>>();
+if (true)
+{
+    scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+    scope.ServiceProvider.GetRequiredService<DBSeeder>().Seed(app.Configuration.GetValue<string>("DefaultAdminPassword")??throw new NullReferenceException("Missing admin password in configuration"));
+}
 app.Run();
 
 void ConfigureAutoMapper(IServiceCollection serviceCollection)
@@ -65,9 +103,9 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     serviceCollection.AddInstaller<ApiDALInstaller>(new DALOptions
     {
         ConnectionString = connectionString ?? String.Empty,
-        TestEnvironment = testEnvironment
+        TestEnvironment = testEnvironment,
     });
-    //serviceCollection.AddInstaller<ApiDALEFInstaller>(connectionString ?? String.Empty, testEnvironment);
+    serviceCollection.AddScoped<DBSeeder>();
 
     serviceCollection.AddInstaller<ApiBLInstaller>();
 }
@@ -75,6 +113,8 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
 void UseSecurityFeatures(IApplicationBuilder application)
 {
     application.UseCors();
+    application.UseAuthentication();
+    application.UseAuthorization();
 }
 
 
@@ -87,12 +127,16 @@ void ConfigureControllers(IServiceCollection serviceCollection)
             configure.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter())
             );
 
-    serviceCollection.AddCors(options =>
+    builder.Services.AddCors(options =>
     {
-        options.AddDefaultPolicy(options =>
-            options.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod());
+        options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins("http://localhost:3000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            }
+        );
     });
 
 }

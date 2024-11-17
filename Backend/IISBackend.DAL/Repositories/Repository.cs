@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using IISBackend.DAL.Entities;
+using IISBackend.DAL.Entities.Interfaces;
 
 namespace IISBackend.DAL.Repositories;
 
@@ -12,7 +12,7 @@ public class Repository<TEntity>(
 {
     private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
-    public IQueryable<TEntity> Get() => _dbSet;
+    public IQueryable<TEntity> Get() => _dbSet.AsNoTracking();
 
     public async ValueTask<bool> ExistsAsync(TEntity entity)
         => await _dbSet.AnyAsync(e => e.Id == entity.Id).ConfigureAwait(false);

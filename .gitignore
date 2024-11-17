@@ -136,3 +136,7 @@ _NCrunch*
 /Backend/.config/secret.env
 
 Backend/packages-microsoft-prod.deb
+/.vs/IIS/v17
+/.vs/IIS/v17/.wsuo
+/.vs/IIS/v17/DocumentLayout.json
+/.vs/VSWorkspaceState.json
