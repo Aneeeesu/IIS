@@ -28,6 +28,12 @@ const Header = () => {
                 <Link to="/" className="nav-logo">
                     Animal Shelter
                 </Link>
+                {user && (
+                    <span className="user-info">
+                        Logged in as {user.userName} ({user.roles.join(', ')})
+                    </span>
+                )}
+
                 <div className="nav-links">
                     <Link to="/" className="nav-link">Home</Link>
                     <Link to="/animals" className="nav-link">Animals</Link>
@@ -37,9 +43,11 @@ const Header = () => {
                             <Link to="/signup" className="nav-link">Sign Up</Link>
                         </>
                     ) : (
-                        <button onClick={handleLogout} className="logout-btn">
-                            Logout
-                        </button>
+                        <>
+                            <button onClick={handleLogout} className="logout-btn">
+                                Logout
+                            </button>
+                        </>
                     )}
                 </div>
             </nav>

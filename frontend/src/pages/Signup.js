@@ -8,16 +8,17 @@ const Signup = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const history = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password });
-      localStorage.setItem('authToken', response.data.token);
-      history.push('/animals');
+      await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password });
+      history('/login');
     } catch (error) {
       console.error('Error signing up:', error);
+      setErrorMessage(error.response?.data || 'Error signing up. Please try again.');
     }
   };
 
@@ -25,6 +26,8 @@ const Signup = () => {
     <div className="container">
       <h2>Sign Up</h2>
       <form className="form" onSubmit={handleSignup}>
+        {errorMessage && <p className="error">{errorMessage}</p>}
+
         <label>
           User Name:
           <input type="text" className="input" value={userName} onChange={(e) => setUserName(e.target.value)} />

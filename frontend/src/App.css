@@ -186,3 +186,9 @@
 .buttonContainer {
   display: flex;
 }
+
+.user-info {
+  margin-right: 1rem;
+  color: #666;
+  font-weight: 500;
+}
