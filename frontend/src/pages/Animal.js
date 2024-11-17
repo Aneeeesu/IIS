@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../App.css';
+import AnimalList from '../components/AnimalList';
+import AnimalEditForm from '../components/AnimalEditForm';
+import AnimalDetailSearch from '../components/AnimalDetailSearch';
 import { API_BASE_URL } from '../config';
+import '../App.css';
 
 const Animal = () => {
   const [animals, setAnimals] = useState([]);
@@ -52,84 +55,34 @@ const Animal = () => {
     }
   };
 
+  const handleEditClick = (animal) => {
+    setEditingAnimal(animal);
+    setNewAnimal(animal);
+  };
+
   return (
     <div className="container">
       <h1>Animal Management</h1>
-      <ul className="animalList">
-        {animals.map(animal => (
-          <div key={animal.id} className="animalItem">
-            <p>Name: {animal.name}</p>
-            <p>Age: {animal.age}</p>
-            <p>Sex: {animal.sex}</p>
-            <div className="animalActions">
-              <button
-                className="editButton"
-                onClick={() => {
-                  setEditingAnimal(animal);
-                  setNewAnimal(animal);
-                }}
-              >
-                Edit
-              </button>
-              <button className="deleteButton" onClick={() => deleteAnimal(animal.id)}>
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </ul>
+      <AnimalList 
+        animals={animals}
+        onEdit={handleEditClick}
+        onDelete={deleteAnimal}
+      />
 
       {editingAnimal && (
-        <div>
-          <h2>Edit Animal</h2>
-          <input
-            type="text"
-            placeholder="Name"
-            className="input"
-            value={newAnimal.name}
-            onChange={(e) => setNewAnimal({ ...newAnimal, name: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Age"
-            className="input"
-            value={newAnimal.age}
-            onChange={(e) => setNewAnimal({ ...newAnimal, age: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Sex"
-            className="input"
-            value={newAnimal.sex}
-            onChange={(e) => setNewAnimal({ ...newAnimal, sex: e.target.value })}
-          />
-          <button className="button" onClick={handleEditAnimal}>
-            Save
-          </button>
-        </div>
+        <AnimalEditForm
+          animal={newAnimal}
+          onChange={setNewAnimal}
+          onSave={handleEditAnimal}
+        />
       )}
 
-      <div>
-        <h2>Get animal by ID</h2>
-        <input
-          type="text"
-          placeholder="Animal ID"
-          className="input"
-          value={animalId}
-          onChange={(e) => setAnimalId(e.target.value)}
-        />
-        <button className="button" onClick={fetchAnimalById}>
-          Fetch animal
-        </button>
-        {animalDetails && (
-          <div className="animalDetail">
-            <h3>Animal details</h3>
-            <p>Name: {animalDetails.name}</p>
-            <p>Age: {animalDetails.age}</p>
-            <p>Sex: {animalDetails.sex}</p>
-          </div>
-        )}
-      </div>
+      <AnimalDetailSearch
+        animalId={animalId}
+        onIdChange={setAnimalId}
+        onSearch={fetchAnimalById}
+        animalDetails={animalDetails}
+      />
     </div>
   );
 };
