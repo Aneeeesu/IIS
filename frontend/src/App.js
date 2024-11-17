@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './config';
 import Animal from './pages/Animal';
+import AnimalDetails from './pages/AnimalDetails';
 import Signup from './pages/Signup';
 import Main from './pages/Main';
 import Login from './pages/Login';
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/animals" element={<Animal />} />
+          <Route path="/animals/:id" element={<AnimalDetails />} />
         </Routes>
       </Router>
     </AuthProvider>
