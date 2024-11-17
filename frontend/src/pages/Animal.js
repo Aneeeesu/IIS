@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../App.css';
+import { API_BASE_URL } from '../config';
 
 const Animal = () => {
   const [animals, setAnimals] = useState([]);
@@ -12,7 +13,7 @@ const Animal = () => {
   useEffect(() => {
     const fetchAnimals = async () => {
       try {
-        const response = await axios.get('http://localhost:8001/Animal');
+        const response = await axios.get(`${API_BASE_URL}/Animal`);
         setAnimals(response.data);
       } catch (error) {
         console.error('Error fetching animals:', error);
@@ -24,7 +25,7 @@ const Animal = () => {
 
   const fetchAnimalById = async () => {
     try {
-      const response = await axios.get(`http://localhost:8001/Animal/${animalId}`);
+      const response = await axios.get(`${API_BASE_URL}/Animal/${animalId}`);
       setAnimalDetails(response.data);
     } catch (error) {
       console.error('Error fetching animal by ID:', error);
@@ -33,7 +34,7 @@ const Animal = () => {
 
   const deleteAnimal = async (id) => {
     try {
-      await axios.delete(`http://localhost:8001/Animal/${id}`);
+      await axios.delete(`${API_BASE_URL}/Animal/${id}`);
       setAnimals(animals.filter(animal => animal.id !== id));
     } catch (error) {
       console.error('Error deleting animal:', error);
@@ -42,7 +43,7 @@ const Animal = () => {
 
   const handleEditAnimal = async () => {
     try {
-      await axios.put(`http://localhost:8001/Animal/${editingAnimal.id}`, newAnimal);
+      await axios.put(`${API_BASE_URL}/Animal/${editingAnimal.id}`, newAnimal);
       setAnimals(animals.map(animal => (animal.id === editingAnimal.id ? newAnimal : animal)));
       setEditingAnimal(null);
       setNewAnimal({ name: '', age: '', sex: '' });

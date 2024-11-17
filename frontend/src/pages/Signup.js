@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import '../App.css';
 
 const Signup = () => {
@@ -12,7 +13,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8001/Account/Register', { userName, email, password });
+      const response = await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password });
       localStorage.setItem('authToken', response.data.token);
       history.push('/animals');
     } catch (error) {

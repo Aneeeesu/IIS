@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const Header = ({ authToken, setAuthToken }) => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:5181/Account/Logout', {}, {
+            await axios.post(`${API_BASE_URL}/Account/Logout`, {}, {
                 withCredentials: true
             });
             
