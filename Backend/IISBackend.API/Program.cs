@@ -127,12 +127,16 @@ void ConfigureControllers(IServiceCollection serviceCollection)
             configure.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter())
             );
 
-    serviceCollection.AddCors(options =>
+    builder.Services.AddCors(options =>
     {
-        options.AddDefaultPolicy(options =>
-            options.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod());
+        options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins("http://localhost:3000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            }
+        );
     });
 
 }
