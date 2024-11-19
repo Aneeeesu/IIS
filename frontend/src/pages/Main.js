@@ -44,6 +44,14 @@ const Main = () => {
           </button>
         </div>
       )}
+      {user && user.roles.includes('Admin') && (
+        <button 
+          className="button"
+          onClick={() => navigate('/admin/users')}
+        >
+          Manage Users
+        </button>
+      )}
 
       <div className="animalList">
         <h2>Available Animals</h2>

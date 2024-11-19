@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './config';
 import Animal from './pages/Animal';
 import AnimalDetails from './pages/AnimalDetails';
+import UserManagement from './pages/UserManagement';
 import Signup from './pages/Signup';
 import Main from './pages/Main';
 import Login from './pages/Login';
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/animals" element={<Animal />} />
           <Route path="/animals/:id" element={<AnimalDetails />} />
+          <Route path="/admin/users" element={<UserManagement />} />
         </Routes>
       </Router>
     </AuthProvider>
