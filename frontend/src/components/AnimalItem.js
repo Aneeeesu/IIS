@@ -11,12 +11,10 @@ const AnimalItem = ({ animal, onEdit, onDelete }) => {
 
   return (
     <div className="animalItem" onClick={handleClick} style={{ cursor: 'pointer' }}>
-      <p>Name: {animal.name}</p>
-      <p>Age: {animal.age}</p>
-      <p>Sex: {animal.sex}</p>
+      <p>{animal.name}</p>
       <div className="animalActions" onClick={e => e.stopPropagation()}>
         <button
-          className="editButton"
+          className="button"
           onClick={() => onEdit(animal)}
         >
           Edit

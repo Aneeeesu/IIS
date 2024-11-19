@@ -10,9 +10,13 @@ const UserManagement = () => {
   const [newUser, setNewUser] = useState({
     userName: '',
     email: '',
-    password: ''
+    password: '',
+    roles: []
   });
-  const [userType, setUserType] = useState('caretaker');
+  const availableRoles = ['Caregiver', 'Vet'];
+
+  const [editingUser, setEditingUser] = useState(null);
+  const [editingRoles, setEditingRoles] = useState([]);
 
   useEffect(() => {
     fetchUsers();
@@ -28,8 +32,10 @@ const UserManagement = () => {
           return userDetailResponse.data;
         })
       );
+
+      const filteredUsers = detailedUsers.filter(user => !user.roles.includes('Admin'));
       
-      setUsers(detailedUsers);
+      setUsers(filteredUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -38,10 +44,9 @@ const UserManagement = () => {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = userType === 'vet' ? 'users/vets' : 'users/caretakers';
-      await axios.post(`${API_BASE_URL}/${endpoint}`, newUser);
+      await axios.post(`${API_BASE_URL}/users/${newUser.roles[0]}`, newUser);
       fetchUsers();
-      setNewUser({ userName: '', email: '', password: '' });
+      setNewUser({ userName: '', email: '', password: '', roles: [] });
     } catch (error) {
       console.error('Error creating user:', error);
     }
@@ -56,6 +61,37 @@ const UserManagement = () => {
     }
   };
 
+  const handleEditRoles = async (userId) => {
+    try {
+      const payload = {
+        id: userId,
+        email: editingUser.email,
+        roles: editingRoles
+      };
+      await axios.put(`${API_BASE_URL}/users`, payload);
+      fetchUsers();
+      setEditingUser(null);
+      setEditingRoles([]);
+    } catch (error) {
+      console.error('Error editing roles:', error);
+    }
+  };
+
+  const handleRoleChange = (role) => {
+    setEditingRoles([role]);
+  };
+
+  const handleNewUserRoleChange = (role) => {
+    setNewUser((prevUser) => ({
+      ...prevUser,
+      roles: [role]
+    }));
+  };
+
+  if (!user || !user.roles.includes('Admin')) {
+    return <h1>Unauthorized</h1>;
+  }
+  
   return (
     <div className="container">
       <h1>User Management</h1>
@@ -63,15 +99,6 @@ const UserManagement = () => {
       <div className="create-user-section">
         <h2>Create New User</h2>
         <form onSubmit={handleCreateUser} className="form">
-          <select 
-            className="select"
-            value={userType}
-            onChange={(e) => setUserType(e.target.value)}
-          >
-            <option value="caretaker">Caretaker</option>
-            <option value="vet">Veterinarian</option>
-          </select>
-          
           <input
             type="text"
             placeholder="Username"
@@ -95,6 +122,19 @@ const UserManagement = () => {
             value={newUser.password}
             onChange={(e) => setNewUser({...newUser, password: e.target.value})}
           />
+
+          <div className="roles-section">
+            {availableRoles.map((role) => (
+              <div key={role} className="role-checkbox">
+                <input
+                  type="radio"
+                  checked={newUser.roles.includes(role)}
+                  onChange={() => handleNewUserRoleChange(role)}
+                />
+                <label>{role}</label>
+              </div>
+            ))}
+          </div>
           
           <button type="submit" className="button">Create User</button>
         </form>
@@ -102,22 +142,53 @@ const UserManagement = () => {
 
       <div className="users-list">
         <h2>Users</h2>
-            {users.map(user => (
-                <div key={user.id} className="userItem">
-                    <div>
-                    <p><strong>{user.userName}</strong></p>
-                    <p>{user.email}</p>
-                    <p>Roles: {user.roles.join(', ')}</p>
-                    </div>
-                    <button 
-                    className="deleteButton"
-                    onClick={() => handleDeleteUser(user.id)}
-                    >
-                    Delete
-                    </button>
-                </div>
-                ))}
+        {users.map(user => (
+          <div key={user.id} className="userItem">
+            <div>
+              <p><strong>{user.userName}</strong></p>
+              <p>{user.email}</p>
+              <p>Roles: {user.roles.join(', ')}</p>
+            </div>
+            <button 
+              className="button"
+              onClick={() => {
+                setEditingUser(user);
+                setEditingRoles(user.roles);
+              }}
+            >
+              Edit Roles
+            </button>
+            <button 
+              className="deleteButton"
+              onClick={() => handleDeleteUser(user.id)}
+            >
+              Delete
+            </button>
+          </div>
+        ))} 
       </div>
+
+      {editingUser && (
+        <div className="edit-roles-section">
+          <h2>Edit roles for {editingUser.userName}</h2>
+          {availableRoles.map((role) => (
+            <div key={role} className="role-checkbox">
+              <input
+                type="radio"
+                checked={editingRoles.includes(role)}
+                onChange={() => handleRoleChange(role)}
+              />
+              <label>{role}</label>
+            </div>
+          ))}
+          <button
+            className="button"
+            onClick={() => handleEditRoles(editingUser.id)}
+          >
+            Save Roles
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import "../App.css";
 
 const AnimalEditForm = ({ animal, onChange, onSave }) => {
   return (

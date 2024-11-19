@@ -26,7 +26,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/animals" element={<Animal />} />
           <Route path="/animals/:id" element={<AnimalDetails />} />
-          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin" element={<UserManagement />} />
         </Routes>
       </Router>
     </AuthProvider>

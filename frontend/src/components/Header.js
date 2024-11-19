@@ -35,8 +35,6 @@ const Header = () => {
                 )}
 
                 <div className="nav-links">
-                    <Link to="/" className="nav-link">Home</Link>
-                    <Link to="/animals" className="nav-link">Animals</Link>
                     {!user ? (
                         <>
                             <Link to="/login" className="nav-link">Login</Link>

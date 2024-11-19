@@ -35,19 +35,17 @@ const Main = () => {
       )}
       
       {user && user.roles.includes('Caregiver') && (
-        <div className="animal-management-section">
-          <button 
-            className="button"
-            onClick={() => navigate('/animals')}
-          >
-            Manage Animals
-          </button>
-        </div>
+        <button 
+          className="button"
+          onClick={() => navigate('/animals')}
+        >
+          Manage Animals
+        </button>
       )}
       {user && user.roles.includes('Admin') && (
         <button 
           className="button"
-          onClick={() => navigate('/admin/users')}
+          onClick={() => navigate('/admin')}
         >
           Manage Users
         </button>

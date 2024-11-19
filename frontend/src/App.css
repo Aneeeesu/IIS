@@ -27,6 +27,7 @@
 /* Buttons */
 .button {
   padding: 10px;
+  margin: 10px;
   background-color: #28a745;
   color: #fff;
   border: none;
@@ -182,13 +183,22 @@
   color: #28a745;
 }
 
-/* Utility Classes */
-.buttonContainer {
-  display: flex;
-}
-
 .user-info {
   margin-right: 1rem;
   color: #666;
   font-weight: 500;
+}
+
+.roles-section {
+  margin: 10px 0;
+}
+
+.role-checkbox {
+  margin-right: 15px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.role-checkbox input {
+  margin-right: 5px;
 }
