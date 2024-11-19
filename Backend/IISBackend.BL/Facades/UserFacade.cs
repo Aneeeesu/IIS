@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using IISBackend.BL.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using System.Data;
 
 
 namespace IISBackend.BL.Facades;
@@ -49,7 +50,8 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         await signInManager.SignOutAsync();
     }
 
-    public Guid? GetCurrentUserGuid(ClaimsPrincipal user) {
+    public Guid? GetCurrentUserGuid(ClaimsPrincipal user)
+    {
         return user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => Guid.Parse(c.Value)).FirstOrDefault();
     }
 
@@ -83,6 +85,10 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
 
         ITransactionalUnitOfWork uow = _unitOfWorkFactory.CreateTransactional();
         UserManager<UserEntity> userManager = uow.GetUserManager();
+        if (roleName != null && !await uow.GetRoleManager().RoleExistsAsync(roleName))
+        {
+            throw new ArgumentException("Role does not exist");
+        }
 
         var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
 
@@ -126,13 +132,12 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
 
     public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal userPrincipal)
     {
-        UserEntity entity = _modelMapper.Map<UserEntity>(model);
         UserDetailModel? result = null;
 
         IUnitOfWork uow = _unitOfWorkFactory.Create();
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
-        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id).ConfigureAwait(false);
+        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id).ConfigureAwait(false);
         if (existingUser == null)
         {
             throw new ArgumentException("User not found");
@@ -148,21 +153,45 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             throw new UnauthorizedAccessException("User is not authorized");
         }
 
-
-        _modelMapper.Map(entity, existingUser);
-        if ((await userManager.UpdateAsync(existingUser).ConfigureAwait(false)).Succeeded)
+        if (model.Roles != null)
         {
-            UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == entity.Id);
+            foreach(var role in model.Roles)
+            {
+                if(!await uow.GetRoleManager().RoleExistsAsync(role))
+                {
+                    throw new ArgumentException("Role does not exist");
+                }
+            }
+
+            if ((await _authService.AuthorizeAsync(userPrincipal, model, "UserAllowedToGiveRolePolicy")).Succeeded)
+            {
+                var roles = await userManager.GetRolesAsync(existingUser);
+                await userManager.RemoveFromRolesAsync(existingUser, roles.Except(model.Roles));
+                await userManager.AddToRolesAsync(existingUser, model.Roles.Except(roles));
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("User is not authorized to change roles");
+
+            }
+        }
+
+
+        if ((await userManager.UpdateAsync(_modelMapper.Map(model,existingUser)).ConfigureAwait(false)).Succeeded)
+        {
+            UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id);
             result = _modelMapper.Map<UserDetailModel>(updatedEntity);
         }
 
         try
         {
             await uow.CommitAsync().ConfigureAwait(false);
+            if (result != null)
+                result.Roles = await userManager.GetRolesAsync(existingUser);
         }
         catch
         {
-            return null;
+            throw new InvalidOperationException("An error occurred while committing the transaction.");
         }
         return result;
     }

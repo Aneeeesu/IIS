@@ -9,13 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IISBackend.DAL.UnitOfWork;
 
-public class UnitOfWorkFactory(ProjectDbContext dbContext,UserManager<UserEntity> userManager, IMapper modelMapper, IServiceProvider provider,DALOptions options) : IUnitOfWorkFactory
+public class UnitOfWorkFactory(ProjectDbContext dbContext,UserManager<UserEntity> userManager,RoleManager<RoleEntity> roleManager, IMapper modelMapper, IServiceProvider provider,DALOptions options) : IUnitOfWorkFactory
 {
     public IUnitOfWork Create(){
         var newDbContext = dbContext.Clone(options);
         var newUserManager = userManager.Clone(newDbContext, provider);
         var signInManager = newUserManager.CreateSignInManager(provider);
-        return new UnitOfWork(newDbContext, newUserManager, signInManager, modelMapper);
+        var newRoleManager = roleManager.Clone(newDbContext);
+        return new UnitOfWork(newDbContext, newUserManager, signInManager,newRoleManager, modelMapper);
     }
 
     public ITransactionalUnitOfWork CreateTransactional()
@@ -23,6 +24,7 @@ public class UnitOfWorkFactory(ProjectDbContext dbContext,UserManager<UserEntity
         var newDbContext = dbContext.Clone(options);
         var newUserManager = userManager.Clone(newDbContext, provider);
         var signInManager = newUserManager.CreateSignInManager(provider);
-        return new TransactionalUnitOfWork(newDbContext, newUserManager, signInManager, modelMapper);
+        var newRoleManager = roleManager.Clone(newDbContext);
+        return new TransactionalUnitOfWork(newDbContext, newUserManager, signInManager, newRoleManager, modelMapper);
     }
 }

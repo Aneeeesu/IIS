@@ -64,11 +64,20 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         await using IUnitOfWork uow = _UOWFactory.Create();
 
         IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
-
         query = query.Where(e => e.AnimalId == id);
 
         List<ScheduleEntryEntity> entities = await query.ToListAsync().ConfigureAwait(false);
+        return modelMapper.Map<List<ScheduleListModel>>(entities);
+    }
 
+    public async Task<List<ScheduleListModel>> GetVolunteerSchedulesAsync(Guid id)
+    {
+        await using IUnitOfWork uow = _UOWFactory.Create();
+
+        IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
+        query = query.Where(e => e.VolunteerId == id);
+
+        List<ScheduleEntryEntity> entities = await query.ToListAsync().ConfigureAwait(false);
         return modelMapper.Map<List<ScheduleListModel>>(entities);
     }
 }

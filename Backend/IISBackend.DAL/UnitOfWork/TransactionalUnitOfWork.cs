@@ -16,12 +16,13 @@ namespace IISBackend.DAL.UnitOfWork;
 public sealed class TransactionalUnitOfWork : ITransactionalUnitOfWork
 {
     //using var transaction;
-    public TransactionalUnitOfWork(DbContext dbContext, UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, IMapper mapper)
+    public TransactionalUnitOfWork(DbContext dbContext, UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager,RoleManager<RoleEntity> roleManager, IMapper mapper)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _transaction = dbContext.Database.BeginTransaction();
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _mapper = mapper;
     }
 
@@ -30,6 +31,7 @@ public sealed class TransactionalUnitOfWork : ITransactionalUnitOfWork
     private readonly DbContext _dbContext;
     private readonly UserManager<UserEntity> _userManager;
     private readonly SignInManager<UserEntity> _signInManager;
+    private readonly RoleManager<RoleEntity> _roleManager;
     private readonly IMapper _mapper;
 
     public IRepository<TEntity> GetRepository<TEntity>()
@@ -46,4 +48,5 @@ public sealed class TransactionalUnitOfWork : ITransactionalUnitOfWork
     public async Task CommitAsync() => await _transaction.CommitAsync().ConfigureAwait(false);
 
     public SignInManager<UserEntity> GetSignInManager() => _signInManager;
+    public RoleManager<RoleEntity> GetRoleManager() => _roleManager;
 }

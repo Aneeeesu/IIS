@@ -13,9 +13,10 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly ProjectDbContext _dbContext;
     private readonly UserManager<UserEntity> _userManager;
     private readonly SignInManager<UserEntity> _signInManager;
+    private readonly RoleManager<RoleEntity> _roleManager;
     private readonly IMapper _mapper;
 
-    public UnitOfWork(ProjectDbContext dbContext, UserManager<UserEntity> userManager,SignInManager<UserEntity> signInManager,IMapper mapper)
+    public UnitOfWork(ProjectDbContext dbContext, UserManager<UserEntity> userManager,SignInManager<UserEntity> signInManager,RoleManager<RoleEntity> roleManager,IMapper mapper)
     {
         if (dbContext == null)
             throw new ArgumentNullException(nameof(dbContext));
@@ -23,9 +24,12 @@ public sealed class UnitOfWork : IUnitOfWork
             throw new ArgumentNullException(nameof(userManager));
         if (signInManager == null)
             throw new ArgumentNullException(nameof(signInManager));
+        if (roleManager == null)
+            throw new ArgumentNullException(nameof(roleManager));
         _dbContext = dbContext;
         _userManager = userManager;
         _signInManager = signInManager;
+        _roleManager = roleManager;
         _mapper = mapper;
     }
 
@@ -41,4 +45,5 @@ public sealed class UnitOfWork : IUnitOfWork
     public async Task CommitAsync() => await _dbContext.SaveChangesAsync().ConfigureAwait(false);
 
     public SignInManager<UserEntity> GetSignInManager() => _signInManager;
+    public RoleManager<RoleEntity> GetRoleManager() => _roleManager;
 }

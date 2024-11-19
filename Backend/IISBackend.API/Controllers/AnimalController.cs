@@ -1,10 +1,12 @@
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.Animal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IISBackend.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("Animal")]
 public class AnimalController : ControllerBase
 {
@@ -34,6 +36,7 @@ public class AnimalController : ControllerBase
     }
 
     [HttpPost("")]
+    [Authorize(Roles = "Admin,Vet")]
     public async Task<ActionResult<Guid>> Upsert(AnimalCreateModel animal)
     {
         var guid = await _animalFacade.SaveAsync(animal);
@@ -41,6 +44,7 @@ public class AnimalController : ControllerBase
     }
 
     [HttpDelete("{animalId}")]
+    [Authorize(Roles = "Admin,Vet")]
     public async Task<ActionResult> Delete(Guid animalId)
     {
         try

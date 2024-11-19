@@ -57,5 +57,24 @@ namespace IISBackend.DAL.Extensions
                 authenticationSchemeProvider,
                 confirmation);
         }
+
+        public static RoleManager<RoleEntity> Clone(this RoleManager<RoleEntity> roleManager, ProjectDbContext newDbContext)
+        {
+            // Extract dependencies from the existing RoleManager
+            var roleStore = new ProjectRoleStore((ProjectDbContext)newDbContext);
+            var roleValidators = roleManager.RoleValidators;
+            var keyNormalizer = roleManager.KeyNormalizer;
+            var errors = roleManager.ErrorDescriber;
+            var logger = roleManager.Logger;
+
+            // Create a new RoleManager instance using the same dependencies
+            return new RoleManager<RoleEntity>(
+                roleStore,
+                roleValidators,
+                keyNormalizer,
+                errors,
+                (ILogger<RoleManager<RoleEntity>>)logger
+            );
+        }
     }
 }

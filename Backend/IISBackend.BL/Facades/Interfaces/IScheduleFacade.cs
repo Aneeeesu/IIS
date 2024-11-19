@@ -10,4 +10,6 @@ public interface IScheduleFacade : IFacadeCRUD<ScheduleEntryEntity, ScheduleCrea
     Task AuthorizedDeleteAsync(Guid id, ClaimsPrincipal userPrincipal);
 
     Task<List<ScheduleListModel>> GetAnimalSchedulesAsync(Guid animalId);
+
+    Task<List<ScheduleListModel>> GetVolunteerSchedulesAsync(Guid volunteerId);
 }

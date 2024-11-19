@@ -28,9 +28,13 @@ namespace IISBackend.BL.Installers
                     policy.Requirements.Add(new UserIsAccountOwnerRequirement()));
                 options.AddPolicy("UserIsOwnerPolicy", policy =>
                     policy.Requirements.Add(new UserIsOwnerRequirement()));
+                options.AddPolicy("UserAllowedToGiveRolePolicy", policy =>
+                    policy.Requirements.Add(new UserAllowedToGiveRoleRequirement()));
             });
+
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAccountOwnerAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsOwnerAuthorizationHandler>();
+            serviceCollection.AddSingleton<IAuthorizationHandler,UserAllowedToGiveRoleAuthorizationHandler>();
         }
     }
 }

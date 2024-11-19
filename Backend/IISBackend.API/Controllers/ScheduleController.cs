@@ -7,7 +7,7 @@ namespace IISBackend.API.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("schedule")]
+[Route("Schedule")]
 public class ScheduleController : ControllerBase
 {
     private readonly IScheduleFacade _scheduleFacade;
@@ -72,4 +72,15 @@ public class ScheduleController : ControllerBase
         }
     }
 
+    [HttpGet("Animal/{animalID}")]
+    public async Task<ActionResult<List<ScheduleListModel>>> GetAnimalSchedules(Guid animalID)
+    {
+        return Ok(await _scheduleFacade.GetAnimalSchedulesAsync(animalID));
+    }
+
+    [HttpGet("Volunteer/{volunteerID}")]
+    public async Task<ActionResult<List<ScheduleListModel>>> GetVolunteerSchedules(Guid volunteerID)
+    {
+        return Ok(await _scheduleFacade.GetVolunteerSchedulesAsync(volunteerID));
+    }
 }
