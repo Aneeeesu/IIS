@@ -5,11 +5,11 @@ namespace IISBackend.BL.Facades.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddInstaller<TInstaller>(this IServiceCollection serviceCollection)
+        public static void AddInstaller<TInstaller>(this IServiceCollection serviceCollection,bool isDevelopment)
             where TInstaller : ApiBLInstaller, new()
         {
             var installer = new TInstaller();
-            installer.Install(serviceCollection);
+            installer.Install(serviceCollection,isDevelopment);
         }
     }
 }

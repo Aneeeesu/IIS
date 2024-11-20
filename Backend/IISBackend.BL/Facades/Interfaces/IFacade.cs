@@ -1,6 +1,5 @@
-﻿namespace IISBackend.BL.Facades.Interfaces
+﻿namespace IISBackend.BL.Facades.Interfaces;
+
+public interface IFacade
 {
-    public interface IFacade
-    {
-    }
 }

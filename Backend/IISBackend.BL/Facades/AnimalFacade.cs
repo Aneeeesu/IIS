@@ -12,4 +12,9 @@ public class AnimalFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMap
     //protected override ICollection<string> IncludesNavigationPathDetail =>
     //    new[] { $"{nameof(ActivityEntity.Subject)}", $"{nameof(ActivityEntity.Scores)}" };
 
+    public override Task<AnimalDetailModel?> SaveAsync(AnimalCreateModel model)
+    {
+        return base.SaveAsync(model);
+    }
+
 }

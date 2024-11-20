@@ -41,7 +41,7 @@ public class AuthController(IUserFacade userFacade) : ControllerBase
     {
         try
         {
-            return Created($"/Account/GetUsers", await userFacade.CreateAsync(model));
+            return Created($"/Account/GetUsers", await userFacade.CreateAsync(model,"Volunteer"));
         }
         catch (ArgumentException e)
         {

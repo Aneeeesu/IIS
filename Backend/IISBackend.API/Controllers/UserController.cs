@@ -39,13 +39,13 @@ public class UserController(IUserFacade userFacade) : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpPut("")]
     public async Task<ActionResult<UserDetailModel?>> EditUser(UserUpdateModel model)
     {
         try
         {
-            return Created($"/users", await _userFacade.UpdateAsync(model, User));
+            return Ok(await _userFacade.UpdateAsync(model, User));
         }
         catch (ArgumentException e)
         {

@@ -3,6 +3,7 @@ using System;
 using IISBackend.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IISBackend.DAL.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241120225001_added-types")]
+    partial class addedtypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +28,7 @@ namespace IISBackend.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("ImageId")
+                    b.Property<Guid>("ImageId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
@@ -76,7 +79,7 @@ namespace IISBackend.DAL.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("FileEntities");
+                    b.ToTable("ImageEntities");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.HealthRecordEntity", b =>
@@ -421,7 +424,8 @@ namespace IISBackend.DAL.Migrations
                     b.HasOne("IISBackend.DAL.Entities.FileEntity", "Image")
                         .WithOne()
                         .HasForeignKey("IISBackend.DAL.Entities.AnimalEntity", "ImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Image");
                 });

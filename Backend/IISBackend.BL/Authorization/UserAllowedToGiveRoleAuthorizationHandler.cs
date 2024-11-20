@@ -3,7 +3,7 @@ using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 
-namespace ITUBackend.API.Authorization;
+namespace IISBackend.BL.Authorization;
 
 public class UserAllowedToGiveRoleAuthorizationHandler : AuthorizationHandler<UserAllowedToGiveRoleRequirement, UserUpdateModel>
 {

@@ -1,5 +1,6 @@
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.Animal;
+using IISBackend.DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,10 +38,10 @@ public class AnimalController : ControllerBase
 
     [HttpPost("")]
     [Authorize(Roles = "Admin,Vet")]
-    public async Task<ActionResult<Guid>> Upsert(AnimalCreateModel animal)
+    public async Task<ActionResult<AnimalDetailModel>> Upsert(AnimalCreateModel animal)
     {
-        var guid = await _animalFacade.SaveAsync(animal);
-        return Ok(guid);
+        var detailModel = await _animalFacade.SaveAsync(animal);
+        return Ok(detailModel);
     }
 
     [HttpDelete("{animalId}")]

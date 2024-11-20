@@ -1,9 +1,11 @@
 using IISBackend.API.Authorization;
+using IISBackend.BL.Authorization;
 using IISBackend.BL.Facades;
 using IISBackend.BL.Facades.Interfaces;
+using IISBackend.BL.Services;
+using IISBackend.BL.Services.Facades;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.UnitOfWork;
-using ITUBackend.API.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +15,7 @@ namespace IISBackend.BL.Installers
 {
     public class ApiBLInstaller
     {
-        public void Install(IServiceCollection serviceCollection)
+        public void Install(IServiceCollection serviceCollection,bool development)
         {
             serviceCollection.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 
@@ -31,6 +33,11 @@ namespace IISBackend.BL.Installers
                 options.AddPolicy("UserAllowedToGiveRolePolicy", policy =>
                     policy.Requirements.Add(new UserAllowedToGiveRoleRequirement()));
             });
+
+            if(development)
+                serviceCollection.AddSingleton<IObjectStorageService,InMemoryObjectStorageService>();
+            //else
+            //    serviceCollection.AddSingleton<IObjectStorageService, S3ObjectStorageService>();
 
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAccountOwnerAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsOwnerAuthorizationHandler>();

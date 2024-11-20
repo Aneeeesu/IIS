@@ -6,9 +6,7 @@ using IISBackend.BL.Facades.Interfaces;
 using System.Security.Claims;
 using IISBackend.BL.Models.Interfaces;
 using IISBackend.DAL.Entities.Interfaces;
-using ITUBackend.API.Entities.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using ITUBackend.API.Authorization;
 
 namespace IISBackend.BL.Facades;
 
@@ -78,7 +76,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
 
         IUnitOfWork uow = _UOWFactory.Create();
         entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
-        TEntity insertedEntity = uow.GetRepository<TEntity>().Insert(entity);
+        TEntity insertedEntity = await uow.GetRepository<TEntity>().InsertAsync(entity);
 
         try
         {
@@ -129,7 +127,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         else
         {
             entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
-            TEntity insertedEntity = repository.Insert(entity);
+            TEntity insertedEntity = await repository.InsertAsync(entity);
             result = modelMapper.Map<TDetailModel>(insertedEntity);
         }
         try

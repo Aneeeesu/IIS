@@ -8,7 +8,7 @@ public static class ManagementSeeds
 {
     public static readonly UserEntity AdminUserEntity = new()
     {
-        Id = Guid.NewGuid(),
+        Id = Guid.Parse("ccc0e0bf-160a-4730-a2c1-2fb3ef5e02d2"),
         UserName = "Admin",
     };
 
@@ -25,7 +25,7 @@ public static class ManagementSeeds
 
     public static async Task Seed(string adminPassword,ProjectDbContext context, UserManager<UserEntity> userManager, RoleManager<RoleEntity> roleManager, DALOptions dALOptions)
     {
-        var roles = new string[] { "Admin", "Vet", "Caregiver", "Volunteer" };
+        var roles = new string[] { "Admin", "Vet", "Caregiver", "Volunteer","Verified volunteer" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))

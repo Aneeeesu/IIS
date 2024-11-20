@@ -11,6 +11,7 @@ public record ReservationRequestEntity : IEntity
     public required AnimalEntity Animal { get; set; }
     public required DateTime Time { get; set; }
     public required Status status { get; set; }
+    public required ScheduleType Type { get; set; }
 }
 
 public class ReservationRequestEntityMapperProfile : Profile

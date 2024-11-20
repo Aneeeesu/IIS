@@ -1,9 +1,8 @@
-﻿using ITUBackend.API.Entities;
-using ITUBackend.API.Entities.Interfaces;
+﻿using IISBackend.DAL.Entities.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace ITUBackend.API.Authorization;
+namespace IISBackend.BL.Authorization;
 
 public class UserIsOwnerAuthorizationHandler : AuthorizationHandler<UserIsOwnerRequirement, IUserAuthorized>
 {

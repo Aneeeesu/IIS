@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace ITUBackend.API.Authorization;
+namespace IISBackend.BL.Authorization;
 
 public class UserAllowedToGiveRoleRequirement : IAuthorizationRequirement { }

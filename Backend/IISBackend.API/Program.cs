@@ -9,6 +9,7 @@ using IISBackend.DAL.Migrators;
 using Microsoft.AspNetCore.Identity;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.Seeds;
+using IISBackend.BL.Services.Facades;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +76,7 @@ var store = scope.ServiceProvider.GetRequiredService<IUserStore<UserEntity>>();
 if (true)
 {
     scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+    scope.ServiceProvider.GetRequiredService<IObjectStorageService>();
     scope.ServiceProvider.GetRequiredService<DBSeeder>().Seed(app.Configuration.GetValue<string>("DefaultAdminPassword")??throw new NullReferenceException("Missing admin password in configuration"));
 }
 app.Run();
@@ -107,7 +109,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     });
     serviceCollection.AddScoped<DBSeeder>();
 
-    serviceCollection.AddInstaller<ApiBLInstaller>();
+    serviceCollection.AddInstaller<ApiBLInstaller>(true);
 }
 
 void UseSecurityFeatures(IApplicationBuilder application)

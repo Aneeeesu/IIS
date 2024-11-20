@@ -18,14 +18,10 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public UnitOfWork(ProjectDbContext dbContext, UserManager<UserEntity> userManager,SignInManager<UserEntity> signInManager,RoleManager<RoleEntity> roleManager,IMapper mapper)
     {
-        if (dbContext == null)
-            throw new ArgumentNullException(nameof(dbContext));
-        if (userManager == null)
-            throw new ArgumentNullException(nameof(userManager));
-        if (signInManager == null)
-            throw new ArgumentNullException(nameof(signInManager));
-        if (roleManager == null)
-            throw new ArgumentNullException(nameof(roleManager));
+        ArgumentNullException.ThrowIfNull(dbContext);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(signInManager);
+        ArgumentNullException.ThrowIfNull(roleManager);
         _dbContext = dbContext;
         _userManager = userManager;
         _signInManager = signInManager;

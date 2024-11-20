@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using IISBackend.Common.Enums;
 using IISBackend.DAL.Entities.Interfaces;
-using ITUBackend.API.Entities.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IISBackend.DAL.Entities;
@@ -16,6 +16,7 @@ public record ScheduleEntryEntity : IEntity,IUserAuthorized
     [ForeignKey(nameof(AnimalId))]
     public AnimalEntity? Animal { get; set; }
     public required DateTime Time { get; set; }
+    public required ScheduleType Type { get; set; }
     public Guid GetOwnerID() => VolunteerId;
 }
 

@@ -8,6 +8,6 @@ public interface IRepository<TEntity>
     IQueryable<TEntity> Get();
     Task DeleteAsync(Guid entityId);
     ValueTask<bool> ExistsAsync(TEntity entity);
-    TEntity Insert(TEntity entity);
+    Task<TEntity> InsertAsync(TEntity entity);
     Task<TEntity> UpdateAsync(TEntity entity);
 }

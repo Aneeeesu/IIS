@@ -11,6 +11,8 @@ using IISBackend.BL.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Data;
+using IISBackend.DAL.Entities.Interfaces;
+using System.Runtime.CompilerServices;
 
 
 namespace IISBackend.BL.Facades;
@@ -128,7 +130,22 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         return result;
     }
 
+    private async Task CheckIfFileOperationIsValid(FileEntity? fileEntity , ClaimsPrincipal userPrincipal, UserEntity existingUser, IAuthorizationService authorizationService)
+    {
 
+        if (fileEntity == null)
+        {
+            throw new ArgumentException("Image not found");
+        }
+        else if (userPrincipal == null || !(await authorizationService.AuthorizeAsync(userPrincipal, fileEntity, "UserIsOwnerPolicy")).Succeeded)
+        {
+            throw new UnauthorizedAccessException("User is not authorized to assign this image");
+        }
+        else if (fileEntity.Used && existingUser.ImageId != fileEntity.Id)
+        {
+            throw new ArgumentException("Image is already in use");
+        }
+    }
 
     public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal userPrincipal)
     {
@@ -137,10 +154,19 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         IUnitOfWork uow = _unitOfWorkFactory.Create();
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
-        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id).ConfigureAwait(false);
+        var existingUser = await userManager.Users.Include(e => e.Image).FirstOrDefaultAsync(e => e.Id == model.Id).ConfigureAwait(false);
         if (existingUser == null)
         {
             throw new ArgumentException("User not found");
+        }
+
+        if (model.ImageId != null)
+        {
+            var requestedImage = await uow.GetRepository<FileEntity>().Get().Where(e => e.Id == model.ImageId).FirstOrDefaultAsync() ?? throw new ArgumentException("Image not found");
+            await CheckIfFileOperationIsValid(requestedImage, userPrincipal, existingUser, _authService);
+            if(existingUser.Image!=null)existingUser.Image.Used = false;
+            existingUser.Image = requestedImage;
+            requestedImage.Used = true;
         }
 
         // Check if the current user is trying to update their own profile
@@ -155,9 +181,9 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
 
         if (model.Roles != null)
         {
-            foreach(var role in model.Roles)
+            foreach (var role in model.Roles)
             {
-                if(!await uow.GetRoleManager().RoleExistsAsync(role))
+                if (!await uow.GetRoleManager().RoleExistsAsync(role))
                 {
                     throw new ArgumentException("Role does not exist");
                 }
@@ -177,7 +203,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         }
 
 
-        if ((await userManager.UpdateAsync(_modelMapper.Map(model,existingUser)).ConfigureAwait(false)).Succeeded)
+        if ((await userManager.UpdateAsync(_modelMapper.Map(model, existingUser)).ConfigureAwait(false)).Succeeded)
         {
             UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id);
             result = _modelMapper.Map<UserDetailModel>(updatedEntity);

@@ -8,12 +8,15 @@ services:
     restart: "always"
     ports:
       - "127.0.0.1:8001:8080"
+      - "127.0.0.1:5001:5000"
     depends_on:
       - db
     environment:
       DefaultAdminPassword: ${ADMIN_PASSWORD}
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
-      ConnectionStrings__DefaultConnection: Server=db;Port=1433;Database=db;Uid=${MYSQL_USER};Pwd=${MYSQL_PASSWORD}
+      ConnectionStrings__DefaultConnection: Server=db;Port=3306;Database=db;Uid=${MYSQL_USER};Pwd=${MYSQL_PASSWORD}
+    volumes:
+      - iis-backend-volume:/app/MockBucket
 
 
   db:
@@ -22,7 +25,7 @@ services:
     volumes:
       - iis-backend-volume:/var/opt/mssql
     ports:
-      - "127.0.0.1:1433:3306"
+    - "127.0.0.1:1433:3306"
     environment:
       MYSQL_PORT: 3306
       MYSQL_DATABASE: db

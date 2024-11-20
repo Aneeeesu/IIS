@@ -3,6 +3,7 @@
 using AutoMapper;
 using IISBackend.Common.Enums;
 using IISBackend.DAL.Entities.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IISBackend.DAL.Entities;
 
@@ -12,6 +13,10 @@ public record AnimalEntity : IEntity
     public required string Name { get; set; }
     public int age { get; set; }
     public Sex sex { get; set; }
+
+    public Guid? ImageId { get; set; }
+    [ForeignKey(nameof(ImageId))]
+    public FileEntity? Image { get; set; }
     public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
     public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
     public ICollection<HealthRecordEntity>? HealthRecords { get; set; }
