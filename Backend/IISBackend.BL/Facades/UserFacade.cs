@@ -109,19 +109,21 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             var creationResult = await userManager.CreateAsync(entity, model.Password).ConfigureAwait(false);
             await uow.SaveChangesAsync();
 
-            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
-            if (roleName != null)
-            {
-                await userManager.AddToRoleAsync(entity, roleName);
-                await uow.SaveChangesAsync();
-            }
-
             if (!creationResult.Succeeded)
             {
                 await uow.RevertChangesAsync();
                 throw new ArgumentException(string.Join(Environment.NewLine, creationResult.Errors.Select(o => o.Description)));
             }
+
+            entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+            if (roleName != null)
+            {
+                var resultUser = await userManager.FindByIdAsync(entity.Id.ToString());
+                await userManager.AddToRoleAsync(resultUser!, roleName);
+                await uow.SaveChangesAsync();
+            }
             result = _modelMapper.Map<UserDetailModel>(entity);
+
         }
         try
         {
