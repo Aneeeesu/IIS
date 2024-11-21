@@ -54,6 +54,10 @@ public class ReservationRequestController : ControllerBase
         {
             return BadRequest(e.Message);
         }
+        catch (UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
     }
 
     [HttpPost("Resolve/{id}")]
@@ -74,6 +78,18 @@ public class ReservationRequestController : ControllerBase
         catch (ArgumentException e)
         {
             return BadRequest(e.Message);
+        }
+        catch(UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
+        catch(InvalidDataException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
         }
     }
 }

@@ -14,26 +14,25 @@ public class ReservationRequestBaseModel : IModel
     [DateIsInFuture(ErrorMessage = "Date must be in the future")]
     [RoundedToHour(ErrorMessage = "Time must be rounded to hours")]
     public required DateTime Time { get; set; }
+
+    [RequestValidEnum(ErrorMessage = "Invalid request type")]
+    public required ScheduleType Type { get; set; }
 }
 
 public class ReservationRequestListModel : ReservationRequestBaseModel
 {
     public required UserListModel User { get; set; }
     public required AnimalListModel Animal { get; set; }
-    public required ScheduleType Type { get; set; }
-
 }
 
 public class ReservationRequestDetailModel : ReservationRequestBaseModel
 {
     public required UserListModel User { get; set; }
     public required AnimalListModel Animal { get; set; }
-    public required ScheduleType Type { get; set; }
 }
 
 public class ReservationRequestCreateModel : ReservationRequestBaseModel
 {
     public required Guid UserID { get; set; }
     public required Guid AnimalID { get; set; }
-    public required ScheduleType Type { get; set; }
 }

@@ -15,7 +15,7 @@ namespace IISBackend.BL.Installers
 {
     public class ApiBLInstaller
     {
-        public void Install(IServiceCollection serviceCollection,bool development)
+        public void Install(IServiceCollection serviceCollection, bool development)
         {
             serviceCollection.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 
@@ -32,6 +32,10 @@ namespace IISBackend.BL.Installers
                     policy.Requirements.Add(new UserIsOwnerRequirement()));
                 options.AddPolicy("UserAllowedToGiveRolePolicy", policy =>
                     policy.Requirements.Add(new UserAllowedToGiveRoleRequirement()));
+                options.AddPolicy("UserIsAllowedToRequest", policy =>
+                    policy.Requirements.Add(new UserIsAllowedToRequestRequirement()));
+                options.AddPolicy("UserIsAllowedToApproveRequest", policy =>
+                    policy.Requirements.Add(new UserIsAllowedToApproveRequestRequirement()));
             });
 
             if (development)
@@ -44,7 +48,9 @@ namespace IISBackend.BL.Installers
 
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAccountOwnerAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsOwnerAuthorizationHandler>();
-            serviceCollection.AddSingleton<IAuthorizationHandler,UserAllowedToGiveRoleAuthorizationHandler>();
+            serviceCollection.AddSingleton<IAuthorizationHandler, UserAllowedToGiveRoleAuthorizationHandler>();
+            serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAllowedToRequestAuthorizationHandler>();
+            serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAllowedToApproveRequestAuthorizationHandler>();
             serviceCollection.AddHostedService<UnusedFilesCleanupService>();
         }
     }

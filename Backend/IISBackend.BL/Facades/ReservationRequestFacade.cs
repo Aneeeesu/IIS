@@ -13,6 +13,8 @@ namespace IISBackend.BL.Facades;
 
 public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMapper, IAuthorizationService authService) : FacadeCRUDBase<ReservationRequestEntity, ReservationRequestCreateModel, ReservationRequestListModel, ReservationRequestDetailModel>(unitOfWorkFactory, modelMapper), IReservationRequestFacade
 {
+
+    private readonly IAuthorizationService _authService = authService;
     protected override ICollection<string> IncludesNavigationPathDetail => new[] { $"{nameof(ReservationRequestEntity.Animal)}", $"{nameof(ReservationRequestEntity.User)}" };
 
     private ScheduleEntryEntity? GetWalkSchedule(ReservationRequestCreateModel model, IUnitOfWork uow)
@@ -22,9 +24,17 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
 
     public async Task<ReservationRequestDetailModel> AuthorizedCreateRequest(ReservationRequestCreateModel model, ClaimsPrincipal user)
     {
+        var entity = _modelMapper.Map<ReservationRequestEntity>(model);
+
+
+        if (await _authService.AuthorizeAsync(user, entity, "UserIsAllowedToRequest") is not { Succeeded: true })
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
+
         await using var uow = _UOWFactory.Create();
         var requestRepository =  uow.GetRepository<ReservationRequestEntity>();
-        if(requestRepository.Get().FirstOrDefault(o=>o.Id == model.Id) is not null)
+        if(requestRepository.Get().FirstOrDefault(o=>o.Id == entity.Id) is not null)
         {
             throw new ArgumentException("Request already exists");
         }
@@ -33,8 +43,8 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         var animalRepository = uow.GetRepository<AnimalEntity>();
         var volunteerRepository = uow.GetRepository<UserEntity>();
 
-        var animal = await animalRepository.Get().Include(x => x.ScheduleEntries!.Where(x => x.Time > DateTime.Now)).FirstOrDefaultAsync(o => o.Id == model.AnimalID);
-        var userEntity = await volunteerRepository.Get().Include(x => x.ScheduleEntries!.Where(x => x.Time > DateTime.Now)).FirstOrDefaultAsync(o => o.Id == model.UserID);
+        var animal = await animalRepository.Get().Include(x => x.ScheduleEntries).FirstOrDefaultAsync(o => o.Id == entity.AnimalId);
+        var userEntity = await volunteerRepository.Get().Include(x => x.ScheduleEntries).FirstOrDefaultAsync(o => o.Id == entity.UserId);
         if (animal is null || userEntity is null)
         {
             var messages = new List<string>();
@@ -48,10 +58,6 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
             }
             throw new ArgumentException(string.Join($"{Environment.NewLine}", messages));
         }
-
-        var entity = _modelMapper.Map<ReservationRequestEntity>(model);
-        entity.AnimalId = animal.Id;
-        entity.UserId = userEntity.Id;
 
         if (model.Type == ScheduleType.walk)
         {
@@ -95,8 +101,15 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         ScheduleEntryEntity? resultingSchedule = null;
         if (request is null)
         {
-            throw new ArgumentException("Request not found");
+            throw new InvalidDataException("Request not found");
         }
+
+        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequest") is not { Succeeded: true })
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
+
+
 
         if (approved)
         {
