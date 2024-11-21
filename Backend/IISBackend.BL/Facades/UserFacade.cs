@@ -77,9 +77,10 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             .GetUserManager().Users.Include(u => u.Image)
             .ToListAsync().ConfigureAwait(false);
         var mapped = _modelMapper.Map<List<UserListModel>>(entities);
-        foreach (var user in mapped)
+        for (int i = 0; i < mapped.Count; i++)
         {
-            user.Roles = await uow.GetUserManager().GetRolesAsync(entities.First(e => e.Id == user.Id));
+            UserListModel? user = mapped[i];
+            user.Roles = await uow.GetUserManager().GetRolesAsync(entities[i]);
         }
         return mapped;
     }
