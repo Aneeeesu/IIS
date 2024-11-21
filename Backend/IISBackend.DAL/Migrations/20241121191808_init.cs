@@ -16,21 +16,6 @@ namespace IISBackend.DAL.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "AnimalEntities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    age = table.Column<int>(type: "int", nullable: false),
-                    sex = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AnimalEntities", x => x.Id);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -42,32 +27,6 @@ namespace IISBackend.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "longtext", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "longtext", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -94,6 +53,22 @@ namespace IISBackend.DAL.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "AnimalEntities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    age = table.Column<int>(type: "int", nullable: false),
+                    sex = table.Column<int>(type: "int", nullable: false),
+                    ImageId = table.Column<Guid>(type: "char(36)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnimalEntities", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -106,12 +81,6 @@ namespace IISBackend.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -127,12 +96,6 @@ namespace IISBackend.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -152,12 +115,33 @@ namespace IISBackend.DAL.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    ImageId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "longtext", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "longtext", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -183,6 +167,27 @@ namespace IISBackend.DAL.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "FileEntities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Url = table.Column<string>(type: "varchar(255)", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    UploadDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    FileType = table.Column<string>(type: "longtext", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FileEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FileEntities_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "HealthRecordsEntities",
                 columns: table => new
                 {
@@ -190,7 +195,8 @@ namespace IISBackend.DAL.Migrations
                     VetId = table.Column<Guid>(type: "char(36)", nullable: false),
                     AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Content = table.Column<string>(type: "longtext", nullable: false)
+                    Content = table.Column<string>(type: "longtext", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,27 +217,21 @@ namespace IISBackend.DAL.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ReservationRequestEntities",
+                name: "PendingFileUploadEntities",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    VoluteerId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    status = table.Column<int>(type: "int", nullable: false)
+                    Url = table.Column<string>(type: "longtext", nullable: false),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UploaderId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Key = table.Column<string>(type: "longtext", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReservationRequestEntities", x => x.Id);
+                    table.PrimaryKey("PK_PendingFileUploadEntities", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ReservationRequestEntities_AnimalEntities_AnimalId",
-                        column: x => x.AnimalId,
-                        principalTable: "AnimalEntities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ReservationRequestEntities_AspNetUsers_VoluteerId",
-                        column: x => x.VoluteerId,
+                        name: "FK_PendingFileUploadEntities_AspNetUsers_UploaderId",
+                        column: x => x.UploaderId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -243,9 +243,10 @@ namespace IISBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    VolunteerId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: true),
                     AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -257,16 +258,15 @@ namespace IISBackend.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ScheduleEntities_AspNetUsers_VolunteerId",
-                        column: x => x.VolunteerId,
+                        name: "FK_ScheduleEntities_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "VerificationRequests",
+                name: "VerificationRequestEntities",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
@@ -275,15 +275,55 @@ namespace IISBackend.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VerificationRequests", x => x.Id);
+                    table.PrimaryKey("PK_VerificationRequestEntities", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VerificationRequests_AspNetUsers_RequesteeID",
+                        name: "FK_VerificationRequestEntities_AspNetUsers_RequesteeID",
                         column: x => x.RequesteeID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ReservationRequestEntities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    TargetScheduleId = table.Column<Guid>(type: "char(36)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReservationRequestEntities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReservationRequestEntities_AnimalEntities_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "AnimalEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationRequestEntities_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationRequestEntities_ScheduleEntities_TargetScheduleId",
+                        column: x => x.TargetScheduleId,
+                        principalTable: "ScheduleEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnimalEntities_ImageId",
+                table: "AnimalEntities",
+                column: "ImageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -317,9 +357,25 @@ namespace IISBackend.DAL.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_ImageId",
+                table: "AspNetUsers",
+                column: "ImageId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FileEntities_OwnerId",
+                table: "FileEntities",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FileEntities_Url",
+                table: "FileEntities",
+                column: "Url",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -333,14 +389,24 @@ namespace IISBackend.DAL.Migrations
                 column: "VetId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PendingFileUploadEntities_UploaderId",
+                table: "PendingFileUploadEntities",
+                column: "UploaderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReservationRequestEntities_AnimalId",
                 table: "ReservationRequestEntities",
                 column: "AnimalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReservationRequestEntities_VoluteerId",
+                name: "IX_ReservationRequestEntities_TargetScheduleId",
                 table: "ReservationRequestEntities",
-                column: "VoluteerId");
+                column: "TargetScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationRequestEntities_UserId",
+                table: "ReservationRequestEntities",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScheduleEntities_AnimalId",
@@ -348,20 +414,62 @@ namespace IISBackend.DAL.Migrations
                 column: "AnimalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ScheduleEntities_VolunteerId",
+                name: "IX_ScheduleEntities_UserId",
                 table: "ScheduleEntities",
-                column: "VolunteerId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VerificationRequests_RequesteeID",
-                table: "VerificationRequests",
+                name: "IX_VerificationRequestEntities_RequesteeID",
+                table: "VerificationRequestEntities",
                 column: "RequesteeID",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AnimalEntities_FileEntities_ImageId",
+                table: "AnimalEntities",
+                column: "ImageId",
+                principalTable: "FileEntities",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                table: "AspNetUserRoles",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUsers_FileEntities_ImageId",
+                table: "AspNetUsers",
+                column: "ImageId",
+                principalTable: "FileEntities",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_AspNetUsers_FileEntities_ImageId",
+                table: "AspNetUsers");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -381,19 +489,25 @@ namespace IISBackend.DAL.Migrations
                 name: "HealthRecordsEntities");
 
             migrationBuilder.DropTable(
+                name: "PendingFileUploadEntities");
+
+            migrationBuilder.DropTable(
                 name: "ReservationRequestEntities");
 
             migrationBuilder.DropTable(
-                name: "ScheduleEntities");
-
-            migrationBuilder.DropTable(
-                name: "VerificationRequests");
+                name: "VerificationRequestEntities");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "ScheduleEntities");
+
+            migrationBuilder.DropTable(
                 name: "AnimalEntities");
+
+            migrationBuilder.DropTable(
+                name: "FileEntities");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

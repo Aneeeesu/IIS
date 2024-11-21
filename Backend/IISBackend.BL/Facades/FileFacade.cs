@@ -114,7 +114,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
         {
             await using IUnitOfWork uow = _uowFactory.Create();
             var fileRepository = uow.GetRepository<FileEntity>();
-            var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages.Count == 0 && f.UserImages.Count == 0 && f.UploadDate < DateTime.UtcNow.Add(timeSpan)).ToListAsync();
+            var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages!.Count == 0 && f.UserImages!.Count == 0 && f.UploadDate < DateTime.UtcNow.Add(timeSpan)).ToListAsync();
             foreach (var file in files)
             {
                 await _objectStorage.DeleteObjectAsync("mockBucket", file.Url);

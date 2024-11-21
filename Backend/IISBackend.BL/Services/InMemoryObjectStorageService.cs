@@ -34,7 +34,7 @@ public class InMemoryObjectStorageService : IObjectStorageService
         return Task.FromResult(fakeUrl);
     }
 
-    public Task UploadObjectAsync(string bucketName, string objectName, Stream content)
+    public Task<bool> UploadObjectAsync(string bucketName, string objectName, Stream content)
     {
         if(Directory.Exists(bucketName) == false)
         {
@@ -46,7 +46,7 @@ public class InMemoryObjectStorageService : IObjectStorageService
             content.CopyTo(fileStream);
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     public Task<bool> ObjectExistsAsync(string bucketName, string objectName)

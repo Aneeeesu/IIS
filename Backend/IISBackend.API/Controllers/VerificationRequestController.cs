@@ -8,11 +8,11 @@ namespace IISBackend.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("VerificationRequests")]
-public class RequestController : ControllerBase
+public class VerificationRequestController : ControllerBase
 {
     private readonly IVerificationRequestFacade _requestFacade;
 
-    public RequestController(IVerificationRequestFacade requestFacade)
+    public VerificationRequestController(IVerificationRequestFacade requestFacade)
     {
         _requestFacade = requestFacade;
     }

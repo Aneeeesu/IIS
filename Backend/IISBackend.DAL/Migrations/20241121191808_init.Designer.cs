@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IISBackend.DAL.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20241120225001_added-types")]
-    partial class addedtypes
+    [Migration("20241121191808_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,7 @@ namespace IISBackend.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("ImageId")
+                    b.Property<Guid?>("ImageId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
@@ -43,8 +43,7 @@ namespace IISBackend.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageId")
-                        .IsUnique();
+                    b.HasIndex("ImageId");
 
                     b.ToTable("AnimalEntities");
                 });
@@ -69,9 +68,6 @@ namespace IISBackend.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<bool>("Used")
-                        .HasColumnType("tinyint(1)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
@@ -79,7 +75,7 @@ namespace IISBackend.DAL.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("ImageEntities");
+                    b.ToTable("FileEntities");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.HealthRecordEntity", b =>
@@ -149,23 +145,25 @@ namespace IISBackend.DAL.Migrations
                     b.Property<Guid>("AnimalId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("TargetScheduleId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("VoluteerId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
 
-                    b.HasIndex("VoluteerId");
+                    b.HasIndex("TargetScheduleId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ReservationRequestEntities");
                 });
@@ -212,14 +210,14 @@ namespace IISBackend.DAL.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("VolunteerId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
 
-                    b.HasIndex("VolunteerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("ScheduleEntities");
                 });
@@ -282,8 +280,7 @@ namespace IISBackend.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageId")
-                        .IsUnique();
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -295,7 +292,7 @@ namespace IISBackend.DAL.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("IISBackend.DAL.Entities.VerificationRequest", b =>
+            modelBuilder.Entity("IISBackend.DAL.Entities.VerificationRequestEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -313,7 +310,7 @@ namespace IISBackend.DAL.Migrations
                     b.HasIndex("RequesteeID")
                         .IsUnique();
 
-                    b.ToTable("VerificationRequests");
+                    b.ToTable("VerificationRequestEntities");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -422,10 +419,8 @@ namespace IISBackend.DAL.Migrations
             modelBuilder.Entity("IISBackend.DAL.Entities.AnimalEntity", b =>
                 {
                     b.HasOne("IISBackend.DAL.Entities.FileEntity", "Image")
-                        .WithOne()
-                        .HasForeignKey("IISBackend.DAL.Entities.AnimalEntity", "ImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("AnimalImages")
+                        .HasForeignKey("ImageId");
 
                     b.Navigation("Image");
                 });
@@ -477,15 +472,22 @@ namespace IISBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "Voluteer")
+                    b.HasOne("IISBackend.DAL.Entities.ScheduleEntryEntity", "TargetSchedule")
+                        .WithMany("WalkRequests")
+                        .HasForeignKey("TargetScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "User")
                         .WithMany("ReservationRequests")
-                        .HasForeignKey("VoluteerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Animal");
 
-                    b.Navigation("Voluteer");
+                    b.Navigation("TargetSchedule");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.ScheduleEntryEntity", b =>
@@ -496,32 +498,29 @@ namespace IISBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "Volunteer")
+                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "User")
                         .WithMany("ScheduleEntries")
-                        .HasForeignKey("VolunteerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Animal");
 
-                    b.Navigation("Volunteer");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.UserEntity", b =>
                 {
                     b.HasOne("IISBackend.DAL.Entities.FileEntity", "Image")
-                        .WithOne()
-                        .HasForeignKey("IISBackend.DAL.Entities.UserEntity", "ImageId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany("UserImages")
+                        .HasForeignKey("ImageId");
 
                     b.Navigation("Image");
                 });
 
-            modelBuilder.Entity("IISBackend.DAL.Entities.VerificationRequest", b =>
+            modelBuilder.Entity("IISBackend.DAL.Entities.VerificationRequestEntity", b =>
                 {
                     b.HasOne("IISBackend.DAL.Entities.UserEntity", "Requestee")
                         .WithOne("VerificationRequest")
-                        .HasForeignKey("IISBackend.DAL.Entities.VerificationRequest", "RequesteeID")
+                        .HasForeignKey("IISBackend.DAL.Entities.VerificationRequestEntity", "RequesteeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -586,6 +585,18 @@ namespace IISBackend.DAL.Migrations
                     b.Navigation("ReservationRequests");
 
                     b.Navigation("ScheduleEntries");
+                });
+
+            modelBuilder.Entity("IISBackend.DAL.Entities.FileEntity", b =>
+                {
+                    b.Navigation("AnimalImages");
+
+                    b.Navigation("UserImages");
+                });
+
+            modelBuilder.Entity("IISBackend.DAL.Entities.ScheduleEntryEntity", b =>
+                {
+                    b.Navigation("WalkRequests");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.UserEntity", b =>

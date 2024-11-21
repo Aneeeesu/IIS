@@ -8,11 +8,11 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 {
     public DbSet<AnimalEntity> AnimalEntities => Set<AnimalEntity>();
     public DbSet<ReservationRequestEntity> ReservationRequestEntities => Set<ReservationRequestEntity>();
-    public DbSet<VerificationRequestEntity> VerificationRequests => Set<VerificationRequestEntity>();
+    public DbSet<VerificationRequestEntity> VerificationRequestEntities => Set<VerificationRequestEntity>();
     public DbSet<HealthRecordEntity> HealthRecordsEntities => Set<HealthRecordEntity>();
     public DbSet<ScheduleEntryEntity> ScheduleEntities => Set<ScheduleEntryEntity>();
     public DbSet<PendingFileUploadEntity> PendingFileUploadEntities => Set<PendingFileUploadEntity>();
-    public DbSet<FileEntity> ImageEntities => Set<FileEntity>();
+    public DbSet<FileEntity> FileEntities => Set<FileEntity>();
 
 
     public bool IsSeeded() => !(Users.Count() == 0) && !(Roles.Count() == 0);
@@ -24,7 +24,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<UserEntity>()
             .HasMany(x => x.ReservationRequests)
-            .WithOne(x => x.Voluteer)
+            .WithOne(x => x.User)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AnimalEntity>()
@@ -34,8 +34,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<UserEntity>()
             .HasMany(x => x.ScheduleEntries)
-            .WithOne(x => x.Volunteer)
-            .OnDelete(DeleteBehavior.Cascade);
+            .WithOne(x => x.User);
 
         modelBuilder.Entity<AnimalEntity>()
             .HasMany(x => x.ScheduleEntries)
@@ -73,6 +72,11 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
             .Entity<PendingFileUploadEntity>()
             .HasOne(x => x.Uploader)
             .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReservationRequestEntity>()
+            .HasOne(x => x.TargetSchedule)
+            .WithMany(x=>x.WalkRequests)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

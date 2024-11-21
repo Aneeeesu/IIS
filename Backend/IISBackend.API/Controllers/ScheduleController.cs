@@ -64,7 +64,7 @@ public class ScheduleController : ControllerBase
     {
         try
         {
-            await _scheduleFacade.AuthorizedDeleteAsync(scheduleId, User);
+            await _scheduleFacade.AuthorizedCancelAsync(scheduleId, User);
             return Ok();
         }
         catch (ArgumentException e)

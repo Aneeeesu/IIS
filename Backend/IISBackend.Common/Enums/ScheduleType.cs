@@ -2,8 +2,7 @@
 
 public enum ScheduleType
 {
-    verification,
-    vaccine,
-    walk,
-    vetVisit
+    availableForWalk = 0,
+    walk = 2,
+    vetVisit = 3
 }

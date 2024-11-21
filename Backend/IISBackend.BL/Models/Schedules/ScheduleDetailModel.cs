@@ -6,6 +6,6 @@ namespace IISBackend.BL.Models.Schedules;
 
 public record ScheduleDetailModel : ScheduleBaseModel
 {
-    public required UserListModel Volunteer { get; set; }
+    public required UserListModel User { get; set; }
     public required AnimalListModel Animal { get; set; }
 }

@@ -19,11 +19,14 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
 
 
     protected override ICollection<string> IncludesNavigationPathDetail =>
-        new[] { $"{nameof(ScheduleEntryEntity.Animal)}", $"{nameof(ScheduleEntryEntity.Volunteer)}" };
+        new[] { $"{nameof(ScheduleEntryEntity.Animal)}", $"{nameof(ScheduleEntryEntity.User)}" };
 
+    public override Task<ScheduleDetailModel?> CreateAsync(ScheduleCreateModel model)
+    {
+        return base.CreateAsync(model);
+    }
 
-
-    public async Task AuthorizedDeleteAsync(Guid id, ClaimsPrincipal userPrincipal)
+    public async Task AuthorizedCancelAsync(Guid id, ClaimsPrincipal userPrincipal)
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 
@@ -87,7 +90,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         if (user == null)
             throw new ArgumentException("User not found");
         IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
-        query = query.Where(e => e.VolunteerId == id);
+        query = query.Where(e => e.UserId == id);
 
         List<ScheduleEntryEntity> entities = await query.ToListAsync().ConfigureAwait(false);
         return base._modelMapper.Map<List<ScheduleListModel>>(entities);

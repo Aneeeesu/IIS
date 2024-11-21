@@ -8,7 +8,7 @@ namespace IISBackend.BL.Facades.Interfaces;
 
 public interface IScheduleFacade : IFacadeCRUD<ScheduleEntryEntity, ScheduleCreateModel, ScheduleListModel, ScheduleDetailModel>
 {
-    Task AuthorizedDeleteAsync(Guid id, ClaimsPrincipal userPrincipal);
+    Task AuthorizedCancelAsync(Guid id, ClaimsPrincipal userPrincipal);
 
     Task<ICollection<ScheduleListModel>> GetAnimalSchedulesAsync(Guid animalId);
 
