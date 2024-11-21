@@ -51,7 +51,7 @@ public class AnimalController : ControllerBase
         try
         {
             await _animalFacade.DeleteAsync(animalId);
-            return Ok();
+            return Ok(animalId);
         }
         catch
         {

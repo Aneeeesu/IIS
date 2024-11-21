@@ -1,3 +1,9 @@
-﻿namespace IISBackend.BL.Models.User;
+﻿using IISBackend.BL.Models.File;
 
-public record UserListModel : UserBaseModel { }
+namespace IISBackend.BL.Models.User;
+
+public record UserListModel : UserBaseModel {
+    public required string UserName { get; set; }
+    public required ICollection<string> Roles { get; set; }
+    public FileModel? Image { get; set; }
+}

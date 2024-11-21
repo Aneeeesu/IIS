@@ -9,7 +9,7 @@ public class UserEntity : IdentityUser<Guid>, IEntity
 {
     public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
     public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
-    public VerificationRequest? VerificationRequest { get; set; }
+    public VerificationRequestEntity? VerificationRequest { get; set; }
     public Guid? ImageId { get; set; }
     [ForeignKey(nameof(ImageId)),]
     public FileEntity? Image { get; set; }

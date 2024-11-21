@@ -76,7 +76,7 @@ namespace IISBackend.DAL.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("FileEntities");
+                    b.ToTable("ImageEntities");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.HealthRecordEntity", b =>
@@ -154,9 +154,6 @@ namespace IISBackend.DAL.Migrations
 
                     b.Property<Guid>("VoluteerId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -8,11 +8,11 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 {
     public DbSet<AnimalEntity> AnimalEntities => Set<AnimalEntity>();
     public DbSet<ReservationRequestEntity> ReservationRequestEntities => Set<ReservationRequestEntity>();
-    public DbSet<VerificationRequest> VerificationRequests => Set<VerificationRequest>();
+    public DbSet<VerificationRequestEntity> VerificationRequests => Set<VerificationRequestEntity>();
     public DbSet<HealthRecordEntity> HealthRecordsEntities => Set<HealthRecordEntity>();
     public DbSet<ScheduleEntryEntity> ScheduleEntities => Set<ScheduleEntryEntity>();
     public DbSet<PendingFileUploadEntity> PendingFileUploadEntities => Set<PendingFileUploadEntity>();
-    public DbSet<FileEntity> FileEntities => Set<FileEntity>();
+    public DbSet<FileEntity> ImageEntities => Set<FileEntity>();
 
 
     public bool IsSeeded() => !(Users.Count() == 0) && !(Roles.Count() == 0);

@@ -60,7 +60,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     public async Task<UserDetailModel?> GetUserByIdAsync(Guid id)
     {
         await using IUnitOfWork uow = _unitOfWorkFactory.Create();
-        UserEntity? entity = await uow.GetUserManager().FindByIdAsync(id.ToString()).ConfigureAwait(false);
+        UserEntity? entity = await uow.GetUserManager().Users.Include(u=>u.Image).FirstOrDefaultAsync(u=>id == u.Id).ConfigureAwait(false);
         if (entity == null)
         {
             return null;
@@ -74,10 +74,14 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     {
         await using IUnitOfWork uow = _unitOfWorkFactory.Create();
         List<UserEntity> entities = await uow
-            .GetUserManager().Users
+            .GetUserManager().Users.Include(u => u.Image)
             .ToListAsync().ConfigureAwait(false);
-
-        return _modelMapper.Map<List<UserListModel>>(entities);
+        var mapped = _modelMapper.Map<List<UserListModel>>(entities);
+        foreach (var user in mapped)
+        {
+            user.Roles = await uow.GetUserManager().GetRolesAsync(entities.First(e => e.Id == user.Id));
+        }
+        return mapped;
     }
 
     public async Task<UserDetailModel?> CreateAsync(UserCreateModel model, string? roleName = null)

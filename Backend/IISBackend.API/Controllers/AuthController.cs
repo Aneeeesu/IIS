@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Mysqlx.Crud;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace IISBackend.API.Controllers;

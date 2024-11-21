@@ -48,9 +48,15 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
             throw new UnauthorizedAccessException("User is not authorized");
         }
 
+        var scheduleRepository = uow.GetRepository<ScheduleEntryEntity>();
+        if (scheduleRepository.Get().FirstOrDefault(o=>o.Id == id) is not null)
+        {
+            throw new ArgumentException("Schedule not found");
+        }
+
         try
         {
-            await uow.GetRepository<ScheduleEntryEntity>().DeleteAsync(id).ConfigureAwait(false);
+            await scheduleRepository.DeleteAsync(id).ConfigureAwait(false);
             await uow.CommitAsync().ConfigureAwait(false);
         }
         catch (DbUpdateException e)
@@ -63,21 +69,27 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 
+        var user = await uow.GetUserManager().Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+            throw new ArgumentException("User not found");
         IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
         query = query.Where(e => e.AnimalId == id);
 
         List<ScheduleEntryEntity> entities = await query.ToListAsync().ConfigureAwait(false);
-        return modelMapper.Map<List<ScheduleListModel>>(entities);
+        return base._modelMapper.Map<List<ScheduleListModel>>(entities);
     }
 
     public async Task<List<ScheduleListModel>> GetVolunteerSchedulesAsync(Guid id)
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 
+        var user = await uow.GetUserManager().Users.FirstOrDefaultAsync(u=>u.Id == id);
+        if (user == null)
+            throw new ArgumentException("User not found");
         IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
         query = query.Where(e => e.VolunteerId == id);
 
         List<ScheduleEntryEntity> entities = await query.ToListAsync().ConfigureAwait(false);
-        return modelMapper.Map<List<ScheduleListModel>>(entities);
+        return base._modelMapper.Map<List<ScheduleListModel>>(entities);
     }
 }

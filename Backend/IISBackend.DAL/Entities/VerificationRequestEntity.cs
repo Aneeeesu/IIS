@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IISBackend.DAL.Entities;
 
-public record VerificationRequest : IEntity
+public record VerificationRequestEntity : IEntity, IUserAuthorized
 {
     public Guid Id { get; set; }
 
@@ -12,12 +12,13 @@ public record VerificationRequest : IEntity
     [ForeignKey("RequesteeID")]
     public UserEntity? Requestee { get; set; }
     public required string Content { get; set; }
+    public Guid GetOwnerID() => RequesteeID;
 }
 
 public class VerificationRequestMapperProfile : Profile
 {
     public VerificationRequestMapperProfile()
     {
-        CreateMap<VerificationRequest, VerificationRequest>();
+        CreateMap<VerificationRequestEntity, VerificationRequestEntity>();
     }
 }

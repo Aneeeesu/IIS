@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IISBackend.DAL.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20241120232754_fixed-file-enitity-name")]
-    partial class fixedfileenitityname
+    [Migration("20241121002400_fixed-names")]
+    partial class fixednames
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,7 +79,7 @@ namespace IISBackend.DAL.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("FileEntities");
+                    b.ToTable("ImageEntities");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.HealthRecordEntity", b =>
@@ -157,9 +157,6 @@ namespace IISBackend.DAL.Migrations
 
                     b.Property<Guid>("VoluteerId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

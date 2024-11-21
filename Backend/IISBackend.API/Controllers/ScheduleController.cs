@@ -37,7 +37,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize(Roles= "Admin,Vet")]
+    [Authorize(Roles = "Admin,Vet")]
     public async Task<ActionResult<ScheduleDetailModel?>> Create(ScheduleCreateModel schedule)
     {
         try
@@ -47,11 +47,12 @@ public class ScheduleController : ControllerBase
             {
                 return Ok(model);
             }
-            else {
+            else
+            {
                 return BadRequest("Schedule not created");
             }
         }
-        catch(ArgumentException e)
+        catch (ArgumentException e)
         {
             return BadRequest(e.Message);
         }
@@ -59,28 +60,54 @@ public class ScheduleController : ControllerBase
 
 
     [HttpDelete("{scheduleId}")]
-    public async Task<ActionResult> Delete(Guid scheduleId)
+    public async Task<ActionResult<Guid?>> Delete(Guid scheduleId)
     {
         try
         {
-            await _scheduleFacade.AuthorizedDeleteAsync(scheduleId,User);
+            await _scheduleFacade.AuthorizedDeleteAsync(scheduleId, User);
             return Ok();
         }
-        catch
+        catch (ArgumentException e)
         {
-            return NotFound("ID not found in database");
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = e.Message });
         }
     }
 
     [HttpGet("Animal/{animalID}")]
     public async Task<ActionResult<List<ScheduleListModel>>> GetAnimalSchedules(Guid animalID)
     {
-        return Ok(await _scheduleFacade.GetAnimalSchedulesAsync(animalID));
+        try
+        {
+            return Ok(await _scheduleFacade.GetAnimalSchedulesAsync(animalID));
+        }
+        catch (ArgumentException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = e.Message });
+        }
     }
 
     [HttpGet("Volunteer/{volunteerID}")]
     public async Task<ActionResult<List<ScheduleListModel>>> GetVolunteerSchedules(Guid volunteerID)
     {
-        return Ok(await _scheduleFacade.GetVolunteerSchedulesAsync(volunteerID));
+        try
+        {
+            return Ok(await _scheduleFacade.GetVolunteerSchedulesAsync(volunteerID));
+        }
+        catch (ArgumentException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = e.Message });
+        }
     }
 }

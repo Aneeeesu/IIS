@@ -7,6 +7,7 @@ using System.Security.Claims;
 using IISBackend.BL.Models.Interfaces;
 using IISBackend.DAL.Entities.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IISBackend.BL.Facades;
 
@@ -20,7 +21,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     where TListModel : class, IModel
     where TDetailModel : class, IModel
 {
-    protected readonly IMapper modelMapper = modelMapper;
+    protected readonly IMapper _modelMapper = modelMapper;
     protected readonly IUnitOfWorkFactory _UOWFactory = unitOfWorkFactory;
 
     protected virtual ICollection<string> IncludesNavigationPathDetail => new List<string>();
@@ -54,27 +55,29 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
 
         return entity is null
             ? null
-            : modelMapper.Map<TDetailModel>(entity);
+            : _modelMapper.Map<TDetailModel>(entity);
     }
 
     // Always use paging in production
     public virtual async Task<IEnumerable<TListModel>> GetAsync()
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
-        List<TEntity> entities = await uow
-            .GetRepository<TEntity>()
-            .Get()
-            .ToListAsync().ConfigureAwait(false);
+        IQueryable<TEntity> query = uow.GetRepository<TEntity>().Get();
+        foreach (string includePath in IncludesNavigationPathDetail)
+        {
+            query = query.Include(includePath);
+        }
+        var entities = await query.ToListAsync().ConfigureAwait(false);
 
-        return modelMapper.Map<List<TListModel>>(entities);
+        return _modelMapper.Map<List<TListModel>>(entities);
     }
 
 
     public virtual async Task<TDetailModel?> CreateAsync(TCreateModel model)
     {
-        TEntity entity = modelMapper.Map<TEntity>(model);
+        TEntity entity = _modelMapper.Map<TEntity>(model);
 
-        IUnitOfWork uow = _UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
         entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
         TEntity insertedEntity = await uow.GetRepository<TEntity>().InsertAsync(entity);
 
@@ -87,14 +90,14 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
             return null;
         }
 
-        return modelMapper.Map<TDetailModel>(insertedEntity);
+        return _modelMapper.Map<TDetailModel>(insertedEntity);
     }
 
     public virtual async Task<TDetailModel?> UpdateAsync(TCreateModel model)
     {
-        TEntity entity = modelMapper.Map<TEntity>(model);
+        TEntity entity = _modelMapper.Map<TEntity>(model);
 
-        IUnitOfWork uow = _UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
 
         TEntity updatedEntity = await uow.GetRepository<TEntity>().UpdateAsync(entity).ConfigureAwait(false);
 
@@ -107,28 +110,28 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
             return null;
         }
 
-        return modelMapper.Map<TDetailModel>(updatedEntity);
+        return _modelMapper.Map<TDetailModel>(updatedEntity);
     }
 
     public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model)
     {
         TDetailModel result;
 
-        TEntity entity = modelMapper.Map<TEntity>(model);
+        TEntity entity = _modelMapper.Map<TEntity>(model);
 
-        IUnitOfWork uow = _UOWFactory.Create();
+        await using IUnitOfWork uow = _UOWFactory.Create();
         IRepository<TEntity> repository = uow.GetRepository<TEntity>();
 
         if (await repository.ExistsAsync(entity).ConfigureAwait(false))
         {
             TEntity updatedEntity = await repository.UpdateAsync(entity).ConfigureAwait(false);
-            result = modelMapper.Map<TDetailModel>(updatedEntity);
+            result = _modelMapper.Map<TDetailModel>(updatedEntity);
         }
         else
         {
             entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
             TEntity insertedEntity = await repository.InsertAsync(entity);
-            result = modelMapper.Map<TDetailModel>(insertedEntity);
+            result = _modelMapper.Map<TDetailModel>(insertedEntity);
         }
         try
         {
