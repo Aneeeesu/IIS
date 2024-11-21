@@ -8,7 +8,6 @@ import '../App.css';
 
 const Animal = () => {
   const [animals, setAnimals] = useState([]);
-  const [editingAnimal, setEditingAnimal] = useState(null);
   const [addingAnimal, setAddingAnimal] = useState(false);
   const [newAnimal, setNewAnimal] = useState({ name: '', age: '', sex: '' });
 
@@ -43,16 +42,6 @@ const Animal = () => {
     } catch (error) {
       console.error('Error adding animal:', error);
     }
-  };
-
-  const handleEditClick = (animal) => {
-    setEditingAnimal(animal);
-    setNewAnimal(animal);
-  };
-
-  const handleCancelAdd = () => {
-    setAddingAnimal(false);
-    setNewAnimal({ name: '', age: '', sex: '' });
   };
 
   return (
