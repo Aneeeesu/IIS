@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AnimalList from '../components/AnimalList';
-import AnimalEditForm from '../components/AnimalEditForm';
+import AnimalAddForm from '../components/AnimalAddForm';
+import Modal from '../components/Modal';
 import { API_BASE_URL } from '../config';
 import '../App.css';
 
 const Animal = () => {
   const [animals, setAnimals] = useState([]);
-  const [editingAnimal, setEditingAnimal] = useState(null);
+  const [addingAnimal, setAddingAnimal] = useState(false);
   const [newAnimal, setNewAnimal] = useState({ name: '', age: '', sex: '' });
 
   useEffect(() => {
@@ -32,38 +33,43 @@ const Animal = () => {
     }
   };
 
-  const handleEditAnimal = async () => {
+  const handleAddAnimal = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/Animal/${editingAnimal.id}`, newAnimal);
-      setAnimals(animals.map(animal => (animal.id === editingAnimal.id ? newAnimal : animal)));
-      setEditingAnimal(null);
+      const response = await axios.post(`${API_BASE_URL}/Animal`, newAnimal);
+      setAnimals([...animals, response.data]);
+      setAddingAnimal(false);
       setNewAnimal({ name: '', age: '', sex: '' });
     } catch (error) {
-      console.error('Error editing animal:', error);
+      console.error('Error adding animal:', error);
     }
-  };
-
-  const handleEditClick = (animal) => {
-    setEditingAnimal(animal);
-    setNewAnimal(animal);
   };
 
   return (
     <div className="container">
       <h1>Animal Management</h1>
+      <button className='button' onClick={() => setAddingAnimal(true)}>Add Animal</button>
       <AnimalList 
         animals={animals}
-        onEdit={handleEditClick}
         onDelete={deleteAnimal}
       />
-
-      {editingAnimal && (
-        <AnimalEditForm
+  
+      <Modal
+        isOpen={addingAnimal}
+        onClose={() => {
+          setAddingAnimal(false);
+          setNewAnimal({ name: '', age: '', sex: '' });
+        }}
+      >
+        <AnimalAddForm
           animal={newAnimal}
           onChange={setNewAnimal}
-          onSave={handleEditAnimal}
+          onSave={handleAddAnimal}
+          onCancel={() => {
+            setAddingAnimal(false);
+            setNewAnimal({ name: '', age: '', sex: '' });
+          }}
         />
-      )}
+      </Modal>
     </div>
   );
 };

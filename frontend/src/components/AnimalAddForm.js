@@ -1,10 +1,10 @@
 import React from 'react';
 import "../App.css";
 
-const AnimalEditForm = ({ animal, onChange, onSave }) => {
+const AnimalAddForm = ({ animal, onChange, onSave, onCancel }) => {
   return (
     <div>
-      <h2>Edit Animal</h2>
+      <h2>Add Animal</h2>
       <input
         type="text"
         placeholder="Name"
@@ -19,18 +19,23 @@ const AnimalEditForm = ({ animal, onChange, onSave }) => {
         value={animal.age}
         onChange={(e) => onChange({ ...animal, age: e.target.value })}
       />
-      <input
-        type="text"
-        placeholder="Sex"
+      <select
         className="input"
         value={animal.sex}
         onChange={(e) => onChange({ ...animal, sex: e.target.value })}
-      />
+      >
+        <option value="">Select Sex</option>
+        <option value="M">M</option>
+        <option value="F">F</option>
+      </select>
       <button className="button" onClick={onSave}>
-        Save
+        Add
+      </button>
+      <button className="button" onClick={onCancel}>
+        Cancel
       </button>
     </div>
   );
 };
 
-export default AnimalEditForm;
+export default AnimalAddForm;

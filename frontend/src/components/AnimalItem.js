@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AnimalItem = ({ animal, onEdit, onDelete }) => {
+const AnimalItem = ({ animal, onDelete }) => {
   const navigate = useNavigate();
 
   const handleClick = (e) => {
@@ -13,12 +13,6 @@ const AnimalItem = ({ animal, onEdit, onDelete }) => {
     <div className="animalItem" onClick={handleClick} style={{ cursor: 'pointer' }}>
       <p>{animal.name}</p>
       <div className="animalActions" onClick={e => e.stopPropagation()}>
-        <button
-          className="button"
-          onClick={() => onEdit(animal)}
-        >
-          Edit
-        </button>
         <button 
           className="deleteButton" 
           onClick={() => onDelete(animal.id)}

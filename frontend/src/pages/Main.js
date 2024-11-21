@@ -10,16 +10,16 @@ const Main = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchAnimals = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/Animal`);
-        setAnimals(response.data);
-      } catch (error) {
-        console.error('Error fetching animals:', error);
-      }
-    };
+  const fetchAnimals = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/Animal`);
+      setAnimals(response.data);
+    } catch (error) {
+      console.error('Error fetching animals:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchAnimals();
   }, []);
 
