@@ -1,14 +1,13 @@
 import React from 'react';
 import AnimalItem from './AnimalItem';
 
-const AnimalList = ({ animals, onEdit, onDelete }) => {
+const AnimalList = ({ animals, onDelete }) => {
   return (
     <ul className="animalList">
       {animals.map(animal => (
         <AnimalItem 
           key={animal.id}
           animal={animal}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
       ))}
