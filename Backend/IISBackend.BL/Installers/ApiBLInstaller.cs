@@ -3,7 +3,7 @@ using IISBackend.BL.Authorization;
 using IISBackend.BL.Facades;
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Services;
-using IISBackend.BL.Services.Facades;
+using IISBackend.BL.Services.Interfaces;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
@@ -34,14 +34,18 @@ namespace IISBackend.BL.Installers
                     policy.Requirements.Add(new UserAllowedToGiveRoleRequirement()));
             });
 
-            if(development)
-                serviceCollection.AddSingleton<IObjectStorageService,InMemoryObjectStorageService>();
+            if (development)
+            {
+                serviceCollection.AddHostedService<MockObjectStorageHttpServerService>();
+                serviceCollection.AddSingleton<IObjectStorageService, InMemoryObjectStorageService>();
+            }
             //else
             //    serviceCollection.AddSingleton<IObjectStorageService, S3ObjectStorageService>();
 
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAccountOwnerAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsOwnerAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler,UserAllowedToGiveRoleAuthorizationHandler>();
+            serviceCollection.AddHostedService<UnusedFilesCleanupService>();
         }
     }
 }

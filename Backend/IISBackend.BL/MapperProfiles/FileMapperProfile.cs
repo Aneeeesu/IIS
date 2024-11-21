@@ -8,6 +8,7 @@ public class FileMapperProfile : Profile
 {
     public FileMapperProfile()
     {
-        CreateMap<FileEntity,FileModel>();
+        CreateMap<FileEntity,FileBaseModel>();
+        CreateMap<FileEntity, FileDetailModel>();
     }
 }

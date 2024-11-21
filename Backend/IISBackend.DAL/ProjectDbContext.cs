@@ -54,9 +54,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<UserEntity>()
             .HasOne(x => x.Image)
-            .WithOne()
-            .HasForeignKey<UserEntity>(u => u.ImageId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .WithMany(x=>x.UserImages);
 
         modelBuilder.Entity<FileEntity>()
             .HasOne(x => x.Owner)
@@ -69,10 +67,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<AnimalEntity>()
             .HasOne(x => x.Image)
-            .WithOne()
-            .OnDelete(DeleteBehavior.Cascade);
-
-
+            .WithMany(x=>x.AnimalImages);
 
         modelBuilder
             .Entity<PendingFileUploadEntity>()

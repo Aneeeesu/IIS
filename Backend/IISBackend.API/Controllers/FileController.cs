@@ -9,8 +9,8 @@ namespace IISBackend.API.Controllers;
 [Route("Files")]
 public class FileController : ControllerBase
 {
-    private readonly IFileUploadFacade _fileFacade;
-    public FileController(IFileUploadFacade fileFacade)
+    private readonly IFileFacade _fileFacade;
+    public FileController(IFileFacade fileFacade)
     {
         _fileFacade = fileFacade;
     }
@@ -47,5 +47,11 @@ public class FileController : ControllerBase
         {
             return BadRequest(e.Message);
         }
+    }
+    [HttpGet("GetAllFiles")]
+    [Authorize(Roles ="Admin")]
+    public async Task<ActionResult<FileDetailModel>> GetAllFiles()
+    {
+        return Ok(await _fileFacade.GetFilesAsync());
     }
 }

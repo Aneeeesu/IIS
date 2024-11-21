@@ -20,6 +20,12 @@ public record AnimalEntity : IEntity
     public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
     public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
     public ICollection<HealthRecordEntity>? HealthRecords { get; set; }
+
+
+}
+partial class FileEntity
+{
+    public ICollection<AnimalEntity>? AnimalImages { get; }
 }
 
 public class AnimalEntityMapperProfile : Profile

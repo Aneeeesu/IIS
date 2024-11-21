@@ -2,6 +2,7 @@
 using IISBackend.DAL.Entities.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security;
 
 namespace IISBackend.DAL.Entities;
 
@@ -15,6 +16,11 @@ public class UserEntity : IdentityUser<Guid>, IEntity
     public FileEntity? Image { get; set; }
 
     public ICollection<FileEntity>? Files { get; set; }
+}
+
+partial class FileEntity
+{
+    public ICollection<UserEntity>? UserImages { get; }
 }
 
 public class UserEntityMapperProfile : Profile

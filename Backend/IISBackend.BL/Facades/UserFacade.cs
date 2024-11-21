@@ -148,10 +148,6 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         {
             throw new UnauthorizedAccessException("User is not authorized to assign this image");
         }
-        else if (fileEntity.Used && existingUser.ImageId != fileEntity.Id)
-        {
-            throw new ArgumentException("Image is already in use");
-        }
     }
 
     public async Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal userPrincipal)
@@ -171,9 +167,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         {
             var requestedImage = await uow.GetRepository<FileEntity>().Get().Where(e => e.Id == model.ImageId).FirstOrDefaultAsync() ?? throw new ArgumentException("Image not found");
             await CheckIfFileOperationIsValid(requestedImage, userPrincipal, existingUser, _authService);
-            if(existingUser.Image!=null)existingUser.Image.Used = false;
             existingUser.Image = requestedImage;
-            requestedImage.Used = true;
         }
 
         // Check if the current user is trying to update their own profile

@@ -21,6 +21,7 @@ services:
 
   db:
     image: "mysql"
+    restart: "always"
     container_name: iis-backend-dev-db
     volumes:
       - iis-backend-volume:/var/opt/mssql

@@ -40,8 +40,20 @@ public class AnimalController : ControllerBase
     [Authorize(Roles = "Admin,Vet")]
     public async Task<ActionResult<AnimalDetailModel>> Upsert(AnimalCreateModel animal)
     {
-        var detailModel = await _animalFacade.SaveAsync(animal);
-        return Ok(detailModel);
+        try
+        {
+            var detailModel = await _animalFacade.SaveAsync(animal);
+            return Ok(detailModel);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (InvalidOperationException e)
+        {
+            //return StatusCode(500, e.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, "Error while saving entity");
+        }
     }
 
     [HttpDelete("{animalId}")]

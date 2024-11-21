@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.File;
-using IISBackend.BL.Services.Facades;
+using IISBackend.BL.Services.Interfaces;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace IISBackend.BL.Facades;
 
-public class FileUploadFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService objectStorage,IMapper mapper,IAuthorizationService authService) : IFileUploadFacade
+public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService objectStorage,IMapper mapper,IAuthorizationService authService) : IFileFacade
 {
     private readonly IUnitOfWorkFactory _uowFactory = uowFactory;
     private readonly IObjectStorageService _objectStorage = objectStorage;
@@ -90,7 +90,6 @@ public class FileUploadFacade(IUnitOfWorkFactory uowFactory,IObjectStorageServic
             UploadDate = DateTime.UtcNow,
             FileType = "image/png",
             Url = file.Url,
-            Used = false
         });
         try
         {
@@ -107,5 +106,33 @@ public class FileUploadFacade(IUnitOfWorkFactory uowFactory,IObjectStorageServic
         }
 
         return result.Id;
+    }
+
+    public async Task DeleteUnusedFiles(TimeSpan timeSpan)
+    {
+        try
+        {
+            await using IUnitOfWork uow = _uowFactory.Create();
+            var fileRepository = uow.GetRepository<FileEntity>();
+            var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages.Count == 0 && f.UserImages.Count == 0 && f.UploadDate < DateTime.UtcNow.Add(timeSpan)).ToListAsync();
+            foreach (var file in files)
+            {
+                await _objectStorage.DeleteObjectAsync("mockBucket", file.Url);
+                await fileRepository.DeleteAsync(file.Id);
+            }
+            await uow.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException("Failed to delete unused files", e);
+        }
+    }
+
+    public async Task<ICollection<FileDetailModel>> GetFilesAsync()
+    {
+        await using IUnitOfWork uow = _uowFactory.Create();
+        var fileRepository = uow.GetRepository<FileEntity>();
+        var files = await fileRepository.Get().Include(x=>x.AnimalImages).Include(x=>x.UserImages).ToListAsync();
+        return _mapper.Map<ICollection<FileDetailModel>>(files);
     }
 }

@@ -5,5 +5,5 @@ namespace IISBackend.BL.Models.User;
 public record UserListModel : UserBaseModel {
     public required string UserName { get; set; }
     public required ICollection<string> Roles { get; set; }
-    public FileModel? Image { get; set; }
+    public FileBaseModel? Image { get; set; }
 }
