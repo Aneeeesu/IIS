@@ -79,6 +79,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
 
         await using IUnitOfWork uow = _UOWFactory.Create();
         entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+
         TEntity insertedEntity = await uow.GetRepository<TEntity>().InsertAsync(entity);
 
         try

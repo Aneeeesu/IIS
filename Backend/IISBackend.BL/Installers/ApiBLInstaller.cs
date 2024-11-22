@@ -36,6 +36,8 @@ namespace IISBackend.BL.Installers
                     policy.Requirements.Add(new UserIsAllowedToRequestRequirement()));
                 options.AddPolicy("UserIsAllowedToApproveRequest", policy =>
                     policy.Requirements.Add(new UserIsAllowedToApproveRequestRequirement()));
+                options.AddPolicy("UserAllowedToManageScheduleRequest", policy =>
+                    policy.Requirements.Add(new UserAllowedToManageScheduleRequirement()));
             });
 
             if (development)
@@ -51,6 +53,7 @@ namespace IISBackend.BL.Installers
             serviceCollection.AddSingleton<IAuthorizationHandler, UserAllowedToGiveRoleAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAllowedToRequestAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAllowedToApproveRequestAuthorizationHandler>();
+            serviceCollection.AddSingleton<IAuthorizationHandler, UserAllowedToManageScheduleAuthorizationHandler>();
             serviceCollection.AddHostedService<UnusedFilesCleanupService>();
         }
     }

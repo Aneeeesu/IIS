@@ -60,7 +60,7 @@ public class ReservationRequestController : ControllerBase
         }
     }
 
-    [HttpDelete("Cancel")]
+    [HttpDelete("Cancel/{id}")]
     public async Task<ActionResult<Guid?>> CancelRequest(Guid id)
     {
         try

@@ -6,7 +6,7 @@ using IISBackend.BL.Models.Requests;
 
 public interface IReservationRequestFacade : IFacadeCRUD<ReservationRequestEntity, ReservationRequestCreateModel,ReservationRequestListModel,ReservationRequestDetailModel>
 {
-    Task<ReservationRequestDetailModel?> AuthorizedCreateRequest(ReservationRequestCreateModel model, ClaimsPrincipal user);
+    Task<ReservationRequestDetailModel> AuthorizedCreateRequest(ReservationRequestCreateModel model, ClaimsPrincipal user);
     Task<ScheduleDetailModel?> AuthorizedResolveRequest(Guid id,bool approved, ClaimsPrincipal user);
     Task AuthorizedCancelRequest(Guid id, ClaimsPrincipal user);
 }

@@ -42,19 +42,16 @@ public class ScheduleController : ControllerBase
     {
         try
         {
-            var model = await _scheduleFacade.CreateAsync(schedule);
-            if (model is not null)
-            {
-                return Ok(model);
-            }
-            else
-            {
-                return BadRequest("Schedule not created");
-            }
+            var model = await _scheduleFacade.AuthorizedCreateAsync(schedule,User);
+            return Ok(model);
         }
         catch (ArgumentException e)
         {
-            return BadRequest(e.Message);
+            return BadRequest( e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 

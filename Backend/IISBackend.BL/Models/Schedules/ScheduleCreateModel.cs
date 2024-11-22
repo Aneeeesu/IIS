@@ -2,6 +2,6 @@
 
 public record ScheduleCreateModel : ScheduleBaseModel
 {
-    public required Guid VolunteerId { get; set; }
+    public Guid? UserId { get; set; }
     public required Guid AnimalId { get; set; }
 }
