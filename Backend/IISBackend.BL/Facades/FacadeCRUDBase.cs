@@ -73,12 +73,16 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
     }
 
 
-    public virtual async Task<TDetailModel?> CreateAsync(TCreateModel model)
+    public virtual async Task<TDetailModel> CreateAsync(TCreateModel model)
     {
         TEntity entity = _modelMapper.Map<TEntity>(model);
 
         await using IUnitOfWork uow = _UOWFactory.Create();
         entity.Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id;
+
+        var existingEntity = await uow.GetRepository<TEntity>().Get().FirstOrDefaultAsync(o => o.Id == entity.Id).ConfigureAwait(false);
+        if (existingEntity != null)
+            throw new ArgumentException("Entity with this ID already exists");
 
         TEntity insertedEntity = await uow.GetRepository<TEntity>().InsertAsync(entity);
 
@@ -88,17 +92,21 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         }
         catch
         {
-            return null;
+            throw new InvalidOperationException("Error while saving entity");
         }
 
         return _modelMapper.Map<TDetailModel>(insertedEntity);
     }
 
-    public virtual async Task<TDetailModel?> UpdateAsync(TCreateModel model)
+    public virtual async Task<TDetailModel> UpdateAsync(TCreateModel model)
     {
         TEntity entity = _modelMapper.Map<TEntity>(model);
 
         await using IUnitOfWork uow = _UOWFactory.Create();
+
+        var existingEntity = await uow.GetRepository<TEntity>().Get().FirstOrDefaultAsync(o => o.Id == entity.Id).ConfigureAwait(false);
+        if (existingEntity == null)
+            throw new ArgumentException("Entity doesn't exist in database");
 
         TEntity updatedEntity = await uow.GetRepository<TEntity>().UpdateAsync(entity).ConfigureAwait(false);
 
@@ -108,13 +116,13 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         }
         catch
         {
-            return null;
+            throw new InvalidOperationException("Error while saving entity");
         }
 
         return _modelMapper.Map<TDetailModel>(updatedEntity);
     }
 
-    public virtual async Task<TDetailModel?> SaveAsync(TCreateModel model)
+    public virtual async Task<TDetailModel> SaveAsync(TCreateModel model)
     {
         TDetailModel result;
 
@@ -140,7 +148,7 @@ public abstract class FacadeCRUDBase<TEntity,TCreateModel, TListModel, TDetailMo
         }
         catch
         {
-            return null;
+            throw new InvalidOperationException("Error while saving entity");
         }
 
         return result;

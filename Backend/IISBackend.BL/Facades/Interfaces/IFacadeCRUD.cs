@@ -12,8 +12,8 @@ public interface IFacadeCRUD<TEntity, TCreateModel, TListModel, TDetailModel> : 
     Task DeleteAsync(Guid id);
     Task<TDetailModel?> GetAsync(Guid id);
     Task<IEnumerable<TListModel>> GetAsync();
-    Task<TDetailModel?> SaveAsync(TCreateModel model);
-    Task<TDetailModel?> CreateAsync(TCreateModel model);
-    Task<TDetailModel?> UpdateAsync(TCreateModel model);
+    Task<TDetailModel> SaveAsync(TCreateModel model);
+    Task<TDetailModel> CreateAsync(TCreateModel model);
+    Task<TDetailModel> UpdateAsync(TCreateModel model);
 
 }
