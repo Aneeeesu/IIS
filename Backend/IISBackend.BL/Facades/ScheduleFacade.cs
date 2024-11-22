@@ -23,6 +23,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
 
     public override Task<ScheduleDetailModel?> CreateAsync(ScheduleCreateModel model)
     {
+
         return base.CreateAsync(model);
     }
 

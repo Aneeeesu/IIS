@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IISBackend.DAL.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20241121191808_init")]
+    [Migration("20241122134404_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -145,7 +145,13 @@ namespace IISBackend.DAL.Migrations
                     b.Property<Guid>("AnimalId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("CreatorID")
+                        .HasColumnType("char(36)");
+
                     b.Property<Guid?>("TargetScheduleId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TargetUserId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("Time")
@@ -154,16 +160,15 @@ namespace IISBackend.DAL.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
 
+                    b.HasIndex("CreatorID");
+
                     b.HasIndex("TargetScheduleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TargetUserId");
 
                     b.ToTable("ReservationRequestEntities");
                 });
@@ -472,22 +477,30 @@ namespace IISBackend.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("IISBackend.DAL.Entities.ScheduleEntryEntity", "TargetSchedule")
                         .WithMany("WalkRequests")
                         .HasForeignKey("TargetScheduleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "User")
+                    b.HasOne("IISBackend.DAL.Entities.UserEntity", "TargetUser")
                         .WithMany("ReservationRequests")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("TargetUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Animal");
 
+                    b.Navigation("Creator");
+
                     b.Navigation("TargetSchedule");
 
-                    b.Navigation("User");
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("IISBackend.DAL.Entities.ScheduleEntryEntity", b =>

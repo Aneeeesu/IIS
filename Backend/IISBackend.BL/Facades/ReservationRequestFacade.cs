@@ -15,11 +15,26 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
 {
 
     private readonly IAuthorizationService _authService = authService;
-    protected override ICollection<string> IncludesNavigationPathDetail => new[] { $"{nameof(ReservationRequestEntity.Animal)}", $"{nameof(ReservationRequestEntity.User)}" };
+    protected override ICollection<string> IncludesNavigationPathDetail => new[] { $"{nameof(ReservationRequestEntity.Animal)}", $"{nameof(ReservationRequestEntity.TargetUser)}",$"{nameof(ReservationRequestEntity.Creator)}" };
 
     private ScheduleEntryEntity? GetWalkSchedule(ReservationRequestCreateModel model, IUnitOfWork uow)
     {
-        return uow.GetRepository<ScheduleEntryEntity>().Get().FirstOrDefault(o => o.Type == Common.Enums.ScheduleType.availableForWalk && o.AnimalId == model.AnimalID && o.Time == model.Time);
+        return uow.GetRepository<ScheduleEntryEntity>().Get().FirstOrDefault(o => o.Type == Common.Enums.ScheduleType.availableForWalk && o.AnimalId == model.AnimalId && o.Time == model.Time);
+    }
+
+    private async Task ValidateTargetUser(ReservationRequestEntity reservation, IUnitOfWork uow,UserEntity targetUserEntity)
+    {
+        switch(reservation.Type)
+        {
+            case ScheduleType.walk:
+                if(reservation.CreatorID != reservation.TargetUserId)
+                    throw new ArgumentException("Cannot create walk request for different user");
+                break;
+            case ScheduleType.vetVisit:
+                if (!await uow.GetUserManager().IsInRoleAsync(targetUserEntity, "Vet"))
+                    throw new ArgumentException("Target user is not Vet");
+                break;
+        }
     }
 
     public async Task<ReservationRequestDetailModel> AuthorizedCreateRequest(ReservationRequestCreateModel model, ClaimsPrincipal user)
@@ -34,7 +49,9 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
 
         await using var uow = _UOWFactory.Create();
         var requestRepository =  uow.GetRepository<ReservationRequestEntity>();
-        if(requestRepository.Get().FirstOrDefault(o=>o.Id == entity.Id) is not null)
+        var requestor = await uow.GetUserManager().GetUserAsync(user) ?? throw new UnauthorizedAccessException("Requesting user not found");
+        entity.CreatorID = requestor.Id;
+        if (requestRepository.Get().FirstOrDefault(o=>o.Id == entity.Id) is not null)
         {
             throw new ArgumentException("Request already exists");
         }
@@ -44,7 +61,7 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         var volunteerRepository = uow.GetRepository<UserEntity>();
 
         var animal = await animalRepository.Get().Include(x => x.ScheduleEntries).FirstOrDefaultAsync(o => o.Id == entity.AnimalId);
-        var userEntity = await volunteerRepository.Get().Include(x => x.ScheduleEntries).FirstOrDefaultAsync(o => o.Id == entity.UserId);
+        var userEntity = await volunteerRepository.Get().Include(x => x.ScheduleEntries).FirstOrDefaultAsync(o => o.Id == entity.TargetUserId);
         if (animal is null || userEntity is null)
         {
             var messages = new List<string>();
@@ -54,7 +71,7 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
             }
             if (userEntity is null)
             {
-                messages.Add("Volunteer not found");
+                messages.Add("Target user not found");
             }
             throw new ArgumentException(string.Join($"{Environment.NewLine}", messages));
         }
@@ -76,6 +93,8 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
             }
         }
 
+        await ValidateTargetUser(entity, uow, userEntity);
+
         try
         {
             await requestRepository.InsertAsync(entity);
@@ -88,16 +107,40 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         }
     }
 
-    public Task AuthorizedCancelRequest(Guid id, ClaimsPrincipal user)
+    public async Task AuthorizedCancelRequest(Guid id, ClaimsPrincipal user)
     {
-        throw new NotImplementedException();
+        await using var uow = _UOWFactory.Create();
+        var requestRepository = uow.GetRepository<ReservationRequestEntity>();
+        var request = await requestRepository.Get().Include(x => x.Animal).Include(x => x.TargetUser).Include(x => x.TargetSchedule).FirstOrDefaultAsync(o => o.Id == id);
+        ScheduleEntryEntity? resultingSchedule = null;
+        if (request is null)
+        {
+            throw new InvalidDataException("Request not found");
+        }
+
+        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequest") is not { Succeeded: true } &&
+            await _authService.AuthorizeAsync(user,request,"UserIsOwnerRequirement") is not { Succeeded: true})
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
+
+
+        await requestRepository.DeleteAsync(id);
+        try
+        {
+            await uow.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException("Failed to resolve the reservation request", e);
+        }
     }
 
     public async Task<ScheduleDetailModel?> AuthorizedResolveRequest(Guid id, bool approved, ClaimsPrincipal user)
     {
         await using var uow = _UOWFactory.Create();
         var requestRepository = uow.GetRepository<ReservationRequestEntity>();
-        var request = await requestRepository.Get().Include(x => x.Animal).Include(x => x.User).Include(x => x.TargetSchedule).FirstOrDefaultAsync(o => o.Id == id);
+        var request = await requestRepository.Get().Include(x => x.Animal).Include(x => x.TargetUser).Include(x => x.TargetSchedule).FirstOrDefaultAsync(o => o.Id == id);
         ScheduleEntryEntity? resultingSchedule = null;
         if (request is null)
         {

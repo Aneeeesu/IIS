@@ -9,9 +9,9 @@ public record ReservationRequestEntity : IEntity, IUserAuthorized
 {
     public Guid Id { get; set; }
 
-    public required Guid UserId { get; set; }
-    [ForeignKey(nameof(UserId))]
-    public UserEntity? User { get; }
+    public required Guid TargetUserId { get; set; }
+    [ForeignKey(nameof(TargetUserId))]
+    public UserEntity? TargetUser { get; }
     public required Guid AnimalId { get; set; }
     [ForeignKey(nameof(AnimalId))]
     public AnimalEntity? Animal { get; }
@@ -20,7 +20,11 @@ public record ReservationRequestEntity : IEntity, IUserAuthorized
     public Guid? TargetScheduleId { get; set; }
     [ForeignKey(nameof(TargetScheduleId))]
     public ScheduleEntryEntity? TargetSchedule { get; }
-    public Guid GetOwnerID() => User!.Id;
+
+    public required Guid CreatorID { get; set; }
+    [ForeignKey(nameof(CreatorID))]
+    public UserEntity? Creator { get; set; }
+    public Guid GetOwnerID() => CreatorID;
 }
 
 public class ReservationRequestEntityMapperProfile : Profile
@@ -28,6 +32,6 @@ public class ReservationRequestEntityMapperProfile : Profile
     public ReservationRequestEntityMapperProfile()
     {
         CreateMap<ReservationRequestEntity, ReservationRequestEntity>();
-        CreateMap<ReservationRequestEntity, ScheduleEntryEntity>();
+        CreateMap<ReservationRequestEntity, ScheduleEntryEntity>().ForMember(dest=>dest.UserId,opt=>opt.MapFrom(src=>src.TargetUserId));
     }
 }

@@ -1,6 +1,4 @@
-﻿using IISBackend.BL.Models.Animal;
-using IISBackend.BL.Models.Interfaces;
-using IISBackend.BL.Models.User;
+﻿using IISBackend.BL.Models.Interfaces;
 using IISBackend.BL.Validators;
 using IISBackend.Common.Enums;
 using IISBackend.DAL.Entities;
@@ -17,22 +15,4 @@ public class ReservationRequestBaseModel : IModel
 
     [RequestValidEnum(ErrorMessage = "Invalid request type")]
     public required ScheduleType Type { get; set; }
-}
-
-public class ReservationRequestListModel : ReservationRequestBaseModel
-{
-    public required UserListModel User { get; set; }
-    public required AnimalListModel Animal { get; set; }
-}
-
-public class ReservationRequestDetailModel : ReservationRequestBaseModel
-{
-    public required UserListModel User { get; set; }
-    public required AnimalListModel Animal { get; set; }
-}
-
-public class ReservationRequestCreateModel : ReservationRequestBaseModel
-{
-    public required Guid UserID { get; set; }
-    public required Guid AnimalID { get; set; }
 }

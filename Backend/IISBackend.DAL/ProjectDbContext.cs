@@ -24,7 +24,7 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
 
         modelBuilder.Entity<UserEntity>()
             .HasMany(x => x.ReservationRequests)
-            .WithOne(x => x.User)
+            .WithOne(x => x.TargetUser)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AnimalEntity>()
@@ -71,6 +71,11 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
         modelBuilder
             .Entity<PendingFileUploadEntity>()
             .HasOne(x => x.Uploader)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ReservationRequestEntity>()
+            .HasOne(x => x.Creator)
             .WithMany()
             .OnDelete(DeleteBehavior.Cascade);
 

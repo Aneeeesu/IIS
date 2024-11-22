@@ -60,6 +60,28 @@ public class ReservationRequestController : ControllerBase
         }
     }
 
+    [HttpDelete("Cancel")]
+    public async Task<ActionResult<Guid?>> CancelRequest(Guid id)
+    {
+        try
+        {
+            await _reservationRequestFacade.AuthorizedCancelRequest(id, User);
+            return Ok(id);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
+        catch (InvalidDataException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+
     [HttpPost("Resolve/{id}")]
     public async Task<ActionResult<ReservationRequestDetailModel?>> ResolveRequest(Guid id,bool Approved)
     {

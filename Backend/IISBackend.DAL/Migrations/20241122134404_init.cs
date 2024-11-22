@@ -290,11 +290,12 @@ namespace IISBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TargetUserId = table.Column<Guid>(type: "char(36)", nullable: false),
                     AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    TargetScheduleId = table.Column<Guid>(type: "char(36)", nullable: true)
+                    TargetScheduleId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    CreatorID = table.Column<Guid>(type: "char(36)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -306,8 +307,14 @@ namespace IISBackend.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ReservationRequestEntities_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ReservationRequestEntities_AspNetUsers_CreatorID",
+                        column: x => x.CreatorID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationRequestEntities_AspNetUsers_TargetUserId",
+                        column: x => x.TargetUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -399,14 +406,19 @@ namespace IISBackend.DAL.Migrations
                 column: "AnimalId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReservationRequestEntities_CreatorID",
+                table: "ReservationRequestEntities",
+                column: "CreatorID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReservationRequestEntities_TargetScheduleId",
                 table: "ReservationRequestEntities",
                 column: "TargetScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReservationRequestEntities_UserId",
+                name: "IX_ReservationRequestEntities_TargetUserId",
                 table: "ReservationRequestEntities",
-                column: "UserId");
+                column: "TargetUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScheduleEntities_AnimalId",
