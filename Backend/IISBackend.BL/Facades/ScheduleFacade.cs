@@ -44,6 +44,13 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         existingSchedule = scheduleRepository.Get().FirstOrDefault(o => o.Time == schedule.Time && o.AnimalId == schedule.AnimalId);
         if (existingSchedule is not null) throw new ArgumentException("Schedule already exists");
 
+        var requestRepository = uow.GetRepository<ReservationRequestEntity>();
+
+        foreach (var requests in requestRepository.Get().Where(o => o.Time == schedule.Time && o.AnimalId == schedule.AnimalId))
+        {
+            await requestRepository.DeleteAsync(requests.Id);
+        }
+
         ScheduleEntryEntity insertedSchedule = await uow.GetRepository<ScheduleEntryEntity>().InsertAsync(schedule);
 
         try
