@@ -295,3 +295,31 @@
 .backButton:hover {
   background-color: #1976d2;
 }
+
+.requestItem {
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.requestItem:hover {
+  transform: translateX(4px);
+}
+
+.requestItem p {
+  margin: 4px 0;
+}
+
+.requestItem .time {
+  color: #f57c00;
+  font-weight: 500;
+}
+
+.requestItem .animalName {
+  font-size: 1.1em;
+  color: #333;
+}

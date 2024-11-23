@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace IISBackend.API.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("Animal")]
 public class AnimalController : ControllerBase
 {
