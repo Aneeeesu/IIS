@@ -1,4 +1,5 @@
 ﻿using IISBackend.BL.Facades.Interfaces;
+using IISBackend.BL.Models;
 using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -15,9 +16,9 @@ public class AuthController(IUserFacade userFacade) : ControllerBase
 {
 
     [HttpPost("Login")]
-    public async Task<SignInResult> Login(string name,string password)
+    public async Task<SignInResult> Login(LoginModel login)
     {
-        return await userFacade.Login(name, password);
+        return await userFacade.Login(login);
     }
 
     [Authorize]

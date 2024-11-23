@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IISBackend.BL.Models;
 using IISBackend.BL.Models.User;
 using IISBackend.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +12,7 @@ namespace IISBackend.BL.Facades.Interfaces
     public interface IUserFacade
         : IFacade
     {
-        Task<SignInResult> Login(string name, string password);
+        Task<SignInResult> Login(LoginModel login);
         Task Logout();
         Guid? GetCurrentUserGuid(ClaimsPrincipal user);
         Task<List<UserListModel>> GetAsync();

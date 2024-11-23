@@ -2,7 +2,7 @@
 
 namespace IISBackend.BL.Models.Animal;
 
-public record AnimalListModel : ModelBase
+public record AnimalListModel : AnimalBaseModel
 {
     public required string Name { get; set; }
     public required FileBaseModel Image { get; set; }

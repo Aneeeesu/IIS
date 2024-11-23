@@ -5,7 +5,7 @@ using IISBackend.DAL.Entities;
 
 namespace IISBackend.BL.Models.Requests;
 
-public class ReservationRequestBaseModel : IModel
+public record ReservationRequestBaseModel : IModel
 {
     public Guid Id { get; init; }
 

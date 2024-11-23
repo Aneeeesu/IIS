@@ -3,7 +3,7 @@ using IISBackend.Common.Enums;
 
 namespace IISBackend.BL.Models.Animal;
 
-public record AnimalDetailModel : ModelBase
+public record AnimalDetailModel : AnimalBaseModel
 {
     public required string Name { get; set; }
     public required FileBaseModel Image { get; set; }

@@ -2,7 +2,7 @@
 
 namespace IISBackend.BL.Models.Animal;
 
-public record AnimalCreateModel : ModelBase
+public record AnimalCreateModel : AnimalBaseModel
 {
     public required string Name { get; set; }
     public Guid? ImageID { get; set; }

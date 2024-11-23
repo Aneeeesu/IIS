@@ -2,7 +2,7 @@
 
 namespace IISBackend.BL.Models.Roles;
 
-public class RoleListModel
+public record RoleListModel
 {
     public string Name { get; set; }
 }

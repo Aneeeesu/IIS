@@ -13,23 +13,24 @@ using System.Linq;
 using System.Data;
 using IISBackend.DAL.Entities.Interfaces;
 using System.Runtime.CompilerServices;
+using IISBackend.BL.Models;
 
 
 namespace IISBackend.BL.Facades;
 
 public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationService _authService, IMapper _modelMapper) : IUserFacade
 {
-    public async Task<SignInResult> Login(string name, string password)
+    public async Task<SignInResult> Login(LoginModel login)
     {
         await using IUnitOfWork uow = _unitOfWorkFactory.Create();
         var signInManager = uow.GetSignInManager();
-        var user = await uow.GetUserManager().FindByNameAsync(name);
+        var user = await uow.GetUserManager().FindByNameAsync(login.Name);
         if (user == null)
         {
             return SignInResult.Failed;
         }
 
-        var signInResult = await signInManager.CheckPasswordSignInAsync(user, password, false);
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, login.Password, false);
 
         if (!signInResult.Succeeded)
         {

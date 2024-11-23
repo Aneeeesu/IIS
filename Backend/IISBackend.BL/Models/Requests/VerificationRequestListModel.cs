@@ -2,7 +2,7 @@
 
 namespace IISBackend.BL.Models.Requests;
 
-public class VerificationRequestListModel : VerificationRequestBaseModel
+public record VerificationRequestListModel : VerificationRequestBaseModel
 {
     public required UserListModel Requestee { get; set; }
 }

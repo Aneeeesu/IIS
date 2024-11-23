@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IISBackend.BL.Models.Requests;
 
-public class VerificationRequestBaseModel : IModel
+public record VerificationRequestBaseModel : IModel
 {
     public Guid Id { get; init; }
 }
