@@ -5,6 +5,19 @@
   margin: 0 auto;
 }
 
+.animalDetail {
+  margin-bottom: 20px;
+}
+
+.schedulePanel {
+  margin-bottom: 20px;
+}
+
+.schedulePanel label {
+  display: block;
+  margin-bottom: 10px;
+}
+
 /* Forms and Inputs */
 .form {
   display: flex;
@@ -22,6 +35,21 @@
   border-radius: 4px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+}
+
+.add-animal-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.add-animal-form input,
+.add-animal-form select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 /* Buttons */
@@ -60,6 +88,55 @@
   background-color: #c82333;
 }
 
+.add-animal-form button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-animal-form button:hover {
+  background-color: #45a049;
+}
+
+.hourButton {
+  flex: 1 0 60px;
+  padding: 10px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.hourButton.selected {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.hourButton.reserved {
+  background-color: #f44336;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.submitButton,
+.backButton {
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submitButton:hover,
+.backButton:hover {
+  background-color: #1976d2;
+}
+
 /* Lists and Items */
 .animalList, 
 .userList, 
@@ -86,6 +163,64 @@
   border-radius: 8px;
 }
 
+.animalItem:hover, 
+.animalCard:hover {
+  background-color: #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.requestItem {
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.requestItem:hover {
+  transform: translateX(4px);
+}
+
+.requestItem p {
+  margin: 4px 0;
+}
+
+.requestItem .time {
+  color: #f57c00;
+  font-weight: 500;
+}
+
+.requestItem .animalName {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.verificationRequests {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+.verificationRequestItem {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.verificationRequestItem p {
+  margin: 0;
+}
+
+.verificationRequestItem .button {
+  margin-top: 10px;
+}
+
 /* Animal Management */
 .animal-management-section {
   margin: 20px 0;
@@ -100,45 +235,11 @@
   border-radius: 8px;
 }
 
-.add-animal-form {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 400px;
-}
-
-.add-animal-form input,
-.add-animal-form select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.add-animal-form button {
-  padding: 8px 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-animal-form button:hover {
-  background-color: #45a049;
-}
-
 .animalCard {
   padding: 15px;
   margin: 10px 0;
   background-color: #f5f5f5;
   border-radius: 8px;
-}
-
-.animalItem:hover, 
-.animalCard:hover {
-  background-color: #f0f0f0;
-  transition: background-color 0.2s;
 }
 
 /* Navigation */
@@ -189,6 +290,7 @@
   font-weight: 500;
 }
 
+/* Roles Section */
 .roles-section {
   margin: 10px 0;
 }
@@ -203,6 +305,7 @@
   margin-right: 5px;
 }
 
+/* Modal */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -234,92 +337,4 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-}
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.animalDetail {
-  margin-bottom: 20px;
-}
-
-.schedulePanel {
-  margin-bottom: 20px;
-}
-
-.schedulePanel label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.hourButtons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.hourButton {
-  flex: 1 0 60px;
-  padding: 10px;
-  background-color: #e0e0e0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.hourButton.selected {
-  background-color: #4caf50;
-  color: #fff;
-}
-
-.hourButton.reserved {
-  background-color: #f44336;
-  color: #fff;
-  cursor: not-allowed;
-}
-
-.submitButton,
-.backButton {
-  padding: 10px 20px;
-  margin-top: 20px;
-  background-color: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.submitButton:hover,
-.backButton:hover {
-  background-color: #1976d2;
-}
-
-.requestItem {
-  background-color: #fff3e0;
-  border-left: 4px solid #ff9800;
-  border-radius: 4px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.requestItem:hover {
-  transform: translateX(4px);
-}
-
-.requestItem p {
-  margin: 4px 0;
-}
-
-.requestItem .time {
-  color: #f57c00;
-  font-weight: 500;
-}
-
-.requestItem .animalName {
-  font-size: 1.1em;
-  color: #333;
 }
