@@ -38,8 +38,11 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
 
         schedule.Id = schedule.Id == Guid.Empty ? Guid.NewGuid() : schedule.Id;
 
-        var existingSchedule = scheduleRepository.Get().FirstOrDefault(o => o.Id == schedule.Id) ?? throw new ArgumentException("Schedule id is taken");
-        existingSchedule = scheduleRepository.Get().FirstOrDefault(o => o.Time == schedule.Time && o.AnimalId == schedule.AnimalId) ?? throw new ArgumentException("Schedule already exists");
+        var existingSchedule = scheduleRepository.Get().FirstOrDefault(o => o.Id == schedule.Id);
+        if (existingSchedule is not null) throw new ArgumentException("Schedule id is taken");
+
+        existingSchedule = scheduleRepository.Get().FirstOrDefault(o => o.Time == schedule.Time && o.AnimalId == schedule.AnimalId);
+        if (existingSchedule is not null) throw new ArgumentException("Schedule already exists");
 
         ScheduleEntryEntity insertedSchedule = await uow.GetRepository<ScheduleEntryEntity>().InsertAsync(schedule);
 
@@ -106,9 +109,9 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 
-        var user = await uow.GetUserManager().Users.FirstOrDefaultAsync(u => u.Id == id);
-        if (user == null)
-            throw new ArgumentException("User not found");
+        var animal = await uow.GetRepository<AnimalEntity>().Get().FirstOrDefaultAsync(a=>a.Id == id);
+        if (animal == null)
+            throw new ArgumentException("Animal not found");
         IQueryable<ScheduleEntryEntity> query = uow.GetRepository<ScheduleEntryEntity>().Get();
         query = query.Where(e => e.AnimalId == id);
 

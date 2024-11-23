@@ -37,7 +37,6 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize(Roles = "Admin,Vet")]
     public async Task<ActionResult<ScheduleDetailModel?>> Create(ScheduleCreateModel schedule)
     {
         try
