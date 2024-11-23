@@ -1,18 +1,20 @@
 ﻿using AutoMapper;
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.BL.Models.File;
+using IISBackend.BL.Options;
 using IISBackend.BL.Services.Interfaces;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Data.Entity.Validation;
 using System.Security.Claims;
 
 namespace IISBackend.BL.Facades;
 
-public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService objectStorage,IMapper mapper,IAuthorizationService authService) : IFileFacade
+public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService objectStorage,IMapper mapper,IAuthorizationService authService,FileStorageOptions options) : IFileFacade
 {
     private readonly IUnitOfWorkFactory _uowFactory = uowFactory;
     private readonly IObjectStorageService _objectStorage = objectStorage;
@@ -20,16 +22,14 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
 
     private static readonly string[] AllowedFileTypes = { ".png", ".jpg", ".jpeg", ".gif" };
 
-    public async Task<PendingFileUploadModel> GeneratePresignedUrlAsync(string bucketName, string fileType, TimeSpan expiration, ClaimsPrincipal User)
+    public async Task<PendingFileUploadModel> GeneratePresignedUrlAsync(string fileType, TimeSpan expiration, ClaimsPrincipal User)
     {
         var guid = Guid.NewGuid();
-        if (string.IsNullOrEmpty(bucketName))
-            throw new ArgumentException("Bucket name cannot be empty", nameof(bucketName));
         if (string.IsNullOrEmpty(fileType))
             throw new ArgumentException("File name cannot be empty", nameof(fileType));
         if(!AllowedFileTypes.Contains(fileType))
             throw new ArgumentException("Invalid file type", nameof(fileType));
-        var url = await objectStorage.GeneratePresignedUrlAsync(bucketName, guid.ToString() + fileType, expiration);
+        var url = await _objectStorage.GeneratePresignedUrlAsync(options.BucketName, guid.ToString() + fileType, expiration,true);
 
         // Log the URL details
         var expiresAt = DateTime.UtcNow.Add(expiration);
@@ -57,10 +57,10 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
         return _mapper.Map<PendingFileUploadModel>(result);
     }
 
-    public async Task<Guid?> ValiadateFileUpload(Guid pendingRequestGuid,ClaimsPrincipal User)
+    public async Task<string> ValiadateFileUpload(Guid pendingRequestGuid,ClaimsPrincipal User)
     {
 
-        await using IUnitOfWork uow = uowFactory.Create();
+        await using IUnitOfWork uow = _uowFactory.Create();
         var pendingfileRepository = uow.GetRepository<PendingFileUploadEntity>();
         var file = await pendingfileRepository.Get().FirstOrDefaultAsync(e => e.Id == pendingRequestGuid);
 
@@ -75,12 +75,14 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
         }
 
 
-        if (file.ExpirationDate < DateTime.UtcNow || !await _objectStorage.ObjectExistsAsync("mockBucket", file.Key))
+        if (file.ExpirationDate < DateTime.UtcNow || !await _objectStorage.ObjectExistsAsync(options.BucketName, file.Key))
         {
             await pendingfileRepository.DeleteAsync(file.Id);
             await uow.CommitAsync();
             throw new ArgumentException("FileUploadExpired");
         }
+
+        var readUrl = await _objectStorage.GeneratePresignedUrlAsync(options.BucketName, file.Key, new DateTime(2100,1,1) - DateTime.Now);
 
         var fileRepository = uow.GetRepository<FileEntity>();
         var result = await fileRepository.InsertAsync(new FileEntity
@@ -89,7 +91,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
             OwnerId = file.UploaderId,
             UploadDate = DateTime.UtcNow,
             FileType = "image/png",
-            Url = file.Url,
+            Url = readUrl
         });
         try
         {
@@ -105,7 +107,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
             throw new InvalidOperationException("Failed to validate the file upload", e);
         }
 
-        return result.Id;
+        return readUrl;
     }
 
     public async Task DeleteUnusedFiles(TimeSpan timeSpan)
@@ -114,10 +116,11 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
         {
             await using IUnitOfWork uow = _uowFactory.Create();
             var fileRepository = uow.GetRepository<FileEntity>();
-            var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages!.Count == 0 && f.UserImages!.Count == 0 && f.UploadDate < DateTime.UtcNow.Add(timeSpan)).ToListAsync();
+            var expirationDate = DateTime.UtcNow.Add(timeSpan);
+            var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages!.Count == 0 && f.UserImages!.Count == 0 && f.UploadDate < expirationDate).ToListAsync();
             foreach (var file in files)
             {
-                await _objectStorage.DeleteObjectAsync("mockBucket", file.Url);
+                await _objectStorage.DeleteObjectAsync(options.BucketName, file.Url);
                 await fileRepository.DeleteAsync(file.Id);
             }
             await uow.CommitAsync();

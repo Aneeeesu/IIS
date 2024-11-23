@@ -7,7 +7,7 @@ services:
     container_name: iis-backend-api
     restart: "always"
     ports:
-      - "127.0.0.1:8001:8080"
+      - "127.0.0.1:8002:8080"
       - "127.0.0.1:5001:5000"
     depends_on:
       - db

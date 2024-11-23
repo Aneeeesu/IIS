@@ -20,7 +20,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            return Ok(await _fileFacade.GeneratePresignedUrlAsync("mockBucket", FileName, TimeSpan.FromMinutes(5), User));
+            return Ok(await _fileFacade.GeneratePresignedUrlAsync(FileName, TimeSpan.FromMinutes(5), User));
         }
         catch (ArgumentException e)
         {
@@ -33,7 +33,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("ValidateFile/{fileGuid}")]
-    public async Task<ActionResult<Guid?>> ValidateFile(Guid fileGuid)
+    public async Task<ActionResult<string>> ValidateFile(Guid fileGuid)
     {
         try
         {

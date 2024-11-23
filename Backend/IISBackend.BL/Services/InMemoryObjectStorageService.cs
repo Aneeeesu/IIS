@@ -27,10 +27,10 @@ public class InMemoryObjectStorageService : IObjectStorageService
         _filePath = storagePath;
     }
 
-    public Task<string> GeneratePresignedUrlAsync(string bucketName, string objectName, TimeSpan expiration)
+    public Task<string> GeneratePresignedUrlAsync(string bucketName, string objectName, TimeSpan expiration, bool write = false)
     {
         // Simulate a presigned URL (in real life, this would be a signed URL to the bucket)
-        var fakeUrl = $"http://localhost:5000/{bucketName}/{objectName}?expires={DateTime.UtcNow.Add(expiration):o}";
+        var fakeUrl = $"http://localhost:5000/{bucketName}/{objectName}";
         return Task.FromResult(fakeUrl);
     }
 

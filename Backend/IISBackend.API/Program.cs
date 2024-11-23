@@ -105,11 +105,11 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment,
-        SeedData= true
+        SeedData = true
     });
     serviceCollection.AddScoped<DBSeeder>();
 
-    serviceCollection.AddInstaller<ApiBLInstaller>(true);
+    serviceCollection.AddInstaller<ApiBLInstaller>(builder.Environment.IsEnvironment("Development"));
 }
 
 void UseSecurityFeatures(IApplicationBuilder application)
