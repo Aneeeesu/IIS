@@ -6,7 +6,6 @@ import { API_BASE_URL } from '../config';
 
 axios.defaults.withCredentials = true;
 
-const sleep = ms => setTimeout(ms);
 const AnimalDetails = () => {
   const [animal, setAnimal] = useState(null);
   const [selectedHours, setSelectedHours] = useState([]);
@@ -116,12 +115,16 @@ const AnimalDetails = () => {
 
   const handleSubmit = async () => {
     if (user && user.roles.includes('Caregiver')) {
+      const today = new Date().toISOString().split('T')[0];
+      if (date === today) {
+        alert("You cannot reserve hours for today. Please select a different date.");
+        return;
+      }
+  
       try {
         const requests = selectedHours.map(hour => {
           const time = new Date(date);
-          time.setHours(hour, 0, 0, 0);
-
-          console.log('Sending time:', time.toISOString(), 'for hour:', hour);
+          time.setUTCHours(hour, 0, 0, 0);
           
           return axios.post(`${API_BASE_URL}/Schedule`, {
             time: time.toISOString(),
@@ -132,8 +135,7 @@ const AnimalDetails = () => {
         });
         await Promise.all(requests);
         setSelectedHours([]);
-
-        // Refresh reserved hours
+  
         const response = await axios.get(`${API_BASE_URL}/Schedule/Animal/${id}`);
         const scheduleEntries = response.data;
         const dateEntries = scheduleEntries.filter(entry => {
@@ -163,7 +165,7 @@ const AnimalDetails = () => {
       try {
         const requests = selectedVolunteerHours.map(hour => {
           const time = new Date(date);
-          time.setHours(hour, 0, 0, 0);
+          time.setUTCHours(hour, 0, 0, 0);
           return axios.post(`${API_BASE_URL}/ReservationRequests`, {
             time: time.toISOString(),
             type: 'walk',

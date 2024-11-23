@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import VolunteerSection from '../components/VolunteerSection';
+import CaregiverSection from '../components/CaregiverSection';
+import AdminSection from '../components/AdminSection';
+import AnimalList from '../components/AnimalList';
 
 axios.defaults.withCredentials = true;
 
@@ -12,6 +16,9 @@ const Main = () => {
   const [animals, setAnimals] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedSchedules, setApprovedSchedules] = useState([]);
+  const [verificationRequestSent, setVerificationRequestSent] = useState(false);
+  const [verificationRequests, setVerificationRequests] = useState([]);
+  const [showPastWalks, setShowPastWalks] = useState(false);
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -141,68 +148,88 @@ const Main = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user && user.roles.includes('Caregiver')) {
+      const fetchVerificationRequests = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/VerificationRequests`);
+          setVerificationRequests(response.data);
+        } catch (error) {
+          console.error('Error fetching verification requests:', error);
+        }
+      };
+
+      fetchVerificationRequests();
+    }
+  }, [user]);
+
+  const handleSendVerificationRequest = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/VerificationRequests`, {
+        requesteeID: user.id,
+        content: 'Request to be a verified volunteer'
+      });
+      setVerificationRequestSent(true);
+    } catch (error) {
+      console.error('Error sending verification request:', error);
+    }
+  };
+
+  const handleResolveVerificationRequest = async (requestId, approved) => {
+    try {
+      await axios.post(`${API_BASE_URL}/VerificationRequests/Resolve/${requestId}`, null, {
+        params: { Approved: approved }
+      });
+      setVerificationRequests(verificationRequests.filter(request => request.id !== requestId));
+    } catch (error) {
+      console.error('Error resolving verification request:', error);
+    }
+  };
+
+  const toggleShowPastWalks = () => {
+    setShowPastWalks(!showPastWalks);
+  };
+
+  const currentDateTime = new Date();
+
   return (
     <div className="container">
       <h1>Welcome to IIS</h1>
 
       {user && user.roles.includes('Verified volunteer') && (
-        <div className="volunteerSection">
-          <h2>Your pending walk requests</h2>
-          {pendingRequests.length > 0 ? (
-            pendingRequests.map(request => (
-              <div key={request.id} className="requestItem">
-                <p><strong>Animal:</strong> {request.animalName}</p>
-                <p><strong>Time:</strong> {new Date(request.time).toLocaleString()}</p>
-              </div>
-            ))
-          ) : (
-            <p>You have no pending reservation requests.</p>
-          )}
-
-          <h2>Your scheduled walks</h2>
-          {approvedSchedules.length > 0 ? (
-            approvedSchedules.map(schedule => (
-              <div key={schedule.id} className="scheduleItem">
-                <p><strong>Animal:</strong> {schedule.animalName}</p>
-                <p><strong>Time:</strong> {formatTimeRange(schedule.startTime, schedule.endTime)}</p>
-              </div>
-            ))
-          ) : (
-            <p>You have no scheduled walks.</p>
-          )}
-        </div>
+        <VolunteerSection
+          pendingRequests={pendingRequests}
+          approvedSchedules={approvedSchedules}
+          showPastWalks={showPastWalks}
+          toggleShowPastWalks={toggleShowPastWalks}
+          currentDateTime={currentDateTime}
+          formatTimeRange={formatTimeRange}
+        />
       )}
 
       {user && user.roles.includes('Caregiver') && (
-        <button
-          className="button"
-          onClick={() => navigate('/animals')}
-        >
-          Manage Animals
-        </button>
+        <CaregiverSection
+          verificationRequests={verificationRequests}
+          handleResolveVerificationRequest={handleResolveVerificationRequest}
+          navigate={navigate}
+        />
       )}
+
       {user && user.roles.includes('Admin') && (
-        <button
-          className="button"
-          onClick={() => navigate('/admin')}
-        >
-          Manage Users
+        <AdminSection navigate={navigate} />
+      )}
+
+      {user && !user.roles.includes('Verified volunteer') && !verificationRequestSent && (
+        <button className="button" onClick={handleSendVerificationRequest}>
+          Request to be a Verified Volunteer
         </button>
       )}
 
-      <div className="animalList">
-        <h2>Available Animals</h2>
-        {animals.map(animal => (
-          <div
-            key={animal.id}
-            className="animalCard"
-            onClick={() => navigate(`/animals/${animal.id}`)}
-            style={{ cursor: 'pointer' }}
-          >
-            <h3>{animal.name}</h3>
-          </div>
-        ))}
-      </div>
+      {verificationRequestSent && (
+        <p>Your verification request has been sent.</p>
+      )}
+
+      <AnimalList animals={animals} navigate={navigate} />
     </div>
   );
 };
