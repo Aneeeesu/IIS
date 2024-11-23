@@ -14,13 +14,15 @@ public record AnimalEntity : IEntity
     public int age { get; set; }
     public Sex sex { get; set; }
 
+    public AnimalStatus Status { get; set; }
+
     public Guid? ImageId { get; set; }
     [ForeignKey(nameof(ImageId))]
     public FileEntity? Image { get; set; }
     public ICollection<ReservationRequestEntity>? ReservationRequests { get; set; }
     public ICollection<ScheduleEntryEntity>? ScheduleEntries { get; set; }
     public ICollection<HealthRecordEntity>? HealthRecords { get; set; }
-
+    public ICollection<AnimalStatusEntity>? AnimalStatusRecords { get; set; }
 
 }
 partial class FileEntity

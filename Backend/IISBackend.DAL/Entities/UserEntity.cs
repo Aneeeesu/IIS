@@ -16,6 +16,9 @@ public class UserEntity : IdentityUser<Guid>, IEntity
     public FileEntity? Image { get; set; }
 
     public ICollection<FileEntity>? Files { get; set; }
+
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
 }
 
 partial class FileEntity

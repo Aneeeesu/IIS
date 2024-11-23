@@ -11,7 +11,6 @@ public record VerificationRequestEntity : IEntity, IUserAuthorized
     public required Guid RequesteeID { get; set; }
     [ForeignKey("RequesteeID")]
     public UserEntity? Requestee { get; set; }
-    public required string Content { get; set; }
     public Guid GetOwnerID() => RequesteeID;
 }
 

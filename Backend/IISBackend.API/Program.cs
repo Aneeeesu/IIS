@@ -109,7 +109,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     });
     serviceCollection.AddScoped<DBSeeder>();
 
-    serviceCollection.AddInstaller<ApiBLInstaller>(builder.Environment.IsEnvironment("Development"));
+    serviceCollection.AddInstaller<ApiBLInstaller>(true);
 }
 
 void UseSecurityFeatures(IApplicationBuilder application)
@@ -133,6 +133,10 @@ void ConfigureControllers(IServiceCollection serviceCollection)
     {
         options.AddDefaultPolicy(builder =>
             {
+                builder.WithOrigins("https://localhost:3000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
                 builder.WithOrigins("http://localhost:3000")
                     .AllowAnyMethod()
                     .AllowAnyHeader()

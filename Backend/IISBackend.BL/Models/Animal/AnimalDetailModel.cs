@@ -9,5 +9,6 @@ public record AnimalDetailModel : AnimalBaseModel
     public required FileBaseModel Image { get; set; }
     public int age { get; set; }
     public Sex sex { get; set; }
+    public required AnimalStatus LastStatus { get; set; } = AnimalStatus.Available;
 }
 

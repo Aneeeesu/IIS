@@ -7,14 +7,38 @@ using IISBackend.DAL.Entities.Interfaces;
 using IISBackend.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography.X509Certificates;
+using IISBackend.Common.Enums;
+using Microsoft.IdentityModel.Tokens;
+using Google.Protobuf.WellKnownTypes;
 
 namespace IISBackend.BL.Facades;
 
 
-public class AnimalFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMapper) : FacadeCRUDBase<AnimalEntity,AnimalCreateModel, AnimalListModel, AnimalDetailModel>(unitOfWorkFactory, modelMapper), IAnimalFacade
+public class AnimalFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMapper) : FacadeCRUDBase<AnimalEntity,AnimalCreateModel, AnimalListModel, Models.Animal.AnimalDetailModel>(unitOfWorkFactory, modelMapper), IAnimalFacade
 {
     protected override ICollection<string> IncludesNavigationPathDetail =>
         new[] { $"{nameof(AnimalEntity.Image)}" };
+
+    public override async Task<AnimalDetailModel?> GetAsync(Guid id)
+    {
+        await using IUnitOfWork uow = _UOWFactory.Create();
+
+        IQueryable<AnimalEntity> query = uow.GetRepository<AnimalEntity>().Get();
+
+        foreach (string includePath in IncludesNavigationPathDetail)
+        {
+            query = query.Include(includePath);
+        }
+
+        AnimalEntity? entity = await query.SingleOrDefaultAsync(e => e.Id == id).ConfigureAwait(false);
+        var statusRepo = uow.GetRepository<AnimalStatusEntity>();
+        var lastRecordTime =statusRepo.Get().IsNullOrEmpty() ? DateTime.MinValue : statusRepo.Get().Max(x => x.TimeStamp);
+
+        return entity is null
+            ? null
+            : _modelMapper.Map<Models.Animal.AnimalDetailModel>(entity) with { LastStatus = (await uow.GetRepository<AnimalStatusEntity>().Get().FirstOrDefaultAsync(x => x.TimeStamp == lastRecordTime))?.Status ?? AnimalStatus.Available };
+    }
 
     public override async Task<AnimalDetailModel?> SaveAsync(AnimalCreateModel model)
     {

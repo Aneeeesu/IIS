@@ -11,9 +11,11 @@ namespace IISBackend.API.Controllers;
 public class AnimalController : ControllerBase
 {
     private readonly IAnimalFacade _animalFacade;
-    public AnimalController(IAnimalFacade animalFacade)
+    private readonly IAnimalStatusFacade _animalStatusFacade;
+    public AnimalController(IAnimalFacade animalFacade, IAnimalStatusFacade  animalStatusFacade)
     {
         _animalFacade = animalFacade;
+        _animalStatusFacade = animalStatusFacade;
     }
 
     [HttpGet("")]
@@ -67,6 +69,24 @@ public class AnimalController : ControllerBase
         catch
         {
             return NotFound("ID not found in database");
+        }
+    }
+
+    [HttpPost("Status")]
+    [Authorize(Roles = "Admin,Vet,Caregiver")]
+    public async Task<ActionResult<AnimalStatusDetailModel>> AddStatus(AnimalStatusCreateModel model)
+    {
+        try
+        {
+            return await _animalStatusFacade.CreateAsync(model);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new InvalidOperationException("Error while saving entity");
         }
     }
 }

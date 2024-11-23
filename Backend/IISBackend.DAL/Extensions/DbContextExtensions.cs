@@ -10,7 +10,7 @@ namespace IISBackend.DAL.Extensions
         {
             var optionsBuilder = new DbContextOptionsBuilder<ProjectDbContext>();
             if(!options.TestEnvironment)
-                optionsBuilder.UseMySQL(existingContext.Database.GetDbConnection().ConnectionString);
+                optionsBuilder.UseMySQL(options.ConnectionString);
             else
                 optionsBuilder.UseInMemoryDatabase("testdb");
 

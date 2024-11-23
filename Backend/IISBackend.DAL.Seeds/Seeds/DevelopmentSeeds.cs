@@ -10,11 +10,15 @@ public static class DevelopmentSeeds
     {
         Id = Guid.NewGuid(),
         UserName = "TestVet",
+        FirstName = "Test",
+        LastName = "Vet",
     };
     public static readonly UserEntity CaregiverUserEntity = new()
     {
         Id = Guid.NewGuid(),
         UserName = "TestCaregiver",
+        FirstName = "Test",
+        LastName = "Caregiver",
     };
 
 

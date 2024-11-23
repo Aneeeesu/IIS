@@ -83,5 +83,15 @@ public class ProjectDbContext(DbContextOptions contextOptions) : IdentityDbConte
             .HasOne(x => x.TargetSchedule)
             .WithMany(x=>x.WalkRequests)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AnimalStatusEntity>()
+            .HasOne(x => x.Animal)
+            .WithMany(x => x.AnimalStatusRecords)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AnimalStatusEntity>()
+            .HasOne(x => x.AssociatedUser)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
