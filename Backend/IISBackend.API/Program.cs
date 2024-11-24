@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using IISBackend.DAL.Entities;
 using IISBackend.DAL.Seeds;
 using IISBackend.BL.Services.Interfaces;
+using IISBackend.BL.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,18 @@ var useMockBuket = bool.TryParse(builder.Configuration["DevelopmentBucket:Enable
 // Add services to the container.
 
 ConfigureControllers(builder.Services, builder.Configuration["FrontendAddress"] ?? "http://localhost:3000");
-ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Development"), useMockBuket);
+ConfigureDependencies(
+    builder.Services,
+    builder.Configuration,
+    builder.Environment.IsEnvironment("Development"),
+    useMockBuket,
+    new FileStorageOptions
+    {
+        BucketName = builder.Configuration["BucketName"] ?? "IIS-Bucket",
+        StorageNamespace = builder.Configuration["BucketNamespace"] ?? ""
+    }
+);
+
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
@@ -91,7 +103,7 @@ void ConfigureAutoMapper(IServiceCollection serviceCollection)
     serviceCollection.AddSingleton<IMapper>(config.CreateMapper());
 }
 
-void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration, bool testEnvironment,bool useMockBucket)
+void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration, bool testEnvironment,bool useMockBucket,FileStorageOptions bucketNameSpace)
 {
     var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -110,7 +122,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     });
     serviceCollection.AddScoped<DBSeeder>();
 
-    serviceCollection.AddInstaller<ApiBLInstaller>(useMockBucket);
+    serviceCollection.AddInstaller<ApiBLInstaller>(useMockBucket, bucketNameSpace);
 }
 
 void UseSecurityFeatures(IApplicationBuilder application)

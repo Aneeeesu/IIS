@@ -87,7 +87,7 @@ public class UserController(IUserFacade userFacade) : ControllerBase
         try
         {
             await _userFacade.DeleteAsync(userId,User);
-            return Ok();
+            return Ok(userId);
         }
         catch (UnauthorizedAccessException e)
         {
@@ -106,7 +106,7 @@ public class UserController(IUserFacade userFacade) : ControllerBase
         try
         {
             await _userFacade.ChangePasswordAsync(newPasswordModel, User);
-            return Ok();
+            return Ok("Password changed");
         }
         catch (ArgumentException e)
         {

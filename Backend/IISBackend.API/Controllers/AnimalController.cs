@@ -38,7 +38,7 @@ public class AnimalController : ControllerBase
     }
 
     [HttpPost("")]
-    [Authorize(Roles = "Admin,Vet")]
+    [Authorize(Roles = "Admin,Vet,Caregiver")]
     public async Task<ActionResult<AnimalDetailModel>> Upsert(AnimalCreateModel animal)
     {
         try
@@ -57,7 +57,7 @@ public class AnimalController : ControllerBase
     }
 
     [HttpDelete("{animalId}")]
-    [Authorize(Roles = "Admin,Vet")]
+    [Authorize(Roles = "Admin,Vet,Caregiver")]
     public async Task<ActionResult> Delete(Guid animalId)
     {
         try

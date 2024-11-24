@@ -17,7 +17,7 @@ namespace IISBackend.BL.Installers
 {
     public class ApiBLInstaller
     {
-        public void Install(IServiceCollection serviceCollection, bool development)
+        public void Install(IServiceCollection serviceCollection, bool development, FileStorageOptions options)
         {
             serviceCollection.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 
@@ -57,7 +57,7 @@ namespace IISBackend.BL.Installers
             serviceCollection.AddSingleton<IAuthorizationHandler, UserIsAllowedToApproveRequestAuthorizationHandler>();
             serviceCollection.AddSingleton<IAuthorizationHandler, UserAllowedToManageScheduleAuthorizationHandler>();
             serviceCollection.AddHostedService<UnusedFilesCleanupService>();
-            serviceCollection.AddSingleton<FileStorageOptions>(new FileStorageOptions { BucketName = "IIS-Bucket", StorageNamespace = "frcuhx7ewbeu" });
+            serviceCollection.AddSingleton<FileStorageOptions>(options);
         }
     }
 }
