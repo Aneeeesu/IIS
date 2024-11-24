@@ -17,7 +17,7 @@ const AnimalDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const hours = Array.from({ length: 6 }, (_, i) => i + 6);
+  const hours = Array.from({ length: 11 }, (_, i) => i + 8);
 
   useEffect(() => {
     const fetchAnimal = async () => {
@@ -114,13 +114,7 @@ const AnimalDetails = () => {
   };
 
   const handleSubmit = async () => {
-    if (user && user.roles.includes('Caregiver')) {
-      const today = new Date().toISOString().split('T')[0];
-      if (date === today) {
-        alert("You cannot reserve hours for today. Please select a different date.");
-        return;
-      }
-  
+    if (user && user.roles.includes('Caregiver')) {  
       try {
         const requests = selectedHours.map(hour => {
           const time = new Date(date);
@@ -211,7 +205,7 @@ const AnimalDetails = () => {
         <h2>{animal.name}</h2>
         <p>Age: {animal.age}</p>
         <p>Sex: {animal.sex}</p>
-        {animal.image && <img src={animal.image.url} alt={animal.name} />}
+        {animal.image && <img src={animal.image.url} />}
       </div>
 
       {user && user.roles.includes('Caregiver') && (

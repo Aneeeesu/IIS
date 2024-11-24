@@ -67,10 +67,7 @@ const UserManagement = () => {
     try {
       const payload = {
         id: userId,
-        firstName: editingUser.firstName,
-        lastName: editingUser.lastName,
-        roles: editingRoles,
-        imageId: editingUser.imageId
+        roles: editingRoles
       };
       await axios.put(`${API_BASE_URL}/users`, payload);
       fetchUsers();
@@ -105,17 +102,6 @@ const UserManagement = () => {
     });
     const validationResponse = await axios.post(`${API_BASE_URL}/Files/ValidateFile/${id}`);
     return validationResponse.data.id;
-  };
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageId = await handleImageUpload(file);
-      setEditingUser((prevUser) => ({
-        ...prevUser,
-        imageId: imageId
-      }));
-    }
   };
 
   const handleSelfImageChange = async (e) => {
@@ -213,7 +199,7 @@ const UserManagement = () => {
             {users.map(user => (
               <div key={user.id} className="userItem">
                 <div className="user-row">
-                  <img src={user.image?.url} alt="No image" className="userImage" />
+                  <img src={user.image?.url} className="userImage" />
                   <div style={{padding: "5px"}}>
                     <p><strong>{user.userName}</strong></p>
                     <p>{user.firstName} {user.lastName}</p>
@@ -228,7 +214,7 @@ const UserManagement = () => {
                     setEditingRoles(user.roles);
                   }}
                 >
-                  Edit profile
+                  Edit roles
                 </button>
                 <button 
                   className="deleteButton"
@@ -242,26 +228,7 @@ const UserManagement = () => {
 
           {editingUser && (
             <div className="edit-roles-section">
-              <h2>Edit profile for {editingUser.userName}</h2>
-              <input
-                type="text"
-                placeholder="First name"
-                className="input"
-                value={editingUser.firstName}
-                onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Last name"
-                className="input"
-                value={editingUser.lastName}
-                onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
-              />
-              <input
-                type="file"
-                className="input"
-                onChange={handleImageChange}
-              />
+              <h2>Edit roles for {editingUser.userName}</h2>
               {availableRoles.map((role) => (
                 <div key={role} className="role-checkbox">
                   <input
@@ -276,7 +243,7 @@ const UserManagement = () => {
                 className="button"
                 onClick={() => handleEditRoles(editingUser.id)}
               >
-                Save profile
+                Save roles
               </button>
             </div>
           )}
