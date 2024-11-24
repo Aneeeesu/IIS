@@ -34,9 +34,9 @@ namespace IISBackend.BL.Installers
                     policy.Requirements.Add(new UserIsOwnerRequirement()));
                 options.AddPolicy("UserAllowedToGiveRolePolicy", policy =>
                     policy.Requirements.Add(new UserAllowedToGiveRoleRequirement()));
-                options.AddPolicy("UserIsAllowedToRequest", policy =>
+                options.AddPolicy("UserIsAllowedToRequestPolicy", policy =>
                     policy.Requirements.Add(new UserIsAllowedToRequestRequirement()));
-                options.AddPolicy("UserIsAllowedToApproveRequest", policy =>
+                options.AddPolicy("UserIsAllowedToApproveRequestPolicy", policy =>
                     policy.Requirements.Add(new UserIsAllowedToApproveRequestRequirement()));
                 options.AddPolicy("UserAllowedToManageSchedulePolicy", policy =>
                     policy.Requirements.Add(new UserAllowedToManageScheduleRequirement()));

@@ -23,7 +23,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
     public async Task<ScheduleDetailModel> AuthorizedCreateAsync(ScheduleCreateModel model, ClaimsPrincipal userPrincipal)
     {
         var schedule = _modelMapper.Map<ScheduleEntryEntity>(model);
-        if (await _authService.AuthorizeAsync(userPrincipal, schedule, "UserAllowedToManageSchedule") is not { Succeeded: true })
+        if (await _authService.AuthorizeAsync(userPrincipal, schedule, "UserAllowedToManageSchedulePolicy") is not { Succeeded: true })
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
@@ -78,7 +78,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         }
 
         if ((await _authService.AuthorizeAsync(userPrincipal, schedule, "UserIsOwnerPolicy")) is not { Succeeded: true } &&
-            await _authService.AuthorizeAsync(userPrincipal, schedule, "UserAllowedToManageSchedule") is not { Succeeded: true })
+            await _authService.AuthorizeAsync(userPrincipal, schedule, "UserAllowedToManageSchedulePolicy") is not { Succeeded: true })
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
