@@ -14,6 +14,7 @@ const Main = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [vetRequests, setVetRequests] = useState([]);
+  const [futureVetVisits, setFutureVetVisits] = useState([]);
   const [animals, setAnimals] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedSchedules, setApprovedSchedules] = useState([]);
@@ -184,14 +185,41 @@ const Main = () => {
       const fetchVetRequests = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/ReservationRequests`);
-          const requests = response.data.filter(request => request.type === 'vetVisit' && !request.resolved);
+          const requests = response.data.filter(request => request.type === 'vetVisit' && !request.resolved && request.targetUser.id === user.id);
           setVetRequests(requests);
         } catch (error) {
           console.error('Error fetching vet requests:', error);
         }
       };
 
+      const fetchFutureVetVisits = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/Schedule/user/${user.id}`);
+          const futureVisits = response.data.filter(schedule => new Date(schedule.time) > new Date());
+
+          const animalIds = [...new Set(futureVisits.map(visit => visit.animalId))];
+          const animalRequests = animalIds.map(id => axios.get(`${API_BASE_URL}/Animal/${id}`));
+          const animalResponses = await Promise.all(animalRequests);
+
+          const animalMap = {};
+          animalResponses.forEach(animalRes => {
+            const animal = animalRes.data;
+            animalMap[animal.id] = animal.name;
+          });
+
+          const visitsWithAnimalNames = futureVisits.map(visit => ({
+            ...visit,
+            animalName: animalMap[visit.animalId] || visit.animalId,
+          }));
+
+          setFutureVetVisits(visitsWithAnimalNames);
+        } catch (error) {
+          console.error('Error fetching future vet visits:', error);
+        }
+      };
+
       fetchVetRequests();
+      fetchFutureVetVisits();
     }
   }, [user]);
 
@@ -235,6 +263,10 @@ const Main = () => {
 
   return (
     <div className="container">
+      <div className="working-hours">
+        <p>We work from 7:00 to 18:00</p>
+      </div>
+
       {user && user.roles.includes('Verified volunteer') && (
         <VolunteerSection
           pendingRequests={pendingRequests}
@@ -271,6 +303,18 @@ const Main = () => {
           ) : (
             <p>No pending vet visit requests.</p>
           )}
+
+          <h2>Future vet visits</h2>
+          {futureVetVisits.length > 0 ? (
+            futureVetVisits.map(visit => (
+              <div key={visit.id} className="visitItem">
+                <p><strong>Animal:</strong> {visit.animalName}</p>
+                <p><strong>Time:</strong> {new Date(visit.time).toLocaleString()}</p>
+              </div>
+            ))
+          ) : (
+            <p>No future vet visits.</p>
+          )}
         </div>
       )}
 
@@ -286,7 +330,7 @@ const Main = () => {
         <AdminSection navigate={navigate} />
       )}
 
-      {user && !user.roles.includes('Verified volunteer') && !verificationRequestSent && (
+      {user && user.roles.includes('Volunteer') && !verificationRequestSent && (
         <button className="button" onClick={handleSendVerificationRequest}>
           Request to be a verified volunteer
         </button>

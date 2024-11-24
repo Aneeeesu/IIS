@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-const HealthRecordForm = ({ user, animalId, onRecordAdded }) => {
+const HealthRecordForm = ({ user, animalId }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState('');
   const [type, setType] = useState('vaccine');
@@ -17,10 +17,7 @@ const HealthRecordForm = ({ user, animalId, onRecordAdded }) => {
         animalId,
         vetId: user.id
       });
-      onRecordAdded(response.data);
-      setDate(new Date().toISOString().split('T')[0]);
       setContent('');
-      setType('vaccine');
     } catch (error) {
       console.error('Error adding health record:', error);
     }
@@ -28,14 +25,14 @@ const HealthRecordForm = ({ user, animalId, onRecordAdded }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Add Health Record</h2>
+      <h2>Add health record</h2>
       <label>
         Date:
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       </label>
       <label>
         Content:
-        <textarea value={content} onChange={(e) => setContent(e.target.value)} />
+        <textarea maxLength={100} value={content} onChange={(e) => setContent(e.target.value)} />
       </label>
       <label>
         Type:
@@ -44,7 +41,7 @@ const HealthRecordForm = ({ user, animalId, onRecordAdded }) => {
           <option value="visit">Visit</option>
         </select>
       </label>
-      <button type="submit">Add Record</button>
+      <button type="submit">Add record</button>
     </form>
   );
 };

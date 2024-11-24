@@ -17,7 +17,6 @@ const AnimalDetails = () => {
   const [selectedVolunteerHours, setSelectedVolunteerHours] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [showVetVisitRequest, setShowVetVisitRequest] = useState(false);
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -198,20 +197,13 @@ const AnimalDetails = () => {
     }
   };
 
-  const handleRecordAdded = (newRecord) => {
-    setAnimal((prevAnimal) => ({
-      ...prevAnimal,
-      healthRecords: [...prevAnimal.healthRecords, newRecord]
-    }));
-  };
-
   return (
     <div className="container">
       <h1>Animal details</h1>
       <div className="animalDetail">
         <img src={animal.image.url} />
         <h2>{animal.name}</h2>
-        <h2>{animal.age} years old</h2>
+        <h2>Birth: {animal.dateOfBirth}</h2>
         <h2>Sex: {animal.sex === 'M' ? 'Boy' : 'Girl'}</h2>
         <h2 className={`status ${animal.lastStatus === 'Available' ? 'available' : 'onWalk'}`}>
           {animal.lastStatus === 'Available' ? 'Available' : 'On walk'}
@@ -270,10 +262,7 @@ const AnimalDetails = () => {
               <p>No pending requests.</p>
             )}
           </div>
-          <button onClick={() => setShowVetVisitRequest(!showVetVisitRequest)}>
-            {showVetVisitRequest ? 'Hide vet visit request' : 'Request vet visit'}
-          </button>
-          {showVetVisitRequest && <VetVisitRequest animalId={id} userId={user.id} />}
+          {user.roles.includes('Caregiver') && <VetVisitRequest animalId={id} userId={user.id} />}
         </>
       )}
 
@@ -305,7 +294,7 @@ const AnimalDetails = () => {
       )}
 
       {user && user.roles.includes('Vet') && (
-        <HealthRecordForm animalId={id} onRecordAdded={handleRecordAdded} />
+        <HealthRecordForm user={user} animalId={id} />
       )}
 
       <HealthRecordList animalId={id} />
