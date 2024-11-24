@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IISBackend.BL.Models.Animal;
 using IISBackend.DAL.Entities;
 
 namespace IISBackend.BL.MapperProfiles;

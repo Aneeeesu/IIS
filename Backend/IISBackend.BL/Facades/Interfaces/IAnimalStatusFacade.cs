@@ -1,4 +1,5 @@
-﻿using IISBackend.DAL.Entities;
+﻿using IISBackend.BL.Models.Animal;
+using IISBackend.DAL.Entities;
 
 namespace IISBackend.BL.Facades.Interfaces;
 

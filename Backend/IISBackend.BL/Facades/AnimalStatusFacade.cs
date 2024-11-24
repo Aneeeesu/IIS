@@ -4,6 +4,7 @@ using IISBackend.DAL.Entities;
 using IISBackend.BL.Facades.Interfaces;
 using IISBackend.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using IISBackend.BL.Models.Animal;
 
 namespace IISBackend.BL.Facades;
 

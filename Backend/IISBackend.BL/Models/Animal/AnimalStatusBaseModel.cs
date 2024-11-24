@@ -1,6 +1,8 @@
 ﻿using IISBackend.BL.Models.Interfaces;
 using IISBackend.Common.Enums;
 
+namespace IISBackend.BL.Models.Animal;
+
 public class AnimalStatusBaseModel: IModel
 {
     public Guid Id { get; init; }

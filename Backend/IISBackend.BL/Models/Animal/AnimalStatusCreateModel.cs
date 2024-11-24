@@ -1,4 +1,6 @@
-﻿public class AnimalStatusCreateModel : AnimalStatusBaseModel
+﻿namespace IISBackend.BL.Models.Animal;
+
+public class AnimalStatusCreateModel : AnimalStatusBaseModel
 {
 
 }
