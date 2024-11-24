@@ -45,7 +45,7 @@ namespace IISBackend.BL.Installers
             if (development)
             {
                 serviceCollection.AddHostedService<MockObjectStorageHttpServerService>();
-                serviceCollection.AddSingleton<IObjectStorageService, InMemoryObjectStorageService>();
+                serviceCollection.AddSingleton<IObjectStorageService, LocalObjectStorageService>();
             }
             else
                 serviceCollection.AddSingleton<IObjectStorageService, OracleObjectStorageService>();

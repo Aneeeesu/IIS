@@ -8,11 +8,13 @@ services:
     restart: "always"
     ports:
       - "127.0.0.1:8002:8080"
-      - "127.0.0.1:5001:5000"
+      - "127.0.0.1:5000:5000"
     depends_on:
       - db
     environment:
       DefaultAdminPassword: ${ADMIN_PASSWORD}
+      DevelopmentBucket__Enabled: true
+      DevelopmentBucket__Address: http://0.0.0.0:5000
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
       ConnectionStrings__DefaultConnection: Server=db;Port=3306;Database=db;Uid=${MYSQL_USER};Pwd=${MYSQL_PASSWORD}
     volumes:

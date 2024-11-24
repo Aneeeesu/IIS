@@ -14,16 +14,19 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace IISBackend.BL.Services;
 
-public class InMemoryObjectStorageService : IObjectStorageService
+public class LocalObjectStorageService : IObjectStorageService
 {
     private string _filePath;
-    public InMemoryObjectStorageService(FileStorageOptions options)
+    public LocalObjectStorageService(FileStorageOptions options)
     {
-        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "IIS-Backend");
+        if(!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
         Console.WriteLine($"appPath is {path}");
         if (path == "") path = "/app";
-        string storagePath = Path.Combine(path);
-        _filePath = storagePath;
+        _filePath = path;
     }
 
     public Task<string> GeneratePresignedUrlAsync(string bucketName, string objectName, TimeSpan expiration, bool write = false)
@@ -35,9 +38,9 @@ public class InMemoryObjectStorageService : IObjectStorageService
 
     public Task<bool> UploadObjectAsync(string bucketName, string objectName, Stream content)
     {
-        if(Directory.Exists(bucketName) == false)
+        if(!Directory.Exists(Path.Combine(_filePath,bucketName)))
         {
-            Directory.CreateDirectory(bucketName);
+            Directory.CreateDirectory(Path.Combine(_filePath, bucketName));
         }
 
         using (var fileStream = File.Create(Path.Combine(_filePath!,bucketName, objectName)))

@@ -92,6 +92,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
             OwnerId = file.UploaderId,
             UploadDate = DateTime.UtcNow,
             FileType = "image/png",
+            Key = file.Key,
             Url = readUrl
         });
         try
@@ -121,7 +122,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
             var files = await fileRepository.Get().Include(x=>x.UserImages).Include(x=>x.AnimalImages).Where(f => f.AnimalImages!.Count == 0 && f.UserImages!.Count == 0 && f.UploadDate < expirationDate).ToListAsync();
             foreach (var file in files)
             {
-                await _objectStorage.DeleteObjectAsync(options.BucketName, file.Url);
+                await _objectStorage.DeleteObjectAsync(options.BucketName, file.Key);
                 await fileRepository.DeleteAsync(file.Id);
             }
             await uow.CommitAsync();

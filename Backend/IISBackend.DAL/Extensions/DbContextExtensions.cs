@@ -9,10 +9,7 @@ namespace IISBackend.DAL.Extensions
         public static ProjectDbContext Clone(this DbContext existingContext,DALOptions options)
         {
             var optionsBuilder = new DbContextOptionsBuilder<ProjectDbContext>();
-            if(!options.TestEnvironment)
-                optionsBuilder.UseMySQL(options.ConnectionString);
-            else
-                optionsBuilder.UseInMemoryDatabase("testdb");
+            optionsBuilder.UseMySQL(options.ConnectionString);
 
             // Ensure the connection is not disposed when the original context is disposed
             optionsBuilder.UseInternalServiceProvider(existingContext.GetInfrastructure<IServiceProvider>());

@@ -23,14 +23,8 @@ public class ApiDALInstaller
             throw new InvalidOperationException($"{nameof(dalOptions.ConnectionString)} is not set");
         }
 
-        if (!dalOptions.TestEnvironment)
-        {
-            serviceCollection.AddDbContext<ProjectDbContext>(x=>x.UseMySQL(dalOptions.ConnectionString));
-        }
-        else
-        {
-            serviceCollection.AddDbContext<ProjectDbContext>(x => x.UseInMemoryDatabase("testdb"));
-        }
+        serviceCollection.AddDbContext<ProjectDbContext>(x => x.UseMySQL(dalOptions.ConnectionString));
+
         serviceCollection.AddSingleton<DALOptions>(dalOptions);
         serviceCollection.AddScoped<IDbMigrator, DbMigrator>();
 

@@ -10,6 +10,8 @@ public partial class FileEntity : IEntity,IUserAuthorized
     [Index(IsUnique = true)]
     public required string Url { get; set; }
 
+    public required string Key { get; set; }
+
     public Guid? OwnerId { get; set; }
     [ForeignKey(nameof(OwnerId))]
     public UserEntity? Owner { get; set; }

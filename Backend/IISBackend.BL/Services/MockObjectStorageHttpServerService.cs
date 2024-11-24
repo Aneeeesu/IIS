@@ -1,6 +1,7 @@
 ﻿using IISBackend.BL.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -22,6 +23,7 @@ public class MockObjectStorageHttpServerService : BackgroundService
     }
     public Task StartServer(IObjectStorageService storageService,CancellationToken stoppingToken)
     {
+        var configuration = _provider.GetRequiredService<IConfiguration>();
         var builder = WebApplication.CreateBuilder();
         var app = builder.Build();
 
@@ -53,6 +55,6 @@ public class MockObjectStorageHttpServerService : BackgroundService
             return Results.NotFound();
         });
         stoppingToken.Register(async () => await app.StopAsync());
-        return app.RunAsync("http://0.0.0.0:5000");
+        return app.RunAsync(configuration["DevelopmentBucket:Address"] ?? "http://0.0.0.0:5000");
     }
 }

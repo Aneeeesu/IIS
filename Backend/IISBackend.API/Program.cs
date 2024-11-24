@@ -17,9 +17,11 @@ builder.Configuration.AddEnvironmentVariables();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+var useMockBuket = bool.TryParse(builder.Configuration["DevelopmentBucket:Enabled"],out bool result) ? result : false;
 // Add services to the container.
+
 ConfigureControllers(builder.Services);
-ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Test"));
+ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Development"), useMockBuket);
 ConfigureAutoMapper(builder.Services);
 
 builder.Services.AddControllers();
@@ -90,7 +92,7 @@ void ConfigureAutoMapper(IServiceCollection serviceCollection)
     serviceCollection.AddSingleton<IMapper>(config.CreateMapper());
 }
 
-void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration, bool testEnvironment)
+void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration, bool testEnvironment,bool useMockBucket)
 {
     var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -109,7 +111,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     });
     serviceCollection.AddScoped<DBSeeder>();
 
-    serviceCollection.AddInstaller<ApiBLInstaller>(true);
+    serviceCollection.AddInstaller<ApiBLInstaller>(useMockBucket);
 }
 
 void UseSecurityFeatures(IApplicationBuilder application)
