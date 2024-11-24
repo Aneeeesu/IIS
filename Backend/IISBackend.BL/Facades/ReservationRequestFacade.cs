@@ -112,7 +112,6 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         await using var uow = _UOWFactory.Create();
         var requestRepository = uow.GetRepository<ReservationRequestEntity>();
         var request = await requestRepository.Get().Include(x => x.Animal).Include(x => x.TargetUser).Include(x => x.TargetSchedule).FirstOrDefaultAsync(o => o.Id == id);
-        ScheduleEntryEntity? resultingSchedule = null;
         if (request is null)
         {
             throw new InvalidDataException("Request not found");

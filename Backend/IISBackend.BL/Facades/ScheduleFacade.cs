@@ -14,7 +14,6 @@ namespace IISBackend.BL.Facades;
 public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMapper, IAuthorizationService authService) : FacadeCRUDBase<ScheduleEntryEntity, ScheduleCreateModel, ScheduleListModel, ScheduleDetailModel>(unitOfWorkFactory, modelMapper), IScheduleFacade
 {
     private readonly IAuthorizationService _authService = authService;
-    private readonly IMapper _modelMapper = modelMapper;
 
 
     protected override ICollection<string> IncludesNavigationPathDetail =>

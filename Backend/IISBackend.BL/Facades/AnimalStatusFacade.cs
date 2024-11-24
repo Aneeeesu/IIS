@@ -11,11 +11,9 @@ namespace IISBackend.BL.Facades;
 public class AnimalStatusFacade : FacadeCRUDBase<AnimalStatusEntity, AnimalStatusCreateModel, AnimalStatusListModel, AnimalStatusDetailModel>, IAnimalStatusFacade
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-    private readonly IMapper _modelMapper;
     public AnimalStatusFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMapper) : base(unitOfWorkFactory, modelMapper)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
-        _modelMapper = modelMapper;
     }
 
     public override async Task<AnimalStatusDetailModel> CreateAsync(AnimalStatusCreateModel model)

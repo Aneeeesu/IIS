@@ -76,6 +76,8 @@ help:
 	@echo "  backend_compose   - Compose the backend container"
 	@echo "  backend_run     - Run the backend project and compose db container"
 	@echo "  backend_clean   - Clean the backend solution"
+	@echo "  compose		 - Compose the backend and frontend containers with test secret"
+	@echo "  deploy		 	 - Compose the backend and frontend containers with production secret"
 	@echo "  migration       - Add the migration with argument NAME=migrationName"
 	@echo "  remove_migration - Remove the last migration"
 	@echo "  downgrade_db    - Downgrade the database to migration with argument NAME=migrationName"

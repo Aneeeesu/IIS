@@ -4,5 +4,5 @@ namespace IISBackend.BL.Models.Roles;
 
 public record RoleListModel
 {
-    public string Name { get; set; }
+    public required string Name { get; set; }
 }

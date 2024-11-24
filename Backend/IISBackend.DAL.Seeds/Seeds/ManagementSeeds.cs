@@ -16,7 +16,7 @@ public static class ManagementSeeds
 
     public static async Task Seed(string adminPassword,ProjectDbContext context, UserManager<UserEntity> userManager, RoleManager<RoleEntity> roleManager, DALOptions dALOptions)
     {
-        var roles = new string[] { "Admin", "Vet", "Caregiver", "Volunteer","Verified volunteer" };
+        var roles = new string[] { "Admin", "Vet", "Caregiver","Verified volunteer" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
