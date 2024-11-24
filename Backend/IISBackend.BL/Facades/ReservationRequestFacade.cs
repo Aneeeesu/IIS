@@ -42,7 +42,7 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
         var entity = _modelMapper.Map<ReservationRequestEntity>(model);
 
 
-        if (await _authService.AuthorizeAsync(user, entity, "UserIsAllowedToRequest") is not { Succeeded: true })
+        if (await _authService.AuthorizeAsync(user, entity, "UserIsAllowedToRequestPolicy") is not { Succeeded: true })
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
@@ -118,7 +118,7 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
             throw new InvalidDataException("Request not found");
         }
 
-        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequest") is not { Succeeded: true } &&
+        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequestPolicy") is not { Succeeded: true } &&
             await _authService.AuthorizeAsync(user,request,"UserIsOwnerRequirement") is not { Succeeded: true})
         {
             throw new UnauthorizedAccessException("User is not authorized");
@@ -147,7 +147,7 @@ public class ReservationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMap
             throw new InvalidDataException("Request not found");
         }
 
-        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequest") is not { Succeeded: true })
+        if (await _authService.AuthorizeAsync(user, request!, "UserIsAllowedToApproveRequestPolicy") is not { Succeeded: true })
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
