@@ -42,7 +42,7 @@ public class VerificationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMa
     }
 
 
-    public async Task<VerificationRequestDetailModel?> AuthorizedCreateAsync(VerificationRequestCreateModel model, ClaimsPrincipal userPrincipal)
+    public async Task<VerificationRequestDetailModel> AuthorizedCreateAsync(VerificationRequestCreateModel model, ClaimsPrincipal userPrincipal)
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 
@@ -51,6 +51,7 @@ public class VerificationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMa
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
+
 
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
@@ -64,17 +65,22 @@ public class VerificationRequestFacade(IUnitOfWorkFactory unitOfWorkFactory, IMa
         var request = base._modelMapper.Map<VerificationRequestEntity>(model);
         request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
 
-        if (requestRepository.Get().FirstOrDefault(o => o.Id == request.Id) is not null)
-        {
-            throw new ArgumentException("Id is already taken");
-        }
-
-
         // Check if the current user is trying to update their own profile
         if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, request, "UserIsOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }
+
+        if (requestRepository.Get().FirstOrDefault(o => o.Id == request.Id) is not null)
+        {
+            throw new ArgumentException("Id is already taken");
+        }
+
+        if(requestRepository.Get().FirstOrDefault(o=>o.RequesteeID == request.RequesteeID) is not null)
+        {
+            throw new ArgumentException("User already has a request");
+        }
+
 
         request = await requestRepository.InsertAsync(request).ConfigureAwait(false);
 
