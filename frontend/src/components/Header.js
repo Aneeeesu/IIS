@@ -26,7 +26,7 @@ const Header = () => {
         <header className="header">
             <nav className="nav">
                 <Link to="/" className="nav-logo">
-                    Animal Shelter
+                    Zvireci Utulek
                 </Link>
                 {user && (
                     <span className="user-info">

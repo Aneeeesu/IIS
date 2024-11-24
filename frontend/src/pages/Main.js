@@ -16,7 +16,9 @@ const Main = () => {
   const [animals, setAnimals] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedSchedules, setApprovedSchedules] = useState([]);
-  const [verificationRequestSent, setVerificationRequestSent] = useState(false);
+  const [verificationRequestSent, setVerificationRequestSent] = useState(() => {
+    return localStorage.getItem('verificationRequestSent') === 'true';
+  });
   const [verificationRequests, setVerificationRequests] = useState([]);
   const [showPastWalks, setShowPastWalks] = useState(false);
 
@@ -46,7 +48,7 @@ const Main = () => {
         currentGroup = {
           ...schedule,
           startTime: new Date(schedule.time),
-          endTime: new Date(new Date(schedule.time).getTime() + 3600000), // +1 hour
+          endTime: new Date(new Date(schedule.time).getTime() + 3600000),
         };
       } else {
         const currentEnd = currentGroup.endTime;
@@ -94,7 +96,6 @@ const Main = () => {
             request => request.creator.id === user.id && !request.resolved
           );
 
-          // Fetch animal details
           const animalIds = [...new Set(requests.map(request => request.animal.id))];
           const animalRequests = animalIds.map(id => axios.get(`${API_BASE_URL}/Animal/${id}`));
           const animalResponses = await Promise.all(animalRequests);
@@ -167,9 +168,9 @@ const Main = () => {
     try {
       await axios.post(`${API_BASE_URL}/VerificationRequests`, {
         requesteeID: user.id,
-        content: 'Request to be a verified volunteer'
       });
       setVerificationRequestSent(true);
+      localStorage.setItem('verificationRequestSent', 'true');
     } catch (error) {
       console.error('Error sending verification request:', error);
     }
@@ -194,7 +195,7 @@ const Main = () => {
 
   return (
     <div className="container">
-      <h1>Welcome to IIS</h1>
+      <h1>Welcome to Zvireci utulek</h1>
 
       {user && user.roles.includes('Verified volunteer') && (
         <VolunteerSection
@@ -221,7 +222,7 @@ const Main = () => {
 
       {user && !user.roles.includes('Verified volunteer') && !verificationRequestSent && (
         <button className="button" onClick={handleSendVerificationRequest}>
-          Request to be a Verified Volunteer
+          Request to be a verified volunteer
         </button>
       )}
 

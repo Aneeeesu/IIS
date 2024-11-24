@@ -4,10 +4,10 @@ import VerificationRequestItem from '../components/VerificationRequestItem';
 const CaregiverSection = ({ verificationRequests, handleResolveVerificationRequest, navigate }) => (
   <>
     <button className="button" onClick={() => navigate('/animals')}>
-      Manage Animals
+      Manage animals
     </button>
     <div className="verificationRequests">
-      <h2>Pending Verification Requests</h2>
+      <h2>Pending verification requests</h2>
       {verificationRequests.length > 0 ? (
         verificationRequests.map(request => (
           <VerificationRequestItem key={request.id} request={request} handleResolveVerificationRequest={handleResolveVerificationRequest} />

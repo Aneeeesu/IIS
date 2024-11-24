@@ -38,7 +38,7 @@ const Animal = () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/Animal`, {
         ...newAnimal,
-        imageID: imageFile // This is now the validated file ID, not the File object
+        imageID: imageFile
       });
       
       setAnimals([...animals, response.data]);
@@ -85,7 +85,7 @@ const Animal = () => {
 
   return (
     <div className="container">
-      <h1>Animal Management</h1>
+      <h1>Animal management</h1>
       <button className='button' onClick={() => setAddingAnimal(true)}>Add Animal</button>
       <AnimalList 
         animals={animals}

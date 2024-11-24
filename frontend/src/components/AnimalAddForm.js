@@ -4,7 +4,7 @@ import "../App.css";
 const AnimalAddForm = ({ animal, onChange, onSave, onCancel, onImageChange }) => {
   return (
     <div>
-      <h2>Add Animal</h2>
+      <h2>Add animal</h2>
       <input
         type="text"
         placeholder="Name"
@@ -24,7 +24,7 @@ const AnimalAddForm = ({ animal, onChange, onSave, onCancel, onImageChange }) =>
         value={animal.sex}
         onChange={(e) => onChange({ ...animal, sex: e.target.value })}
       >
-        <option value="">Select Sex</option>
+        <option value="">Select sex</option>
         <option value="M">M</option>
         <option value="F">F</option>
       </select>

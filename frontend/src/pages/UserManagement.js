@@ -138,12 +138,12 @@ const UserManagement = () => {
 
   return (
     <div className="container">
-      <h1>User Management</h1>
+      <h1>User management</h1>
       
       {user.roles.includes('Admin') && (
         <>
           <div className="create-user-section">
-            <h2>Create New User</h2>
+            <h2>Create new user</h2>
             <form onSubmit={handleCreateUser} className="form">
               <input
                 type="text"

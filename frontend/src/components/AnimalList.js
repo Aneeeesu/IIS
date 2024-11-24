@@ -6,7 +6,7 @@ const AnimalList = ({ animals, onDelete }) => {
   const navigate = useNavigate();
   return (
   <div className="animalList">
-    <h2>Available Animals</h2>
+    <h2>Available animals</h2>
     {animals.map(animal => (
       
       <div

@@ -84,7 +84,6 @@ const AnimalDetails = () => {
     }
   }, [date, id, user]);
 
-  // Fetch pending requests for caregivers
   useEffect(() => {
     if (user && user.roles.includes('Caregiver')) {
       const fetchPendingRequests = async () => {
@@ -144,7 +143,6 @@ const AnimalDetails = () => {
     }
   };
 
-  // Volunteer handlers
   const handleVolunteerHourClick = (hour) => {
     if (!availableHours.includes(hour)) return;
     if (selectedVolunteerHours.includes(hour)) {
@@ -185,11 +183,9 @@ const AnimalDetails = () => {
     }
   };
 
-  // Handle approval or rejection of requests
   const handleResolveRequest = async (requestId, approved) => {
     try {
       await axios.post(`${API_BASE_URL}/ReservationRequests/Resolve/${requestId}?Approved=${approved}`);
-      // Refresh pending requests
       const response = await axios.get(`${API_BASE_URL}/ReservationRequests/Animal/${id}`);
       const requests = response.data.filter(request => !request.resolved);
       setPendingRequests(requests);
@@ -200,7 +196,7 @@ const AnimalDetails = () => {
 
   return (
     <div className="container">
-      <h1>Animal Details</h1>
+      <h1>Animal details</h1>
       <div className="animalDetail">
         <h2>{animal.name}</h2>
         <p>Age: {animal.age}</p>
@@ -211,9 +207,9 @@ const AnimalDetails = () => {
       {user && user.roles.includes('Caregiver') && (
         <>
           <div className="schedulePanel">
-            <h2>Schedule Availability for Walks</h2>
+            <h2>Schedule availability for walks</h2>
             <label>
-              Select Date:
+              Select date:
               <input
                 type="date"
                 value={date}
@@ -236,7 +232,7 @@ const AnimalDetails = () => {
           </div>
 
           <div className="pendingRequests">
-            <h2>Pending Walk Requests</h2>
+            <h2>Pending walk requests</h2>
             {pendingRequests.length > 0 ? (
               pendingRequests.map(request => (
                 <div key={request.id} className="requestItem">
@@ -265,9 +261,9 @@ const AnimalDetails = () => {
 
       {user && user.roles.includes('Verified volunteer') && (
         <div className="requestPanel">
-          <h2>Request to Walk</h2>
+          <h2>Request to walk</h2>
           <label>
-            Select Date:
+            Select date:
             <input
               type="date"
               value={date}
@@ -286,7 +282,7 @@ const AnimalDetails = () => {
               </button>
             ))}
           </div>
-          <button className="submitButton" onClick={handleVolunteerSubmit}>Send Request</button>
+          <button className="submitButton" onClick={handleVolunteerSubmit}>Send request</button>
         </div>
       )}
       <button className="backButton" onClick={() => navigate(-1)}>Back</button>
