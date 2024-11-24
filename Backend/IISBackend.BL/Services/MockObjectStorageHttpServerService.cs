@@ -25,7 +25,20 @@ public class MockObjectStorageHttpServerService : BackgroundService
     {
         var configuration = _provider.GetRequiredService<IConfiguration>();
         var builder = WebApplication.CreateBuilder();
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+
+                }
+            );
+        });
         var app = builder.Build();
+        app.UseCors();
+        app.UseRouting();
 
         app.MapPut("/{bucketName}/{objectName}", async (string bucketName, string objectName, HttpRequest request) =>
         {
@@ -37,6 +50,14 @@ public class MockObjectStorageHttpServerService : BackgroundService
             }
 
             return Results.Ok($"File stored in bucket '{bucketName}' with name '{objectName}'");
+        });
+        app.MapMethods("/{bucketName}/{objectName}", new[] { "OPTIONS" }, (HttpResponse response) =>
+        {
+            response.Headers["Access-Control-Allow-Origin"] = "*";
+            response.Headers["Access-Control-Allow-Methods"] = "PUT, OPTIONS";
+            response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+
+            return Results.Ok();
         });
 
         app.MapGet("/{bucketName}/{objectName}", async (string bucketName, string objectName) =>

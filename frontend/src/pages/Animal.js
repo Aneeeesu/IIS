@@ -10,6 +10,7 @@ const Animal = () => {
   const [animals, setAnimals] = useState([]);
   const [addingAnimal, setAddingAnimal] = useState(false);
   const [newAnimal, setNewAnimal] = useState({ name: '', age: '', sex: '' });
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -35,12 +36,50 @@ const Animal = () => {
 
   const handleAddAnimal = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Animal`, newAnimal);
+      const response = await axios.post(`${API_BASE_URL}/Animal`, {
+        ...newAnimal,
+        imageID: imageFile // This is now the validated file ID, not the File object
+      });
+      
       setAnimals([...animals, response.data]);
       setAddingAnimal(false);
       setNewAnimal({ name: '', age: '', sex: '' });
+      setImageFile(null);
     } catch (error) {
       console.error('Error adding animal:', error);
+      alert('Failed to add animal');
+    }
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    console.log('Selected file:', file);
+    if (!file) return;
+  
+    try {
+      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+      const urlResponse = await axios.post(`${API_BASE_URL}/Files/GenerateUrl`, null, {
+        params: { fileName: fileExtension }
+      });
+      
+      const { id, url } = urlResponse.data;
+  
+      const fileData = await file.arrayBuffer();
+  
+      await fetch(url, {
+        method: 'PUT',
+        body: fileData,
+      });
+  
+      const validationResponse = await axios.post(
+        `${API_BASE_URL}/Files/ValidateFile/${id}`
+      );
+  
+      setImageFile(validationResponse.data.id);
+  
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
     }
   };
 
@@ -58,6 +97,7 @@ const Animal = () => {
         onClose={() => {
           setAddingAnimal(false);
           setNewAnimal({ name: '', age: '', sex: '' });
+          setImageFile(null);
         }}
       >
         <AnimalAddForm
@@ -67,7 +107,9 @@ const Animal = () => {
           onCancel={() => {
             setAddingAnimal(false);
             setNewAnimal({ name: '', age: '', sex: '' });
+            setImageFile(null);
           }}
+          onImageChange={handleImageChange}
         />
       </Modal>
     </div>

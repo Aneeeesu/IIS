@@ -168,7 +168,6 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         {
             var requestedImage = await uow.GetRepository<FileEntity>().Get().Where(e => e.Id == model.ImageId).FirstOrDefaultAsync() ?? throw new ArgumentException("Image not found");
             await CheckIfFileOperationIsValid(requestedImage, userPrincipal, existingUser, _authService);
-            existingUser.Image = requestedImage;
         }
 
         // Check if the current user is trying to update their own profile
@@ -176,7 +175,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         UserEntity? requestingUser = await userManager.GetUserAsync(userPrincipal) ?? throw new UnauthorizedAccessException("User is not authorized");
 
 
-        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded)
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, requestingUser, "UserIsAccountOwnerPolicy")).Succeeded)
         {
             throw new UnauthorizedAccessException("User is not authorized");
         }

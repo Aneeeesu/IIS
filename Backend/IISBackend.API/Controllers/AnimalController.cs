@@ -50,11 +50,11 @@ public class AnimalController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-        catch (InvalidOperationException)
-        {
-            //return StatusCode(500, e.Message);
-            return StatusCode(StatusCodes.Status500InternalServerError, "Error while saving entity");
-        }
+        // catch (InvalidOperationException)
+        // {
+        //     //return StatusCode(500, e.Message);
+        //     return StatusCode(StatusCodes.Status500InternalServerError, "Error while saving entity");
+        // }
     }
 
     [HttpDelete("{animalId}")]

@@ -211,6 +211,7 @@ const AnimalDetails = () => {
         <h2>{animal.name}</h2>
         <p>Age: {animal.age}</p>
         <p>Sex: {animal.sex}</p>
+        {animal.image && <img src={animal.image.url} alt={animal.name} />}
       </div>
 
       {user && user.roles.includes('Caregiver') && (

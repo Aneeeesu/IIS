@@ -6,6 +6,8 @@ import '../App.css';
 
 const Signup = () => {
   const [userName, setUserName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -14,7 +16,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password });
+      await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password, firstName, lastName });
       history('/login');
     } catch (error) {
       console.error('Error signing up:', error);
@@ -29,8 +31,16 @@ const Signup = () => {
         {errorMessage && <p className="error">{errorMessage}</p>}
 
         <label>
-          User Name:
+          Username:
           <input type="text" className="input" value={userName} onChange={(e) => setUserName(e.target.value)} />
+        </label>
+        <label>
+          First name:
+          <input type="text" className="input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+        </label>
+        <label>
+          Last name:
+          <input type="text" className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
         </label>
         <label>
           Email:

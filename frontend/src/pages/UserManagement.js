@@ -9,7 +9,8 @@ const UserManagement = () => {
   const { user } = useAuth();
   const [newUser, setNewUser] = useState({
     userName: '',
-    email: '',
+    firstName: '',
+    lastName: '',
     password: '',
     roles: []
   });
@@ -17,6 +18,7 @@ const UserManagement = () => {
 
   const [editingUser, setEditingUser] = useState(null);
   const [editingRoles, setEditingRoles] = useState([]);
+  const [selfEditingUser, setSelfEditingUser] = useState(user);
 
   useEffect(() => {
     fetchUsers();
@@ -46,7 +48,7 @@ const UserManagement = () => {
     try {
       await axios.post(`${API_BASE_URL}/users/${newUser.roles[0]}`, newUser);
       fetchUsers();
-      setNewUser({ userName: '', email: '', password: '', roles: [] });
+      setNewUser({ userName: '', firstName: '', lastName: '', password: '', roles: []});
     } catch (error) {
       console.error('Error creating user:', error);
     }
@@ -65,8 +67,10 @@ const UserManagement = () => {
     try {
       const payload = {
         id: userId,
-        email: editingUser.email,
-        roles: editingRoles
+        firstName: editingUser.firstName,
+        lastName: editingUser.lastName,
+        roles: editingRoles,
+        imageId: editingUser.imageId
       };
       await axios.put(`${API_BASE_URL}/users`, payload);
       fetchUsers();
@@ -88,107 +92,230 @@ const UserManagement = () => {
     }));
   };
 
-  if (!user || !user.roles.includes('Admin')) {
+  const handleImageUpload = async (file) => {
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    const urlResponse = await axios.post(`${API_BASE_URL}/Files/GenerateUrl`, null, {
+      params: { fileName: fileExtension }
+    });
+    const { id, url } = urlResponse.data;
+    const fileData = await file.arrayBuffer();
+    await fetch(url, {
+      method: 'PUT',
+      body: fileData,
+    });
+    const validationResponse = await axios.post(`${API_BASE_URL}/Files/ValidateFile/${id}`);
+    return validationResponse.data.id;
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageId = await handleImageUpload(file);
+      setEditingUser((prevUser) => ({
+        ...prevUser,
+        imageId: imageId
+      }));
+    }
+  };
+
+  const handleSelfImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageId = await handleImageUpload(file);
+      setSelfEditingUser((prevUser) => ({
+        ...prevUser,
+        imageId: imageId
+      }));
+    }
+  };
+
+  const handleSelfEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        id: user.id,
+        firstName: selfEditingUser.firstName,
+        lastName: selfEditingUser.lastName,
+        userName: selfEditingUser.userName,
+        imageId: selfEditingUser.imageId
+      };
+      await axios.put(`${API_BASE_URL}/users`, payload);
+      setSelfEditingUser(user);
+    } catch (error) {
+      console.error('Error editing user:', error);
+    }
+  };
+
+  if (!user) {
     return <h1>Unauthorized</h1>;
   }
-  
+
   return (
     <div className="container">
       <h1>User Management</h1>
       
-      <div className="create-user-section">
-        <h2>Create New User</h2>
-        <form onSubmit={handleCreateUser} className="form">
+      {user.roles.includes('Admin') && (
+        <>
+          <div className="create-user-section">
+            <h2>Create New User</h2>
+            <form onSubmit={handleCreateUser} className="form">
+              <input
+                type="text"
+                placeholder="Username"
+                className="input"
+                value={newUser.userName}
+                onChange={(e) => setNewUser({...newUser, userName: e.target.value})}
+              />
+
+              <input
+                type="text"
+                placeholder="First name"
+                className="input"
+                value={newUser.firstName}
+                onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+              />
+
+              <input
+                type="text"
+                placeholder="Last name"
+                className="input"
+                value={newUser.lastName}
+                onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+              />
+              
+              <input
+                type="password"
+                placeholder="Password"
+                className="input"
+                value={newUser.password}
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              />
+
+              <div className="roles-section">
+                {availableRoles.map((role) => (
+                  <div key={role} className="role-checkbox">
+                    <input
+                      type="radio"
+                      checked={newUser.roles.includes(role)}
+                      onChange={() => handleNewUserRoleChange(role)}
+                    />
+                    <label>{role}</label>
+                  </div>
+                ))}
+              </div>
+              
+              <button type="submit" className="button">Create User</button>
+            </form>
+          </div>
+
+          <div className="users-list">
+            <h2>Users</h2>
+            {users.map(user => (
+              <div key={user.id} className="userItem">
+                <div classname="user-row">
+                  <img src={user.image?.url} alt="No image" className="userImage" />
+                  <p><strong>{user.userName}</strong></p>
+                  <p>{user.firstName} {user.lastName}</p>
+                  <p>Roles: {user.roles.join(', ')}</p>
+                </div>
+                <button 
+                  className="button"
+                  onClick={() => {
+                    setEditingUser(user);
+                    setEditingRoles(user.roles);
+                  }}
+                >
+                  Edit profile
+                </button>
+                <button 
+                  className="deleteButton"
+                  onClick={() => handleDeleteUser(user.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))} 
+          </div>
+
+          {editingUser && (
+            <div className="edit-roles-section">
+              <h2>Edit profile for {editingUser.userName}</h2>
+              <input
+                type="text"
+                placeholder="First name"
+                className="input"
+                value={editingUser.firstName}
+                onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
+              />
+              <input
+                type="text"
+                placeholder="Last name"
+                className="input"
+                value={editingUser.lastName}
+                onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
+              />
+              <input
+                type="file"
+                className="input"
+                onChange={handleImageChange}
+              />
+              {availableRoles.map((role) => (
+                <div key={role} className="role-checkbox">
+                  <input
+                    type="radio"
+                    checked={editingRoles.includes(role)}
+                    onChange={() => handleRoleChange(role)}
+                  />
+                  <label>{role}</label>
+                </div>
+              ))}
+              <button
+                className="button"
+                onClick={() => handleEditRoles(editingUser.id)}
+              >
+                Save profile
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="self-edit-section">
+        <h2>Edit your profile</h2>
+        <form onSubmit={handleSelfEdit} className="form">
           <input
             type="text"
             placeholder="Username"
             className="input"
-            value={newUser.userName}
-            onChange={(e) => setNewUser({...newUser, userName: e.target.value})}
+            value={selfEditingUser.userName}
+            onChange={(e) => setSelfEditingUser({...user, userName: e.target.value})}
           />
           
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="First name"
             className="input"
-            value={newUser.email}
-            onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+            value={selfEditingUser.firstName}
+            onChange={(e) => setSelfEditingUser({...user, firstName: e.target.value})}
           />
           
           <input
-            type="password"
-            placeholder="Password"
+            type="text"
+            placeholder="Last name"
             className="input"
-            value={newUser.password}
-            onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+            value={selfEditingUser.lastName}
+            onChange={(e) => setSelfEditingUser({...user, lastName: e.target.value})}
           />
-
-          <div className="roles-section">
-            {availableRoles.map((role) => (
-              <div key={role} className="role-checkbox">
-                <input
-                  type="radio"
-                  checked={newUser.roles.includes(role)}
-                  onChange={() => handleNewUserRoleChange(role)}
-                />
-                <label>{role}</label>
-              </div>
-            ))}
-          </div>
           
-          <button type="submit" className="button">Create User</button>
+          <input
+            type="file"
+            className="input"
+            onChange={handleSelfImageChange}
+          />
+          
+          <button type="submit" className="button">Save</button>
         </form>
       </div>
-
-      <div className="users-list">
-        <h2>Users</h2>
-        {users.map(user => (
-          <div key={user.id} className="userItem">
-            <div>
-              <p><strong>{user.userName}</strong></p>
-              <p>{user.email}</p>
-              <p>Roles: {user.roles.join(', ')}</p>
-            </div>
-            <button 
-              className="button"
-              onClick={() => {
-                setEditingUser(user);
-                setEditingRoles(user.roles);
-              }}
-            >
-              Edit Roles
-            </button>
-            <button 
-              className="deleteButton"
-              onClick={() => handleDeleteUser(user.id)}
-            >
-              Delete
-            </button>
-          </div>
-        ))} 
-      </div>
-
-      {editingUser && (
-        <div className="edit-roles-section">
-          <h2>Edit roles for {editingUser.userName}</h2>
-          {availableRoles.map((role) => (
-            <div key={role} className="role-checkbox">
-              <input
-                type="radio"
-                checked={editingRoles.includes(role)}
-                onChange={() => handleRoleChange(role)}
-              />
-              <label>{role}</label>
-            </div>
-          ))}
-          <button
-            className="button"
-            onClick={() => handleEditRoles(editingUser.id)}
-          >
-            Save Roles
-          </button>
-        </div>
-      )}
     </div>
   );
 };

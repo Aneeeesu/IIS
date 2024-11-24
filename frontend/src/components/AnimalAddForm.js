@@ -1,7 +1,7 @@
 import React from 'react';
 import "../App.css";
 
-const AnimalAddForm = ({ animal, onChange, onSave, onCancel }) => {
+const AnimalAddForm = ({ animal, onChange, onSave, onCancel, onImageChange }) => {
   return (
     <div>
       <h2>Add Animal</h2>
@@ -13,7 +13,7 @@ const AnimalAddForm = ({ animal, onChange, onSave, onCancel }) => {
         onChange={(e) => onChange({ ...animal, name: e.target.value })}
       />
       <input
-        type="text"
+        type="number"
         placeholder="Age"
         className="input"
         value={animal.age}
@@ -28,6 +28,11 @@ const AnimalAddForm = ({ animal, onChange, onSave, onCancel }) => {
         <option value="M">M</option>
         <option value="F">F</option>
       </select>
+      <input
+        type="file"
+        className="input"
+        onChange={onImageChange}
+      />
       <button className="button" onClick={onSave}>
         Add
       </button>

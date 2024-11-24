@@ -215,7 +215,7 @@ const Main = () => {
         />
       )}
 
-      {user && user.roles.includes('Admin') && (
+      {user && (
         <AdminSection navigate={navigate} />
       )}
 
@@ -229,7 +229,7 @@ const Main = () => {
         <p>Your verification request has been sent.</p>
       )}
 
-      <AnimalList animals={animals} navigate={navigate} />
+      <AnimalList animals={animals} />
     </div>
   );
 };

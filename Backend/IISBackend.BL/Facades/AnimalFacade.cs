@@ -56,7 +56,6 @@ public class AnimalFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelMap
             {
                 throw new ArgumentException("Image not found");
             }
-            entity.Image = fileEntity;
             await fileRepository.UpdateAsync(fileEntity).ConfigureAwait(false);
         }
 
