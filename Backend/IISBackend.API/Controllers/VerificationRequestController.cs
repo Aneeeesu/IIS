@@ -75,7 +75,7 @@ public class VerificationRequestController : ControllerBase
         }
     }
 
-    [HttpPost("Resolve/{requestId}"), Authorize(Roles = "Vet,Admin")]
+    [HttpPost("Resolve/{requestId}"), Authorize(Roles = "Caregiver,Vet,Admin")]
     public async Task<ActionResult<VerificationRequestDetailModel>> ResolveRequest(Guid requestId,bool Approved)
     {
         try
