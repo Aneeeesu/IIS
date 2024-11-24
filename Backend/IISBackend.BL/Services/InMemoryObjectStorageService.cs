@@ -1,4 +1,5 @@
-﻿using IISBackend.BL.Services.Interfaces;
+﻿using IISBackend.BL.Options;
+using IISBackend.BL.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -16,14 +17,12 @@ namespace IISBackend.BL.Services;
 public class InMemoryObjectStorageService : IObjectStorageService
 {
     private string _filePath;
-    public InMemoryObjectStorageService()
+    public InMemoryObjectStorageService(FileStorageOptions options)
     {
         var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         Console.WriteLine($"appPath is {path}");
         if (path == "") path = "/app";
-        string storagePath = Path.Combine(path, "MockBucket");
-        if (Directory.Exists(storagePath) == false)
-            Directory.CreateDirectory(storagePath);
+        string storagePath = Path.Combine(path);
         _filePath = storagePath;
     }
 

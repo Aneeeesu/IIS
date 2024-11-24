@@ -33,7 +33,7 @@ public class FileController : ControllerBase
     }
 
     [HttpPost("ValidateFile/{fileGuid}")]
-    public async Task<ActionResult<string>> ValidateFile(Guid fileGuid)
+    public async Task<ActionResult<FileBaseModel>> ValidateFile(Guid fileGuid)
     {
         try
         {

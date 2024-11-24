@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Entity.Validation;
+using System.IO;
 using System.Security.Claims;
 
 namespace IISBackend.BL.Facades;
@@ -57,7 +58,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
         return _mapper.Map<PendingFileUploadModel>(result);
     }
 
-    public async Task<string> ValiadateFileUpload(Guid pendingRequestGuid,ClaimsPrincipal User)
+    public async Task<FileBaseModel> ValiadateFileUpload(Guid pendingRequestGuid,ClaimsPrincipal User)
     {
 
         await using IUnitOfWork uow = _uowFactory.Create();
@@ -107,7 +108,7 @@ public class FileFacade(IUnitOfWorkFactory uowFactory,IObjectStorageService obje
             throw new InvalidOperationException("Failed to validate the file upload", e);
         }
 
-        return readUrl;
+        return _mapper.Map<FileBaseModel>(result);
     }
 
     public async Task DeleteUnusedFiles(TimeSpan timeSpan)

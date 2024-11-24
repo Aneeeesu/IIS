@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace IISBackend.BL.Models;
 
-namespace IISBackend.BL.Models
+public record LoginModel
 {
-    public class LoginModel
-    {
-        public required string Name { get; set; }
-        public required string Password { get; set; }
-    }
+    public required string Name { get; set; }
+    public required string Password { get; set; }
 }
