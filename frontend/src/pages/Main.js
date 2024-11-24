@@ -17,9 +17,7 @@ const Main = () => {
   const [animals, setAnimals] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedSchedules, setApprovedSchedules] = useState([]);
-  const [verificationRequestSent, setVerificationRequestSent] = useState(() => {
-    return localStorage.getItem('verificationRequestSent') === 'true';
-  });
+  const [verificationRequestSent, setVerificationRequestSent] = useState(false);
   const [verificationRequests, setVerificationRequests] = useState([]);
   const [showPastWalks, setShowPastWalks] = useState(false);
 
@@ -35,6 +33,22 @@ const Main = () => {
 
     fetchAnimals();
   }, []);
+
+  useEffect(() => {
+    const checkVerificationRequest = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/VerificationRequests`);
+        const userRequest = response.data.find(request => request.requestee.id === user.id);
+        setVerificationRequestSent(!!userRequest);
+      } catch (error) {
+        console.error('Error checking verification request:', error);
+      }
+    };
+
+    if (user) {
+      checkVerificationRequest();
+    }
+  }, [user]);
 
   const combineConsecutiveSchedules = (schedules) => {
     const sortedSchedules = [...schedules].sort((a, b) => 
@@ -278,7 +292,7 @@ const Main = () => {
         </button>
       )}
 
-      {verificationRequestSent && (
+      {verificationRequestSent && user.roles.includes('Volunteer') && (
         <p>Your verification request has been sent.</p>
       )}
 

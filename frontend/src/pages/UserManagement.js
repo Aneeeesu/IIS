@@ -67,7 +67,9 @@ const UserManagement = () => {
     try {
       const payload = {
         id: userId,
-        roles: editingRoles
+        roles: editingRoles,
+        firstName: editingUser.firstName,
+        lastName: editingUser.lastName,
       };
       await axios.put(`${API_BASE_URL}/users`, payload);
       fetchUsers();
@@ -258,23 +260,23 @@ const UserManagement = () => {
             placeholder="Username"
             className="input"
             value={selfEditingUser.userName}
-            onChange={(e) => setSelfEditingUser({...user, userName: e.target.value})}
+            onChange={(e) => setSelfEditingUser({...selfEditingUser, userName: e.target.value})}
           />
-          
+
           <input
             type="text"
             placeholder="First name"
             className="input"
             value={selfEditingUser.firstName}
-            onChange={(e) => setSelfEditingUser({...user, firstName: e.target.value})}
+            onChange={(e) => setSelfEditingUser({...selfEditingUser, firstName: e.target.value})}
           />
-          
+
           <input
             type="text"
             placeholder="Last name"
             className="input"
             value={selfEditingUser.lastName}
-            onChange={(e) => setSelfEditingUser({...user, lastName: e.target.value})}
+            onChange={(e) => setSelfEditingUser({...selfEditingUser, lastName: e.target.value})}
           />
           
           <input
