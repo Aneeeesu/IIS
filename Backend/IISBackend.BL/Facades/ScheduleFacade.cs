@@ -126,7 +126,7 @@ public class ScheduleFacade(IUnitOfWorkFactory unitOfWorkFactory, IMapper modelM
         return base._modelMapper.Map<List<ScheduleListModel>>(entities);
     }
 
-    public async Task<ICollection<ScheduleListModel>> GetVolunteerSchedulesAsync(Guid id)
+    public async Task<ICollection<ScheduleListModel>> GetUserSchedulesAsync(Guid id)
     {
         await using IUnitOfWork uow = _UOWFactory.Create();
 

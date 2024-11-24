@@ -13,5 +13,5 @@ public interface IScheduleFacade : IFacadeCRUD<ScheduleEntryEntity, ScheduleCrea
 
     Task<ICollection<ScheduleListModel>> GetAnimalSchedulesAsync(Guid animalId);
 
-    Task<ICollection<ScheduleListModel>> GetVolunteerSchedulesAsync(Guid volunteerId);
+    Task<ICollection<ScheduleListModel>> GetUserSchedulesAsync(Guid volunteerId);
 }

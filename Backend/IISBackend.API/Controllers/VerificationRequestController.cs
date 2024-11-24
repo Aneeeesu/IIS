@@ -83,7 +83,8 @@ public class VerificationRequestController : ControllerBase
             await _requestFacade.ResolveRequestAsync(requestId, Approved);
                 return Ok(requestId);
                 
-        }catch(InvalidDataException e)
+        }
+        catch(InvalidDataException e)
         {
             return BadRequest(e.Message);
         }

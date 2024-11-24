@@ -90,12 +90,12 @@ public class ScheduleController : ControllerBase
         }
     }
 
-    [HttpGet("Volunteer/{volunteerID}")]
-    public async Task<ActionResult<List<ScheduleListModel>>> GetVolunteerSchedules(Guid volunteerID)
+    [HttpGet("User/{userID}")]
+    public async Task<ActionResult<List<ScheduleListModel>>> GetUserSchedules(Guid userID)
     {
         try
         {
-            return Ok(await _scheduleFacade.GetVolunteerSchedulesAsync(volunteerID));
+            return Ok(await _scheduleFacade.GetUserSchedulesAsync(userID));
         }
         catch (ArgumentException e)
         {
