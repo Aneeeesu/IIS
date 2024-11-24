@@ -212,11 +212,14 @@ const UserManagement = () => {
             <h2>Users</h2>
             {users.map(user => (
               <div key={user.id} className="userItem">
-                <div classname="user-row">
+                <div className="user-row">
                   <img src={user.image?.url} alt="No image" className="userImage" />
-                  <p><strong>{user.userName}</strong></p>
-                  <p>{user.firstName} {user.lastName}</p>
-                  <p>Roles: {user.roles.join(', ')}</p>
+                  <div style={{padding: "5px"}}>
+                    <p><strong>{user.userName}</strong></p>
+                    <p>{user.firstName} {user.lastName}</p>
+                    <p>Roles: {user.roles.join(', ')}</p>
+                  </div>
+                  
                 </div>
                 <button 
                   className="button"
