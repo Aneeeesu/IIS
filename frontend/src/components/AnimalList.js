@@ -16,7 +16,7 @@ const AnimalList = ({ animals, onDelete }) => {
         style={{ cursor: 'pointer' }}
       >
         {console.log(animal)}
-        <img src={animal.image?.url} alt={animal.name} />
+        <img src={animal.image?.url} />
         <h3>{animal.name}</h3>
         {onDelete && <button className="deleteButton" onClick={() => onDelete(animal.id)}>Delete</button>}
       </div>
