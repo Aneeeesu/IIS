@@ -6,6 +6,7 @@ BACKEND_DAL_PROJECT = ./$(BACKEND_SOLUTION)/IISBackend.DAL
 TEST_SECRET_FILE = ./.config/local-secret.env
 SECRET_FILE = ./.config/secret.env
 BACKEND_DEPENDENCY_CONTAINERS = db
+FRONTEND_DEPENDENCY_CONTAINERS = db api
 BUILD_DIR = ./bin/Release/net8.0
 
 # Default target: display help
@@ -23,6 +24,10 @@ deploy:
 backend_build:
 	@echo "Building the backend project..."
 	dotnet build $(BACKEND_SOLUTION)
+
+backend_compose:
+	@echo "Building the backend project..."
+	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(TEST_SECRET_FILE)" up --build -d $(FRONTEND_DEPENDENCY_CONTAINERS)
 
 # Target to run the backend project
 backend_run:

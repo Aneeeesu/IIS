@@ -182,6 +182,19 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             throw new UnauthorizedAccessException("User is not authorized");
         }
 
+
+        if ((await userManager.UpdateAsync(_modelMapper.Map(model, existingUser)).ConfigureAwait(false)).Succeeded)
+        {
+            UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id);
+            result = _modelMapper.Map<UserDetailModel>(updatedEntity);
+            await uow.SaveChangesAsync();
+        }
+        else
+        {
+            await uow.RevertChangesAsync();
+            throw new InvalidOperationException("An error occurred while updating the user");
+        }
+
         if (model.Roles != null)
         {
             foreach (var role in model.Roles)
@@ -201,17 +214,10 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             }
             else
             {
+                await uow.RevertChangesAsync();
                 throw new UnauthorizedAccessException("User is not authorized to change roles");
 
             }
-        }
-
-
-        if ((await userManager.UpdateAsync(_modelMapper.Map(model, existingUser)).ConfigureAwait(false)).Succeeded)
-        {
-            UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id);
-            result = _modelMapper.Map<UserDetailModel>(updatedEntity);
-            await uow.SaveChangesAsync();
         }
 
         try
