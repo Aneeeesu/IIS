@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import VetVisitRequest from '../components/VetVisitRequest';
+import HealthRecordForm from '../components/HealthRecordForm';
+import HealthRecordList from '../components/HealthRecordList';
 
 axios.defaults.withCredentials = true;
 
@@ -14,10 +17,11 @@ const AnimalDetails = () => {
   const [selectedVolunteerHours, setSelectedVolunteerHours] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [showVetVisitRequest, setShowVetVisitRequest] = useState(false);
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const hours = Array.from({ length: 11 }, (_, i) => i + 8);
+  const hours = Array.from({ length: 10 }, (_, i) => i + 8);
 
   useEffect(() => {
     const fetchAnimal = async () => {
@@ -194,14 +198,24 @@ const AnimalDetails = () => {
     }
   };
 
+  const handleRecordAdded = (newRecord) => {
+    setAnimal((prevAnimal) => ({
+      ...prevAnimal,
+      healthRecords: [...prevAnimal.healthRecords, newRecord]
+    }));
+  };
+
   return (
     <div className="container">
       <h1>Animal details</h1>
       <div className="animalDetail">
+        <img src={animal.image.url} />
         <h2>{animal.name}</h2>
-        <p>Age: {animal.age}</p>
-        <p>Sex: {animal.sex}</p>
-        {animal.image && <img src={animal.image.url} />}
+        <h2>{animal.age} years old</h2>
+        <h2>Sex: {animal.sex === 'M' ? 'Boy' : 'Girl'}</h2>
+        <h2 className={`status ${animal.lastStatus === 'Available' ? 'available' : 'onWalk'}`}>
+          {animal.lastStatus === 'Available' ? 'Available' : 'On walk'}
+        </h2>
       </div>
 
       {user && user.roles.includes('Caregiver') && (
@@ -256,6 +270,10 @@ const AnimalDetails = () => {
               <p>No pending requests.</p>
             )}
           </div>
+          <button onClick={() => setShowVetVisitRequest(!showVetVisitRequest)}>
+            {showVetVisitRequest ? 'Hide vet visit request' : 'Request vet visit'}
+          </button>
+          {showVetVisitRequest && <VetVisitRequest animalId={id} userId={user.id} />}
         </>
       )}
 
@@ -285,6 +303,13 @@ const AnimalDetails = () => {
           <button className="submitButton" onClick={handleVolunteerSubmit}>Send request</button>
         </div>
       )}
+
+      {user && user.roles.includes('Vet') && (
+        <HealthRecordForm animalId={id} onRecordAdded={handleRecordAdded} />
+      )}
+
+      <HealthRecordList animalId={id} />
+
       <button className="backButton" onClick={() => navigate(-1)}>Back</button>
     </div>
   );

@@ -5,10 +5,6 @@
   margin: 0 auto;
 }
 
-.animalDetail {
-  margin-bottom: 20px;
-}
-
 .schedulePanel {
   margin-bottom: 20px;
 }
@@ -61,16 +57,6 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.deleteButton {
-  padding: 10px 15px;
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 10px;
 }
 
 .logout-btn {
@@ -160,7 +146,21 @@
   align-items: center;
 }
 
-.animalDetail, 
+.animalDetail {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.animalDetail h2 {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
 .userDetail, 
 .scheduleDetail {
   padding: 20px;
@@ -238,16 +238,6 @@
   padding: 20px;
   background-color: #f5f5f5;
   border-radius: 8px;
-}
-
-.animalCard {
-  padding: 15px;
-  margin: 10px 0;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  display: flex;
-  height: 40px;
-  justify-content: space-between;
 }
 
 /* Navigation */
@@ -354,4 +344,160 @@ img {
   width: 100px;
   display: block;
   border: 3px solid grey;
+}
+
+.schedulePanel, .vetVisitPanel {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.hourButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.hourButton {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.hourButton.selected {
+  background-color: #4caf50;
+  color: white;
+}
+
+.hourButton.reserved {
+  background-color: #f44336;
+  color: white;
+  cursor: not-allowed;
+}
+
+.hourButton.unavailable {
+  background-color: #ccc;
+  color: white;
+  cursor: not-allowed;
+}
+
+.submitButton, .backButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submitButton:hover, .backButton:hover {
+  background-color: #45a049;
+}
+
+.requestItem {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.approveButton, .rejectButton {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.approveButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.rejectButton {
+  background-color: #f44336;
+  color: white;
+}
+
+.animalCard {
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.animalCard.available {
+  background-color: #d4edda;
+}
+
+.animalCard.onWalk {
+  background-color: #fff3cd;
+}
+
+.animalCard img {
+  max-width: 100px;
+  max-height: 100px;
+  width: auto;
+  height: auto;
+}
+
+.statusButton {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  margin-top: 10px;
+}
+
+.deleteButton {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #dc3545;
+  color: white;
+  margin-top: 10px;
+}
+
+.animalDetail {
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.animalDetail img {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.animalDetail h2 {
+  margin: 5px 0;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  margin-top: 10px;
+}
+
+.status.available {
+  background-color: #28a745; /* Green background for available status */
+}
+
+.status.onWalk {
+  background-color: #ffc107; /* Yellow background for on walk status */
 }

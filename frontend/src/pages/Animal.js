@@ -4,6 +4,7 @@ import AnimalList from '../components/AnimalList';
 import AnimalAddForm from '../components/AnimalAddForm';
 import Modal from '../components/Modal';
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../contexts/AuthContext';
 import '../App.css';
 
 const Animal = () => {
@@ -11,6 +12,7 @@ const Animal = () => {
   const [addingAnimal, setAddingAnimal] = useState(false);
   const [newAnimal, setNewAnimal] = useState({ name: '', age: '', sex: '' });
   const [imageFile, setImageFile] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -53,7 +55,6 @@ const Animal = () => {
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    console.log('Selected file:', file);
     if (!file) return;
   
     try {
@@ -90,6 +91,7 @@ const Animal = () => {
       <AnimalList 
         animals={animals}
         onDelete={deleteAnimal}
+        user={user}
       />
   
       <Modal

@@ -13,6 +13,7 @@ axios.defaults.withCredentials = true;
 const Main = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [vetRequests, setVetRequests] = useState([]);
   const [animals, setAnimals] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedSchedules, setApprovedSchedules] = useState([]);
@@ -164,6 +165,22 @@ const Main = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user && user.roles.includes('Vet')) {
+      const fetchVetRequests = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/ReservationRequests`);
+          const requests = response.data.filter(request => request.type === 'vetVisit' && !request.resolved);
+          setVetRequests(requests);
+        } catch (error) {
+          console.error('Error fetching vet requests:', error);
+        }
+      };
+
+      fetchVetRequests();
+    }
+  }, [user]);
+
   const handleSendVerificationRequest = async () => {
     try {
       await axios.post(`${API_BASE_URL}/VerificationRequests`, {
@@ -173,6 +190,15 @@ const Main = () => {
       localStorage.setItem('verificationRequestSent', 'true');
     } catch (error) {
       console.error('Error sending verification request:', error);
+    }
+  };
+
+  const handleResolveRequest = async (requestId, approved) => {
+    try {
+      await axios.post(`${API_BASE_URL}/ReservationRequests/Resolve/${requestId}?Approved=${approved}`);
+      setVetRequests(vetRequests.filter(request => request.id !== requestId));
+    } catch (error) {
+      console.error('Error resolving request:', error);
     }
   };
 
@@ -195,8 +221,6 @@ const Main = () => {
 
   return (
     <div className="container">
-      <h1>Welcome to Zvireci utulek</h1>
-
       {user && user.roles.includes('Verified volunteer') && (
         <VolunteerSection
           pendingRequests={pendingRequests}
@@ -206,6 +230,34 @@ const Main = () => {
           currentDateTime={currentDateTime}
           formatTimeRange={formatTimeRange}
         />
+      )}
+
+      {user && user.roles.includes('Vet') && (
+        <div className="vetRequests">
+          <h2>Vet visit requests</h2>
+          {vetRequests.length > 0 ? (
+            vetRequests.map(request => (
+              <div key={request.id} className="requestItem">
+                <p><strong>Animal:</strong> {request.animal.name}</p>
+                <p><strong>Time:</strong> {new Date(request.time).toLocaleString()}</p>
+                <button
+                  className="approveButton"
+                  onClick={() => handleResolveRequest(request.id, true)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="rejectButton"
+                  onClick={() => handleResolveRequest(request.id, false)}
+                >
+                  Reject
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No pending vet visit requests.</p>
+          )}
+        </div>
       )}
 
       {user && user.roles.includes('Caregiver') && (
@@ -230,7 +282,7 @@ const Main = () => {
         <p>Your verification request has been sent.</p>
       )}
 
-      <AnimalList animals={animals} />
+      <AnimalList animals={animals} user={user} />
     </div>
   );
 };
