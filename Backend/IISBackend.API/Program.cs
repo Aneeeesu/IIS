@@ -20,7 +20,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var useMockBuket = bool.TryParse(builder.Configuration["DevelopmentBucket:Enabled"],out bool result) ? result : false;
 // Add services to the container.
 
-ConfigureControllers(builder.Services);
+ConfigureControllers(builder.Services, builder.Configuration["FrontendAddress"] ?? "http://localhost:3000");
 ConfigureDependencies(builder.Services, builder.Configuration, builder.Environment.IsEnvironment("Development"), useMockBuket);
 ConfigureAutoMapper(builder.Services);
 
@@ -61,7 +61,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (true/*app.Environment.IsDevelopment()*/)
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -69,7 +69,6 @@ if (true/*app.Environment.IsDevelopment()*/)
 }
 
 UseSecurityFeatures(app);
-
 
 app.MapControllers();
 
@@ -117,13 +116,14 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
 void UseSecurityFeatures(IApplicationBuilder application)
 {
     application.UseCors();
+    application.UseRouting();
     application.UseAuthentication();
     application.UseAuthorization();
 }
 
 
 
-void ConfigureControllers(IServiceCollection serviceCollection)
+void ConfigureControllers(IServiceCollection serviceCollection,string frontendAddress)
 {
     serviceCollection.AddControllers()
         .AddDataAnnotationsLocalization()
@@ -135,14 +135,15 @@ void ConfigureControllers(IServiceCollection serviceCollection)
     {
         options.AddDefaultPolicy(builder =>
             {
-                builder.WithOrigins("https://localhost:3000")
+                builder.WithOrigins(
+                        frontendAddress)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
+                    .WithExposedHeaders("Content-Disposition")
+                    .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
                     .AllowCredentials();
-                builder.WithOrigins("http://localhost:3000")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
+
+
             }
         );
     });

@@ -11,7 +11,7 @@ public record AnimalEntity : IEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
-    public int age { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public Sex sex { get; set; }
 
     public AnimalStatus Status { get; set; }

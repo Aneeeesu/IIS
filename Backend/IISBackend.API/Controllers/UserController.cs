@@ -1,4 +1,5 @@
 ﻿using IISBackend.BL.Facades.Interfaces;
+using IISBackend.BL.Models;
 using IISBackend.BL.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -93,6 +94,29 @@ public class UserController(IUserFacade userFacade) : ControllerBase
             return Unauthorized(e.Message);
         }
         catch (Exception e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpPut("ChangePassword")]
+    public async Task<ActionResult> ChangePassword(ChangePasswordModel newPasswordModel)
+    {
+        try
+        {
+            await _userFacade.ChangePasswordAsync(newPasswordModel, User);
+            return Ok();
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Unauthorized(e.Message);
+        }
+        catch (InvalidDataException e)
         {
             return NotFound(e.Message);
         }

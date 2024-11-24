@@ -140,3 +140,4 @@ Backend/packages-microsoft-prod.deb
 /.vs/IIS/v17/.wsuo
 /.vs/IIS/v17/DocumentLayout.json
 /.vs/VSWorkspaceState.json
+/.config/secret.env

@@ -3,17 +3,22 @@ BACKEND_DOCKER_COMPOSE_PATH = ./docker-compose.yml
 BACKEND_SOLUTION = Backend
 BACKEND_API_PROJECT = ./$(BACKEND_SOLUTION)/IISBackend.API
 BACKEND_DAL_PROJECT = ./$(BACKEND_SOLUTION)/IISBackend.DAL
-BACKEND_SECRET_FILE = ./$(BACKEND_SOLUTION)/.config/secret.env
+TEST_SECRET_FILE = ./.config/local-secret.env
+SECRET_FILE = ./.config/secret.env
 BACKEND_DEPENDENCY_CONTAINERS = db
 BUILD_DIR = ./bin/Release/net8.0
 
 # Default target: display help
-all: help
+all: compose
 
 # Target to build the backend project
-backend_compose:
+compose:
 	@echo "Building the backend project..."
-	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(BACKEND_SECRET_FILE)" up --build -d
+	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(TEST_SECRET_FILE)" up --build -d
+
+deploy:
+	@echo "Deploying the backend project..."
+	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(SECRET_FILE)" up --build -d
 
 backend_build:
 	@echo "Building the backend project..."
@@ -22,7 +27,7 @@ backend_build:
 # Target to run the backend project
 backend_run:
 	@echo "Running the backend project..."
-	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(BACKEND_SECRET_FILE)" up $(BACKEND_DEPENDENCY_CONTAINERS) --build -d
+	docker compose -f "$(BACKEND_DOCKER_COMPOSE_PATH)" --env-file "$(SECRET_FILE)" up $(BACKEND_DEPENDENCY_CONTAINERS) --build -d
 	dotnet run --project $(BACKEND_API_PROJECT)
 
 # Target for `make backend run`

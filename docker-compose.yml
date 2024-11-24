@@ -1,5 +1,21 @@
 version: "3.8"
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+      args:
+        BACKEND_ADDRESS: ${BACKEND_ADDRESS}
+    container_name: iis-frontend
+    restart: "always"
+    ports:
+      - "3000:80" # Frontend exposed on localhost:3000
+    depends_on:
+      - api
+    networks:
+      - app-network
+    
+
   api:
     build:
       context: ./Backend
@@ -7,18 +23,21 @@ services:
     container_name: iis-backend-api
     restart: "always"
     ports:
-      - "127.0.0.1:8002:8080"
-      - "127.0.0.1:5000:5000"
+      - "8003:8080"
+      - "5000:5000"
     depends_on:
       - db
     environment:
       DefaultAdminPassword: ${ADMIN_PASSWORD}
-      DevelopmentBucket__Enabled: true
-      DevelopmentBucket__Address: http://0.0.0.0:5000
+      DevelopmentBucket__Enabled: ${DEVELOPMENT_BUCKET_ENABLED}
+      DevelopmentBucket__Address: ${DEVELOPMENT_BUCKET_ADDRESS}
+      FrontendAddress: ${FRONTEND_ADDRESS}
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
       ConnectionStrings__DefaultConnection: Server=db;Port=3306;Database=db;Uid=${MYSQL_USER};Pwd=${MYSQL_PASSWORD}
     volumes:
       - iis-backend-volume:/app/MockBucket
+    networks:
+      - app-network
 
 
   db:
@@ -35,7 +54,13 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - app-network
 
 
 volumes:
   iis-backend-volume:
+
+
+networks:
+  app-network:

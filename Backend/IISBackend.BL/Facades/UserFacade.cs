@@ -155,7 +155,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
     {
         UserDetailModel? result = null;
 
-        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        ITransactionalUnitOfWork uow = _unitOfWorkFactory.CreateTransactional();
         UserManager<UserEntity> userManager = uow.GetUserManager();
 
         var existingUser = await userManager.Users.Include(e => e.Image).FirstOrDefaultAsync(e => e.Id == model.Id).ConfigureAwait(false);
@@ -197,6 +197,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
                 var roles = await userManager.GetRolesAsync(existingUser);
                 await userManager.RemoveFromRolesAsync(existingUser, roles.Except(model.Roles));
                 await userManager.AddToRolesAsync(existingUser, model.Roles.Except(roles));
+                await uow.SaveChangesAsync();
             }
             else
             {
@@ -210,6 +211,7 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
         {
             UserEntity? updatedEntity = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.Id);
             result = _modelMapper.Map<UserDetailModel>(updatedEntity);
+            await uow.SaveChangesAsync();
         }
 
         try
@@ -260,5 +262,51 @@ public class UserFacade(IUnitOfWorkFactory _unitOfWorkFactory, IAuthorizationSer
             return null;
         }
         return result;
+    }
+
+    public async Task ChangePasswordAsync(ChangePasswordModel model, ClaimsPrincipal userPrincipal)
+    {
+        IUnitOfWork uow = _unitOfWorkFactory.Create();
+        UserManager<UserEntity> userManager = uow.GetUserManager();
+
+        if(string.IsNullOrEmpty(model.OldPassword) && !(userPrincipal?.IsInRole("Admin") ?? false))
+        {
+            throw new ArgumentException("Old password is required for normal users");
+        }
+
+        var existingUser = await userManager.Users.FirstOrDefaultAsync(e => e.Id == model.UserId).ConfigureAwait(false);
+        if (existingUser == null)
+        {
+            throw new InvalidDataException("User not found");
+        }
+
+        // Check if the current user is trying to update their own profile
+        if (userPrincipal == null || !(await _authService.AuthorizeAsync(userPrincipal, existingUser, "UserIsAccountOwnerPolicy")).Succeeded)
+        {
+            throw new UnauthorizedAccessException("User is not authorized");
+        }
+        if (userPrincipal!.IsInRole("Admin"))
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(existingUser);
+            var changeResult = await userManager.ResetPasswordAsync(existingUser, token, model.NewPassword);
+
+            if (!changeResult.Succeeded)
+            {
+                throw new ArgumentException(string.Join(Environment.NewLine, changeResult.Errors.Select(o => o.Description)));
+            }
+        }
+        else if ((await userManager.ChangePasswordAsync(existingUser, model.OldPassword!, model.NewPassword).ConfigureAwait(false)) is { Succeeded: false} result)
+        {
+            throw new ArgumentException(string.Join(Environment.NewLine, result.Errors.Select(o => o.Description)));
+        }
+
+        try
+        {
+            await uow.CommitAsync().ConfigureAwait(false);
+        }
+        catch
+        {
+            throw new InvalidOperationException("An error occurred while committing the transaction.");
+        }
     }
 }

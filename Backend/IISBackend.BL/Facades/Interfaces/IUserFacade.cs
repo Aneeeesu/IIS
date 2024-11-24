@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using IISBackend.BL.Models;
 using IISBackend.BL.Models.User;
-using IISBackend.DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace IISBackend.BL.Facades.Interfaces
@@ -20,5 +16,6 @@ namespace IISBackend.BL.Facades.Interfaces
         Task<UserDetailModel?> CreateAsync(UserCreateModel model,string? roleName = null);
         Task<UserDetailModel?> UpdateAsync(UserUpdateModel model, ClaimsPrincipal userPrincipal);
         Task<UserDetailModel?> DeleteAsync(Guid id, ClaimsPrincipal userPrincipal);
+        Task ChangePasswordAsync(ChangePasswordModel model, ClaimsPrincipal userPrincipal);
     }
 }
