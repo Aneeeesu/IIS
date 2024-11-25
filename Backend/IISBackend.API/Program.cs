@@ -86,11 +86,8 @@ app.MapControllers();
 
 using var scope = app.Services.CreateScope();
 var store = scope.ServiceProvider.GetRequiredService<IUserStore<UserEntity>>();
-if (true)
-{
-    scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
-    scope.ServiceProvider.GetRequiredService<DBSeeder>().Seed(app.Configuration.GetValue<string>("DefaultAdminPassword")??throw new NullReferenceException("Missing admin password in configuration"));
-}
+scope.ServiceProvider.GetRequiredService<IDbMigrator>().Migrate();
+scope.ServiceProvider.GetRequiredService<DBSeeder>().Seed(app.Configuration.GetValue<string>("DefaultAdminPassword")??throw new NullReferenceException("Missing admin password in configuration"));
 app.Run();
 
 void ConfigureAutoMapper(IServiceCollection serviceCollection)
@@ -118,7 +115,7 @@ void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration 
     {
         ConnectionString = connectionString ?? String.Empty,
         TestEnvironment = testEnvironment,
-        SeedData = true
+        SeedData = testEnvironment
     });
     serviceCollection.AddScoped<DBSeeder>();
 
