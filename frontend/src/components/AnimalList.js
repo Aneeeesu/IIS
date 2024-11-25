@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../config';
 import '../App.css';
 
 const AnimalList = ({ animals, onDelete, user }) => {
+  console.log('animals:', animals);
   const [animalList, setAnimalList] = useState([]);
   const navigate = useNavigate();
 
@@ -13,14 +14,15 @@ const AnimalList = ({ animals, onDelete, user }) => {
   }, [animals]);
 
   const handleChangeStatus = async (animal) => {
+    if (!user) return; // Prevent status change if no user
+
     const newStatus = animal.status === 'Available' ? 'OnWalk' : 'Available';
     try {
-      const response = await axios.post(`${API_BASE_URL}/Animal/Status`, {
+      await axios.post(`${API_BASE_URL}/Animal/Status`, {
         animalId: animal.id,
         status: newStatus,
         associatedUserId: user.id
       });
-      console.log('Status change response:', response.data);
       const updatedAnimal = await axios.get(`${API_BASE_URL}/Animal/${animal.id}`);
       setAnimalList(animalList.map(a => a.id === animal.id ? { ...a, status: updatedAnimal.data.status } : a));
     } catch (error) {
@@ -29,40 +31,42 @@ const AnimalList = ({ animals, onDelete, user }) => {
   };
 
   return (
-    <div className="animalList">
+    <>
       <h2>Available animals</h2>
-      {animalList.map(animal => (
-        <div
-          key={animal.id}
-          className={`animalCard ${animal.status === 'Available' ? 'available' : 'onWalk'}`}
-          onClick={() => navigate(`/animals/${animal.id}`)}
-          style={{ cursor: 'pointer' }}
-        >
-          <img src={animal.image?.url} alt={animal.name} />
-          <h3>{animal.name}</h3>
-          {user.roles.includes('Caregiver') && <button
-            className="statusButton"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleChangeStatus(animal);
-            }}
+      <div className="animalList">
+        {animalList.map(animal => (
+          <div
+            key={animal.id}
+            className={`animalCard ${animal.status === 'Available' ? 'available' : 'onWalk'}`}
+            onClick={() => navigate(`/animals/${animal.id}`)}
           >
-            {animal.status === 'Available' ? 'Mark as On Walk' : 'Mark as Available'}
-          </button>}
-          {onDelete && (
+            <img src={animal.image?.url} alt={animal.name} />
+            <h3>{animal.name}</h3>
             <button
-              className="deleteButton"
+              className={`statusButton ${!user ? 'disabled' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(animal.id);
+                handleChangeStatus(animal);
               }}
+              disabled={!user}
             >
-              Delete
+              {animal.status === 'Available' ? 'Mark as on walk' : 'Mark as available'}
             </button>
-          )}
-        </div>
-      ))}
-    </div>
+            {onDelete && (
+              <button
+                className="deleteButton"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(animal.id);
+                }}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 

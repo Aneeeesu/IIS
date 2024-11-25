@@ -10,7 +10,7 @@ const HealthRecordForm = ({ user, animalId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/HealthRecords`, {
+      await axios.post(`${API_BASE_URL}/HealthRecords`, {
         time: date,
         content,
         type,
@@ -24,24 +24,44 @@ const HealthRecordForm = ({ user, animalId }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="health-record-form">
       <h2>Add health record</h2>
-      <label>
-        Date:
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </label>
+
       <label>
         Content:
-        <textarea maxLength={100} value={content} onChange={(e) => setContent(e.target.value)} />
+        <textarea
+          maxLength={100}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="textarea"
+        />
       </label>
-      <label>
-        Type:
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="vaccine">Vaccine</option>
-          <option value="visit">Visit</option>
-        </select>
-      </label>
-      <button type="submit">Add record</button>
+
+      <div className="date-type-container">
+        <label>
+          Date:
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="input-small"
+          />
+        </label>
+
+        <label>
+          Type:
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="select-small"
+          >
+            <option value="vaccine">Vaccine</option>
+            <option value="visit">Visit</option>
+          </select>
+        </label>
+      </div>
+
+      <button type="submit" className="button">Add record</button>
     </form>
   );
 };

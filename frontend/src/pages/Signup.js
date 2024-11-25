@@ -8,7 +8,6 @@ const Signup = () => {
   const [userName, setUserName] = useState('');
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const history = useNavigate();
@@ -16,7 +15,7 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/Account/Register`, { userName, email, password, firstName, lastName });
+      await axios.post(`${API_BASE_URL}/Account/Register`, { userName, password, firstName, lastName });
       history('/login');
     } catch (error) {
       console.error('Error signing up:', error);
@@ -41,10 +40,6 @@ const Signup = () => {
         <label>
           Last name:
           <input type="text" className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-        </label>
-        <label>
-          Email:
-          <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label>
           Password:

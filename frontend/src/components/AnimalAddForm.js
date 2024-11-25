@@ -29,6 +29,12 @@ const AnimalAddForm = ({ animal, onChange, onSave, onCancel, onImageChange }) =>
         <option value="F">F</option>
       </select>
       <input
+        type="date"
+        className="input"
+        value={animal.dateOfBirth}
+        onChange={(e) => onChange({ ...animal, dateOfBirth: e.target.value })}
+      />
+      <input
         type="file"
         className="input"
         onChange={onImageChange}

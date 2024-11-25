@@ -17,6 +17,7 @@ const AnimalDetails = () => {
   const [selectedVolunteerHours, setSelectedVolunteerHours] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [errorMessage, setErrorMessage] = useState('');
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +104,20 @@ const AnimalDetails = () => {
     }
   }, [id, user]);
 
+  useEffect(() => {
+    const fetchAnimal = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/Animal/${id}`);
+        setAnimal(response.data);
+      } catch (error) {
+        console.error('Error fetching animal:', error);
+        navigate('/animals');
+      }
+    };
+
+    fetchAnimal();
+  }, [id, navigate]);
+
   if (!animal) return <div>Loading...</div>;
 
   const handleHourClick = (hour) => {
@@ -146,6 +161,25 @@ const AnimalDetails = () => {
     }
   };
 
+  const handleStatusChange = async () => {
+    if (!user || !user.roles.includes('Caregiver')) {
+      return;
+    }
+  
+    const newStatus = animal.lastStatus === 'Available' ? 'OnWalk' : 'Available';
+    try {
+      await axios.post(`${API_BASE_URL}/Animal/Status`, {
+        animalId: animal.id,
+        status: newStatus,
+        associatedUserId: user.id
+      });
+      const updatedAnimal = await axios.get(`${API_BASE_URL}/Animal/${animal.id}`);
+      setAnimal(updatedAnimal.data);
+    } catch (error) {
+      console.error('Error changing animal status:', error);
+    }
+  };
+
   const handleVolunteerHourClick = (hour) => {
     if (!availableHours.includes(hour)) return;
     if (selectedVolunteerHours.includes(hour)) {
@@ -170,8 +204,8 @@ const AnimalDetails = () => {
         });
         await Promise.all(requests);
         setSelectedVolunteerHours([]);
+        setErrorMessage('');
 
-        // Refresh available hours
         const response = await axios.get(`${API_BASE_URL}/Schedule/Animal/${id}`);
         const scheduleEntries = response.data;
         const dateEntries = scheduleEntries.filter(entry => {
@@ -181,7 +215,7 @@ const AnimalDetails = () => {
         const hours = dateEntries.map(entry => new Date(entry.time).getHours());
         setAvailableHours(hours);
       } catch (error) {
-        console.error('Error creating reservation requests:', error);
+        setErrorMessage('Error. Date must be in the future.');
       }
     }
   };
@@ -189,8 +223,8 @@ const AnimalDetails = () => {
   const handleResolveRequest = async (requestId, approved) => {
     try {
       await axios.post(`${API_BASE_URL}/ReservationRequests/Resolve/${requestId}?Approved=${approved}`);
-      const response = await axios.get(`${API_BASE_URL}/ReservationRequests/Animal/${id}`);
-      const requests = response.data.filter(request => !request.resolved);
+      const response = await axios.get(`${API_BASE_URL}/ReservationRequests`);
+      const requests = response.data.filter(request => request.type === 'walk' && !request.resolved && request.animal.id === id);
       setPendingRequests(requests);
     } catch (error) {
       console.error('Error resolving request:', error);
@@ -201,11 +235,14 @@ const AnimalDetails = () => {
     <div className="container">
       <h1>Animal details</h1>
       <div className="animalDetail">
-        <img src={animal.image.url} />
+        <img src={animal.image.url} alt={animal.name} />
         <h2>{animal.name}</h2>
-        <h2>Birth: {animal.dateOfBirth}</h2>
-        <h2>Sex: {animal.sex === 'M' ? 'Boy' : 'Girl'}</h2>
-        <h2 className={`status ${animal.lastStatus === 'Available' ? 'available' : 'onWalk'}`}>
+        <p>Birth: {new Date(animal.dateOfBirth).toLocaleDateString()}</p>
+        <p>Sex: {animal.sex === 'M' ? 'Boy' : 'Girl'}</p>
+        <h2 
+          onClick={user?.roles.includes('Caregiver') ? handleStatusChange : undefined}
+          className={`status ${animal.lastStatus === 'Available' ? 'available' : 'onWalk'} ${!user?.roles.includes('Caregiver') ? 'non-clickable' : ''}`}
+        >
           {animal.lastStatus === 'Available' ? 'Available' : 'On walk'}
         </h2>
       </div>
@@ -237,7 +274,7 @@ const AnimalDetails = () => {
             <button className="submitButton" onClick={handleSubmit}>Send</button>
           </div>
 
-          <div className="pendingRequests">
+          <div className="schedulePanel">
             <h2>Pending walk requests</h2>
             {pendingRequests.length > 0 ? (
               pendingRequests.map(request => (
@@ -267,7 +304,7 @@ const AnimalDetails = () => {
       )}
 
       {user && user.roles.includes('Verified volunteer') && (
-        <div className="requestPanel">
+        <div className="schedulePanel">
           <h2>Request to walk</h2>
           <label>
             Select date:
@@ -290,6 +327,11 @@ const AnimalDetails = () => {
             ))}
           </div>
           <button className="submitButton" onClick={handleVolunteerSubmit}>Send request</button>
+          {errorMessage && (
+            <div className="error-message">
+              {errorMessage}
+            </div>
+          )}
         </div>
       )}
 

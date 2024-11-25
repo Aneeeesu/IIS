@@ -36,6 +36,8 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
+    if (!user) return;
+
     const checkVerificationRequest = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/VerificationRequests`);
@@ -46,9 +48,8 @@ const Main = () => {
       }
     };
 
-    if (user) {
-      checkVerificationRequest();
-    }
+    checkVerificationRequest();
+
   }, [user]);
 
   const combineConsecutiveSchedules = (schedules) => {
@@ -280,41 +281,46 @@ const Main = () => {
 
       {user && user.roles.includes('Vet') && (
         <div className="vetRequests">
+          <div className="schedulePanel">
           <h2>Vet visit requests</h2>
-          {vetRequests.length > 0 ? (
-            vetRequests.map(request => (
-              <div key={request.id} className="requestItem">
-                <p><strong>Animal:</strong> {request.animal.name}</p>
-                <p><strong>Time:</strong> {new Date(request.time).toLocaleString()}</p>
-                <button
-                  className="approveButton"
-                  onClick={() => handleResolveRequest(request.id, true)}
-                >
-                  Approve
-                </button>
-                <button
-                  className="rejectButton"
-                  onClick={() => handleResolveRequest(request.id, false)}
-                >
-                  Reject
-                </button>
-              </div>
-            ))
-          ) : (
-            <p>No pending vet visit requests.</p>
-          )}
-
-          <h2>Future vet visits</h2>
-          {futureVetVisits.length > 0 ? (
-            futureVetVisits.map(visit => (
-              <div key={visit.id} className="visitItem">
-                <p><strong>Animal:</strong> {visit.animalName}</p>
-                <p><strong>Time:</strong> {new Date(visit.time).toLocaleString()}</p>
-              </div>
-            ))
-          ) : (
-            <p>No future vet visits.</p>
-          )}
+            {vetRequests.length > 0 ? (
+              vetRequests.map(request => (
+                <div key={request.id} className="requestItem">
+                  <p><strong>Animal:</strong> {request.animal.name}</p>
+                  <p><strong>Time:</strong> {new Date(request.time).toLocaleString()}</p>
+                  <button
+                    className="approveButton"
+                    onClick={() => handleResolveRequest(request.id, true)}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="rejectButton"
+                    onClick={() => handleResolveRequest(request.id, false)}
+                  >
+                    Reject
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p>No pending vet visit requests.</p>
+            )}
+          </div>
+          <div className="schedulePanel">
+            <h2>Future vet visits</h2>
+            <div className="grid-container">
+              {futureVetVisits.length > 0 ? (
+                futureVetVisits.map(visit => (
+                  <div key={visit.id} className="visitItem">
+                    <p><strong>Animal:</strong> {visit.animalName}</p>
+                    <p><strong>Time:</strong> {new Date(visit.time).toLocaleString()}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No future vet visits.</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -330,13 +336,13 @@ const Main = () => {
         <AdminSection navigate={navigate} />
       )}
 
-      {user && user.roles.includes('Volunteer') && !verificationRequestSent && (
+      {user && !user.roles.includes('Admin') && user.roles.includes('Volunteer') && !verificationRequestSent && (
         <button className="button" onClick={handleSendVerificationRequest}>
           Request to be a verified volunteer
         </button>
       )}
 
-      {verificationRequestSent && user.roles.includes('Volunteer') && (
+      {user && verificationRequestSent && user.roles.includes('Volunteer') && (
         <p>Your verification request has been sent.</p>
       )}
 

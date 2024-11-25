@@ -10,7 +10,7 @@ const AnimalItem = ({ animal, onDelete }) => {
   };
 
   return (
-    <div className="animalItem" onClick={handleClick} style={{ cursor: 'pointer' }}>
+    <div className="animalItem" onClick={handleClick}>
       <p>{animal.name}</p>
       <div className="animalActions" onClick={e => e.stopPropagation()}>
         <button 

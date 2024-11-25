@@ -97,7 +97,7 @@ const VetVisitRequest = ({ animalId }) => {
   };
 
   return (
-    <div className="vetVisitRequest">
+    <div className="schedulePanel">
       <h2>Request a vet visit</h2>
       <label>
         Select vet:
