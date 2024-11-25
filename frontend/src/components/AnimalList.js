@@ -42,16 +42,6 @@ const AnimalList = ({ animals, onDelete, user }) => {
           >
             <img src={animal.image?.url} alt={animal.name} />
             <h3>{animal.name}</h3>
-            <button
-              className={`statusButton ${!user ? 'disabled' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleChangeStatus(animal);
-              }}
-              disabled={!user}
-            >
-              {animal.status === 'Available' ? 'Mark as on walk' : 'Mark as available'}
-            </button>
             {onDelete && (
               <button
                 className="deleteButton"

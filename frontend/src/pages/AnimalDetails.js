@@ -238,7 +238,7 @@ const AnimalDetails = () => {
         <img src={animal.image.url} alt={animal.name} />
         <h2>{animal.name}</h2>
         <p>Birth: {new Date(animal.dateOfBirth).toLocaleDateString()}</p>
-        <p>Sex: {animal.sex === 'M' ? 'Boy' : 'Girl'}</p>
+        <p>Sex: {animal.sex === 'M' ? 'Male' : 'Female'}</p>
         <h2 
           onClick={user?.roles.includes('Caregiver') ? handleStatusChange : undefined}
           className={`status ${animal.lastStatus === 'Available' ? 'available' : 'onWalk'} ${!user?.roles.includes('Caregiver') ? 'non-clickable' : ''}`}
