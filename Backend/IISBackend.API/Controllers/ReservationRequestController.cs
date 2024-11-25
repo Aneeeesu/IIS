@@ -92,10 +92,7 @@ public class ReservationRequestController : ControllerBase
             {
                 return Ok(model);
             }
-            else
-            {
-                return BadRequest("ReservationRequest not resolved");
-            }
+            Ok("Request resolved");
         }
         catch (ArgumentException e)
         {
