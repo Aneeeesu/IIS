@@ -186,7 +186,7 @@ const UserManagement = () => {
     <div className="container">
       <h1>User management</h1>
       
-      {user.roles.includes('Admin') && (
+      {user && (
         <div className="top-section">
           <div className="self-edit-section">
             {successMessageSelfEdit && (
@@ -237,7 +237,7 @@ const UserManagement = () => {
             )}
           </div>
 
-          <div className="create-user-section">
+          {user.role.includes('Admin') && <div className="create-user-section">
             {successMessageCreate && (
               <div className="success-message">
                 <p>{successMessageCreate}</p>
@@ -305,11 +305,11 @@ const UserManagement = () => {
                 <button type="submit" className="button">Create user</button>
               </form>
             )}
-          </div>
+          </div>}
         </div>
       )}
 
-      <div className="users-list">
+      {user.roles.includes('Admin') && <div className="users-list">
         <h2>Users</h2>
         <input
           type="text"
@@ -347,7 +347,7 @@ const UserManagement = () => {
             </div>
           </div>
         ))} 
-      </div>
+      </div>}
 
       {editingUser && (
         <div className="edit-roles-section">
@@ -381,6 +381,7 @@ const UserManagement = () => {
         </div>
       )}
     </div>
+    
   );
 };
 
