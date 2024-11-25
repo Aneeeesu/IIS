@@ -237,7 +237,7 @@ const UserManagement = () => {
             )}
           </div>
 
-          {user.role.includes('Admin') && <div className="create-user-section">
+          {user.roles.includes('Admin') && <div className="create-user-section">
             {successMessageCreate && (
               <div className="success-message">
                 <p>{successMessageCreate}</p>
