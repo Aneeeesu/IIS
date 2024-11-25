@@ -6,9 +6,19 @@ const HealthRecordForm = ({ user, animalId }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState('');
   const [type, setType] = useState('vaccine');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      setErrorMessage('You cannot create health records for future dates.');
+      return;
+    }
+
     try {
       await axios.post(`${API_BASE_URL}/HealthRecords`, {
         time: date,
@@ -18,6 +28,7 @@ const HealthRecordForm = ({ user, animalId }) => {
         vetId: user.id
       });
       setContent('');
+      setErrorMessage('');
     } catch (error) {
       console.error('Error adding health record:', error);
     }
@@ -26,6 +37,8 @@ const HealthRecordForm = ({ user, animalId }) => {
   return (
     <form onSubmit={handleSubmit} className="health-record-form">
       <h2>Add health record</h2>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <label>
         Content:
