@@ -267,6 +267,18 @@ const Main = () => {
       <div className="working-hours">
         <p>We work from 7:00 to 18:00</p>
       </div>
+      {user && (
+        <AdminSection navigate={navigate} />
+      )}
+
+
+      {user && user.roles.includes('Caregiver') && (
+        <CaregiverSection
+          verificationRequests={verificationRequests}
+          handleResolveVerificationRequest={handleResolveVerificationRequest}
+          navigate={navigate}
+        />
+      )}
 
       {user && user.roles.includes('Verified volunteer') && (
         <VolunteerSection
@@ -322,18 +334,6 @@ const Main = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {user && user.roles.includes('Caregiver') && (
-        <CaregiverSection
-          verificationRequests={verificationRequests}
-          handleResolveVerificationRequest={handleResolveVerificationRequest}
-          navigate={navigate}
-        />
-      )}
-
-      {user && (
-        <AdminSection navigate={navigate} />
       )}
 
       {user && !user.roles.includes('Admin') && user.roles.includes('Volunteer') && !verificationRequestSent && (
