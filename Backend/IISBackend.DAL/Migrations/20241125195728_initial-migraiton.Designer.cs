@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IISBackend.DAL.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20241124124358_asd")]
-    partial class asd
+    [Migration("20241125195728_initial-migraiton")]
+    partial class initialmigraiton
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,9 @@ namespace IISBackend.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid?>("ImageId")
                         .HasColumnType("char(36)");
 
@@ -36,9 +39,6 @@ namespace IISBackend.DAL.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("age")
                         .HasColumnType("int");
 
                     b.Property<int>("sex")

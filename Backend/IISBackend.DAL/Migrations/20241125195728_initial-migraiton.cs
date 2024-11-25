@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace IISBackend.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class initialmigraiton : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,13 +58,36 @@ namespace IISBackend.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
-                    age = table.Column<int>(type: "int", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     sex = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     ImageId = table.Column<Guid>(type: "char(36)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AnimalEntities", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "AnimalStatusEntity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    AnimalId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    AssociatedUserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    TimeStamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnimalStatusEntity", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnimalStatusEntity_AnimalEntities_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "AnimalEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -124,6 +147,8 @@ namespace IISBackend.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     ImageId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    FirstName = table.Column<string>(type: "longtext", nullable: false),
+                    LastName = table.Column<string>(type: "longtext", nullable: false),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
@@ -172,6 +197,7 @@ namespace IISBackend.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Url = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Key = table.Column<string>(type: "longtext", nullable: false),
                     OwnerId = table.Column<Guid>(type: "char(36)", nullable: true),
                     UploadDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     FileType = table.Column<string>(type: "longtext", nullable: false)
@@ -270,8 +296,7 @@ namespace IISBackend.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    RequesteeID = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Content = table.Column<string>(type: "longtext", nullable: false)
+                    RequesteeID = table.Column<Guid>(type: "char(36)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -331,6 +356,16 @@ namespace IISBackend.DAL.Migrations
                 name: "IX_AnimalEntities_ImageId",
                 table: "AnimalEntities",
                 column: "ImageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnimalStatusEntity_AnimalId",
+                table: "AnimalStatusEntity",
+                column: "AnimalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnimalStatusEntity_AssociatedUserId",
+                table: "AnimalStatusEntity",
+                column: "AssociatedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -444,6 +479,14 @@ namespace IISBackend.DAL.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_AnimalStatusEntity_AspNetUsers_AssociatedUserId",
+                table: "AnimalStatusEntity",
+                column: "AssociatedUserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserClaims_AspNetUsers_UserId",
                 table: "AspNetUserClaims",
                 column: "UserId",
@@ -481,6 +524,9 @@ namespace IISBackend.DAL.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_AspNetUsers_FileEntities_ImageId",
                 table: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "AnimalStatusEntity");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
