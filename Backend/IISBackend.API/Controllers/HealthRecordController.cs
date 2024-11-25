@@ -8,7 +8,6 @@ namespace IISBackend.API.Controllers;
 
 [ApiController]
 [Route("HealthRecords")]
-[Authorize]
 public class HealthRecordController : ControllerBase
 {
     private readonly IHealthRecordFacade _healthRecordFacade;
