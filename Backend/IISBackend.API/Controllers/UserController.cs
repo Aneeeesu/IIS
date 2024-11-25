@@ -120,5 +120,9 @@ public class UserController(IUserFacade userFacade) : ControllerBase
         {
             return NotFound(e.Message);
         }
+        catch(InvalidOperationException e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+        }
     }
 }
